@@ -1,0 +1,34 @@
+﻿<Window x:Class="Wallpapeuhrs.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Wallpapeuhrs"
+        mc:Ignorable="d"
+        Title="Wallpapeuhrs" Height="450" Width="575" Loaded="Window_Loaded" Closing="Window_Closing" FontFamily="Bahnschrift" FontSize="16" Icon="/Wallpapeuhrs;component/Resources/Icon.ico">
+    <Grid Background="#FF3C3C3C">
+        <Button x:Name="start" Content="Save and start" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="33" Width="128" Margin="0,0,10,10" Click="start_Click" Background="#FF4F4F4F" Foreground="Lime" BorderBrush="{x:Null}"/>
+        <ScrollViewer Margin="30,30,30,56" VerticalScrollBarVisibility="Auto">
+            <Border Background="#FF363636" CornerRadius="15,15,15,15" VerticalAlignment="Top">
+                <Grid Margin="15,15,15,15">
+                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" VerticalAlignment="Top">Path</TextBlock>
+                    <TextBox x:Name="urls" Margin="37,0,0,0" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0,0,0,1" VerticalAlignment="Top"></TextBox>
+                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0,60,0,0" VerticalAlignment="Top">Interval (in seconds)</TextBlock>
+                    <TextBox x:Name="interval" Margin="152,60,0,0" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0,0,0,1" VerticalAlignment="Top" Width="64" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Text="60"></TextBox>
+                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0,90,0,0" VerticalAlignment="Top"><Run Text="Volume (between 0 and 100)"/></TextBlock>
+                    <TextBox x:Name="vol" Margin="205,90,0,0" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0,0,0,1" VerticalAlignment="Top" HorizontalAlignment="Left" Width="40" Text="0" HorizontalContentAlignment="Center"/>
+                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0,120,0,0" VerticalAlignment="Top"><Run Text="Start on Windows Startup"/></TextBlock>
+                    <CheckBox x:Name="startwithw" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="189,122,0,0"/>
+                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0,150,0,0" VerticalAlignment="Top"><Run Text="Stop animation when you're not in the Desktop"/></TextBlock>
+                    <CheckBox x:Name="stopan" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="336,152,0,0"/>
+                    <Button x:Name="vid" Content="Video or Image" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,27,0,0" Height="25" Width="120" Click="vid_Click" Background="#FF4F4F4F" Foreground="Lime" FontSize="14" BorderBrush="{x:Null}"/>
+                    <Button x:Name="slide" Content="Slideshow" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="125,27,0,0" Height="25" Width="90" Click="slide_Click" Background="#FF4F4F4F" Foreground="Lime" FontSize="14" BorderBrush="{x:Null}"/>
+                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0,180,0,0" VerticalAlignment="Top" TextWrapping="WrapWithOverflow" Width="431"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is in background (requires Administrator authorization at application startup)"/><Run Text="&#xD;Please activate this settings only if you encounter memory leaks with dwm.exe" FontSize="12"/></TextBlock>
+                    <CheckBox x:Name="restartexplo" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="436,206,0,0"/>
+                </Grid>
+            </Border>
+        </ScrollViewer>
+        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="White" Margin="10,0,0,32">By Shiyukine - Aketsuky</TextBlock>
+        <TextBlock x:Name="vname" HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="White" Margin="10,0,0,10">v1.0</TextBlock>
+    </Grid>
+</Window>
