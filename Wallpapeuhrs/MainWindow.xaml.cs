@@ -499,5 +499,10 @@ namespace Wallpapeuhrs
         {
             await stopExplorer();
         }
+
+        private void intel_link_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Process.Start("https://www.intel.com/content/www/us/en/download/19344/691496/intel-graphics-windows-dch-drivers.html");
+        }
     }
 }

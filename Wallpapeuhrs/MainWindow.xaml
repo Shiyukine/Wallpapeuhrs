@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Wallpapeuhrs"
         mc:Ignorable="d"
-        Title="Wallpapeuhrs" Height="450" Width="575" Loaded="Window_Loaded" Closing="Window_Closing" FontFamily="/Wallpapeuhrs;component/Resources/#Quicksand" FontSize="16" Icon="/Wallpapeuhrs;component/Resources/Icon.ico" FontWeight="Medium">
+        Title="Wallpapeuhrs" Height="475" Width="575" Loaded="Window_Loaded" Closing="Window_Closing" FontFamily="/Wallpapeuhrs;component/Resources/#Quicksand" FontSize="16" Icon="/Wallpapeuhrs;component/Resources/Icon.ico" FontWeight="Medium">
     <Grid Background="#FF262626">
         <Button x:Name="start" Content="Save and start" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="33" Width="128" Margin="0,0,10,10" Click="start_Click" Background="#FF4F4F4F" Foreground="Lime" BorderBrush="{x:Null}"/>
         <ScrollViewer Margin="10,10,10,56" VerticalScrollBarVisibility="Auto">
@@ -38,7 +38,7 @@
                                 <CheckBox x:Name="stopan" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="371,1,0,0"/>
                             </Grid>
                             <Grid Margin="15,5">
-                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" TextWrapping="WrapWithOverflow" Width="431"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is in background (requires Administrator authorization at application startup)"/><Run Text="&#xD;Please activate this settings only if you encounter memory leaks with dwm.exe" FontSize="12"/></TextBlock>
+                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" TextWrapping="WrapWithOverflow" Width="431"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is in background (requires Administrator authorization)"/><Run Text="&#xD;Please activate this setting only if you encounter memory leaks with dwm.exe&#xD;You can fix this problem by " FontSize="12"/><Run x:Name="intel_link" Text="downloading the Intel driver version 30.0.101.1191 or more." FontSize="12" Foreground="#FF00C5FF" TextDecorations="Underline" MouseUp="intel_link_MouseUp" Cursor="Hand"></Run></TextBlock>
                                 <CheckBox x:Name="restartexplo" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="442,1,0,0"/>
                             </Grid>
                         </StackPanel>
