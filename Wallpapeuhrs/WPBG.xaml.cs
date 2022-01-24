@@ -196,12 +196,12 @@ namespace Wallpapeuhrs
                         try
                         {
                             med.changeUrl(getNewMedia());
+                            med.nextChange = System.Environment.TickCount + interval * 1000;
                         }
                         catch (Exception e)
                         {
                             MessageBox.Show("Unable to load the new media : " + e.Message + "\n" + e.StackTrace, "Error");
                         }
-                        med.nextChange = System.Environment.TickCount + interval * 1000;
                     }
                 }
             }
