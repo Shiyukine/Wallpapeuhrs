@@ -214,6 +214,7 @@ namespace Wallpapeuhrs
         public void beginWP()
         {
             resizeApp();
+            isOk = true;
             if (timer.Enabled) timer.Stop();
             string newUrl = getNewMedia();
             med.volume = System.Windows.Forms.Screen.PrimaryScreen.DeviceName != moni ? 0 : volume;
@@ -230,6 +231,8 @@ namespace Wallpapeuhrs
             timer.Start();
         }
 
+        bool isOk = true;
+
         private string getNewMedia()
         {
             try
@@ -244,16 +247,28 @@ namespace Wallpapeuhrs
                     {
                         foreach (List<string> ext in App.types.Values)
                         {
-                            if (ext.Contains(System.IO.Path.GetExtension(f)) && newR == index) return f;
+                            if (ext.Contains(System.IO.Path.GetExtension(f)) && newR == index)
+                            {
+                                isOk = true;
+                                return f;
+                            }
                         }
                         index++;
                     }
                 }
-                else return curUrl;
+                else
+                {
+                    isOk = true;
+                    return curUrl;
+                }
             }
             catch
             {
-                MessageBox.Show("The file or folder : \"" + curUrl + "\" doesn't exist. Please verify the path entered or if the file or folder exists really.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (isOk)
+                {
+                    isOk = false;
+                    MessageBox.Show("The file or folder : \"" + curUrl + "\" doesn't exist. Please verify the path entered or if the file or folder exists really.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             return "";
         }
