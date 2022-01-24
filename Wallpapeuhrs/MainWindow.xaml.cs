@@ -39,7 +39,7 @@ namespace Wallpapeuhrs
         bool ok = false;
         bool isclos = false;
         bool inbg = false;
-        string version = "v1.1.19";
+        string version = "v1.1.20";
         System.Windows.Forms.NotifyIcon ni = new System.Windows.Forms.NotifyIcon();
         bool loaded = false;
 
@@ -233,7 +233,7 @@ namespace Wallpapeuhrs
             if (isclos)
             {
                 stopping = true;
-                PStcp.Stop();
+                if(PStcp != null) PStcp.Stop();
                 foreach (string moni in processes.Keys)
                 {
                     processes[moni].Close();
@@ -272,7 +272,7 @@ namespace Wallpapeuhrs
             if (!sf.settingExists("Path")) sf.setSetting("Path", "", null);
             if (!sf.settingExists("Vol")) sf.setSetting("Vol", 0, null);
             if (!sf.settingExists("Interval")) sf.setSetting("Interval", 60, null);
-            if (!sf.settingExists("Start")) sf.setSetting("Start", false, null);
+            if (!sf.settingExists("Start")) sf.setSetting("Start", true, null);
             if (!sf.settingExists("Repeat")) sf.setSetting("Repeat", true, null);
             if (!sf.settingExists("Stop")) sf.setSetting("Stop", false, null);
             if (!sf.settingExists("RestartExplorer")) sf.setSetting("RestartExplorer", false, null);

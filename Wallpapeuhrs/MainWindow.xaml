@@ -30,15 +30,15 @@
                                 </Border>
                             </Grid>
                             <Grid Margin="15,5">
-                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Start on Windows Startup"/></TextBlock>
-                                <CheckBox x:Name="startwithw" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="207,1,0,0"/>
+                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Start automatically when your PC is starting"/></TextBlock>
+                                <CheckBox x:Name="startwithw" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="344,1,0,0"/>
                             </Grid>
                             <Grid Margin="15,5">
                                 <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Stop animation when you're not on the Desktop"/></TextBlock>
                                 <CheckBox x:Name="stopan" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="371,1,0,0"/>
                             </Grid>
                             <Grid Margin="15,5">
-                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" TextWrapping="WrapWithOverflow" Width="431"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is in background (requires Administrator authorization)"/><Run Text="&#xD;Please activate this setting only if you encounter memory leaks with dwm.exe&#xD;You can fix this problem by " FontSize="12"/><Run x:Name="intel_link" Text="downloading the Intel driver version 30.0.101.1191 or more." FontSize="12" Foreground="#FF00C5FF" TextDecorations="Underline" MouseUp="intel_link_MouseUp" Cursor="Hand"></Run></TextBlock>
+                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" TextWrapping="WrapWithOverflow" Width="431"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is in background (requires Administrator authorization)"/><Run Text="&#xD;Please activate this setting only if you encounter memory leaks with dwm.exe&#xD;You can fix this problem by " FontSize="12"/><Run x:Name="intel_link" Text="downloading the Intel driver version 30.0.101.1191" FontSize="12" Foreground="#FF00C5FF" TextDecorations="Underline" MouseUp="intel_link_MouseUp" Cursor="Hand"></Run><Run FontSize="12" Text=" or more."/></TextBlock>
                                 <CheckBox x:Name="restartexplo" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="442,1,0,0"/>
                             </Grid>
                         </StackPanel>
