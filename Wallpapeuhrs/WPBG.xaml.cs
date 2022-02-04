@@ -156,6 +156,7 @@ namespace Wallpapeuhrs
         private static extern IntPtr GetForegroundWindow();
 
         float timePaused = 0;
+        List<int> win = new List<int>();
 
         private void Timer_Tick(object sender, EventArgs ee)
         {
@@ -168,17 +169,22 @@ namespace Wallpapeuhrs
                                                 IntPtr.Zero,
                                                 "SHELLDLL_DefView",
                                                 IntPtr.Zero);
+                    StringBuilder cn = new StringBuilder(256);
                     if (p != IntPtr.Zero)
                     {
                         pp = tophandle;
-                        return true;
+                        if(!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
+                    }
+                    if(W32.GetClassName(tophandle, cn, cn.Capacity) != 0 && cn.ToString().EndsWith("TrayWnd") && cn.ToString().StartsWith("Shell_"))
+                    {
+                        if (!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
                     }
                     return true;
                 }), IntPtr.Zero);
                 bool pause = false;
                 if (autostop)
                 {
-                    if (pp != IntPtr.Zero && GetForegroundWindow() != pp)
+                    if (!win.Contains(GetForegroundWindow().ToInt32()))
                     {
                         med.changePlayerState(false);
                         pause = true;

@@ -29,6 +29,7 @@ namespace Wallpapeuhrs
         public void log(string log)
         {
             debug.Document.Blocks.Add(new Paragraph(new Run(System.Environment.TickCount - tick + " - " + log)));
+            debug.ScrollToEnd();
         }
     }
 }
