@@ -163,6 +163,8 @@ namespace Wallpapeuhrs
             try
             {
                 IntPtr pp = IntPtr.Zero;
+                if (!win.Contains(W32.FindWindow("Windows.UI.Core.CoreWindow", "Task View").ToInt32()))
+                    win.Add(W32.FindWindow("Windows.UI.Core.CoreWindow", "Task View").ToInt32());
                 W32.EnumWindows(new W32.EnumWindowsProc((tophandle, topparamhandle) =>
                 {
                     IntPtr p = W32.FindWindowEx(tophandle,
@@ -175,7 +177,7 @@ namespace Wallpapeuhrs
                         pp = tophandle;
                         if(!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
                     }
-                    if(W32.GetClassName(tophandle, cn, cn.Capacity) != 0 && cn.ToString().EndsWith("TrayWnd") && cn.ToString().StartsWith("Shell_"))
+                    if (W32.GetClassName(tophandle, cn, cn.Capacity) != 0 && cn.ToString().EndsWith("TrayWnd") && cn.ToString().StartsWith("Shell_"))
                     {
                         if (!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
                     }
