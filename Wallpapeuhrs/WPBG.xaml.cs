@@ -31,6 +31,7 @@ namespace Wallpapeuhrs
         public System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
         int interval = 60 * 1000;
         string curUrl = "";
+        bool isDir = false;
         bool autostop = true;
         bool repeat = true;
         public int startAfter = 0;
@@ -110,6 +111,7 @@ namespace Wallpapeuhrs
                                 if (isList)
                                 {
                                     curUrl = str;
+                                    isDir = !File.Exists(curUrl);
                                 }
                                 if (str.StartsWith("Liste")) isList = true;
                                 //
@@ -176,7 +178,7 @@ namespace Wallpapeuhrs
                         med.changePlayerState(true);
                     }
                 }
-                if (!pause && curUrl != "" && !System.IO.Path.GetExtension(curUrl).Contains("."))
+                if (!pause && curUrl != "" && isDir)
                 {
                     if (med.nextChange <= System.Environment.TickCount)
                     {
@@ -201,7 +203,7 @@ namespace Wallpapeuhrs
         public void beginWP()
         {
             IntPtr pp = IntPtr.Zero;
-            string[] wins = new string[] { "Task View", "Start", "Search", "Window", "Windows Shell Experience Host", "Microsoft Text Input Application" };
+            string[] wins = new string[] { "Task View", "Start", "Search" };
             foreach(string w in wins)
             {
                 if (!win.Contains(W32.FindWindow("Windows.UI.Core.CoreWindow", w).ToInt32()))
@@ -254,7 +256,7 @@ namespace Wallpapeuhrs
         {
             try
             {
-                if (!System.IO.Path.GetExtension(curUrl).Contains("."))
+                if (isDir)
                 {
                     Random rng = new Random(Guid.NewGuid().GetHashCode());
                     IEnumerable<string> list = Directory.EnumerateFiles(curUrl + "\\", "*");
