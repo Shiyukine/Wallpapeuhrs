@@ -20,7 +20,6 @@ using System.Windows.Shapes;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
-using Windows.Storage.Streams;
 using Windows.System.Display;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
@@ -100,7 +99,6 @@ namespace Wallpapeuhrs
                     value.TransportControls = null;
                     value.AutoPlay = true;
                     value.MediaPlayer.IsLoopingEnabled = true;
-                    value.MediaPlayer.RealTimePlayback = false;
                     main.Children.Insert(0, value);
                     value.Stretch = Windows.UI.Xaml.Media.Stretch.UniformToFill;
                     value.MediaPlayer.MediaOpened += (sender, eee) =>
@@ -168,10 +166,6 @@ namespace Wallpapeuhrs
                     {
                         Windows.UI.Xaml.Controls.MediaPlayerElement me = new Windows.UI.Xaml.Controls.MediaPlayerElement();
                         me.CacheMode = setCache(newUrl);
-                        /*For test only
-                        FileStream fileStream = new FileStream(newUrl, FileMode.Open);
-                        IRandomAccessStream ras = new MemoryRandomAccessStream(fileStream);
-                        me.Source = MediaSource.CreateFromStream(ras, System.Web.MimeMapping.GetMimeMapping(newUrl));*/
                         me.Source = MediaSource.CreateFromUri(new Uri(newUrl));
                         curMedia = me;
                     }
