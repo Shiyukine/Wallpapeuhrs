@@ -70,7 +70,7 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>27241EA0E78024EDD872B295BD7FE91F53FD4654</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>B496F8648E8B57D13C657A4DF4D709EF5333B0B3</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>Aketsuky.p12</ManifestKeyFile>
@@ -134,6 +134,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Update.cs" />
     <Compile Include="Utils\SettingsManager.cs" />
     <Compile Include="W32.cs" />
     <Compile Include="Worker.cs" />
@@ -227,7 +228,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\icon.ico" />
+    <Resource Include="Resources\icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

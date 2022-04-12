@@ -830,5 +830,11 @@ namespace Wallpapeuhrs
         public static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
         [DllImport("user32.dll")]
         public static extern IntPtr GetWindowLongPtr(IntPtr hwnd, int index);
+
+        public delegate bool EnumThreadDelegate(IntPtr hwnd, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool EnumThreadWindows(uint dwThreadId, EnumThreadDelegate lpfn, IntPtr lParam);
     }
 }

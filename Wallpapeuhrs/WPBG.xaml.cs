@@ -162,27 +162,6 @@ namespace Wallpapeuhrs
         {
             try
             {
-                IntPtr pp = IntPtr.Zero;
-                if (!win.Contains(W32.FindWindow("Windows.UI.Core.CoreWindow", "Task View").ToInt32()))
-                    win.Add(W32.FindWindow("Windows.UI.Core.CoreWindow", "Task View").ToInt32());
-                W32.EnumWindows(new W32.EnumWindowsProc((tophandle, topparamhandle) =>
-                {
-                    IntPtr p = W32.FindWindowEx(tophandle,
-                                                IntPtr.Zero,
-                                                "SHELLDLL_DefView",
-                                                IntPtr.Zero);
-                    StringBuilder cn = new StringBuilder(256);
-                    if (p != IntPtr.Zero)
-                    {
-                        pp = tophandle;
-                        if(!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
-                    }
-                    if (W32.GetClassName(tophandle, cn, cn.Capacity) != 0 && cn.ToString().EndsWith("TrayWnd") && cn.ToString().StartsWith("Shell_"))
-                    {
-                        if (!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
-                    }
-                    return true;
-                }), IntPtr.Zero);
                 bool pause = false;
                 if (autostop)
                 {
@@ -221,6 +200,36 @@ namespace Wallpapeuhrs
 
         public void beginWP()
         {
+            IntPtr pp = IntPtr.Zero;
+            string[] wins = new string[] { "Task View", "Start", "Search", "Window", "Windows Shell Experience Host", "Microsoft Text Input Application" };
+            foreach(string w in wins)
+            {
+                if (!win.Contains(W32.FindWindow("Windows.UI.Core.CoreWindow", w).ToInt32()))
+                    win.Add(W32.FindWindow("Windows.UI.Core.CoreWindow", w).ToInt32());
+            }
+            W32.EnumWindows(new W32.EnumWindowsProc((tophandle, topparamhandle) =>
+            {
+                IntPtr p = W32.FindWindowEx(tophandle,
+                                            IntPtr.Zero,
+                                            "SHELLDLL_DefView",
+                                            IntPtr.Zero);
+                StringBuilder cn = new StringBuilder(256);
+                if (p != IntPtr.Zero)
+                {
+                    pp = tophandle;
+                    if (!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
+                }
+                int cls = W32.GetClassName(tophandle, cn, cn.Capacity);
+                if (cls != 0)
+                {
+                    if (cn.ToString().EndsWith("TrayWnd") && cn.ToString().StartsWith("Shell_"))
+                    {
+                        if (!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
+                    }
+                }
+                return true;
+            }), IntPtr.Zero);
+            //
             resizeApp();
             isOk = true;
             if (timer.Enabled) timer.Stop();

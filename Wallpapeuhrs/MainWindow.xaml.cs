@@ -39,7 +39,6 @@ namespace Wallpapeuhrs
         bool ok = false;
         bool isclos = false;
         bool inbg = false;
-        string version = "v1.1.23";
         System.Windows.Forms.NotifyIcon ni = new System.Windows.Forms.NotifyIcon();
         bool loaded = false;
 
@@ -48,7 +47,8 @@ namespace Wallpapeuhrs
             App.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
             App.Current.MainWindow = this;
             InitializeComponent();
-            vname.Text = version;
+            vname.Text = Update.getVersionName();
+            Update.searchUpdates();
             this.inbg = inbg;
             //
             string newF = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\";

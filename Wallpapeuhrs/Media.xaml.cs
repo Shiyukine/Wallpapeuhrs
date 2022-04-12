@@ -201,8 +201,12 @@ namespace Wallpapeuhrs
             }
         }
 
+        bool lastState = true;
+
         public void changePlayerState(bool play)
         {
+            if(lastState == play) return;
+            lastState = play;
             foreach (string ext in App.types.Keys)
             {
                 if (App.types[ext].Contains(System.IO.Path.GetExtension(curUrl)))
