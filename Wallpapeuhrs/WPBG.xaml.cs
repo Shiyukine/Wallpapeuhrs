@@ -126,13 +126,13 @@ namespace Wallpapeuhrs
                                 }
                                 if (str.StartsWith("Play"))
                                 {
-                                    med.changePlayerState(true);
+                                    changePlayerState(true);
                                     timer.Start();
                                     med.nextChange = System.Environment.TickCount + timePaused;
                                 }
                                 if (str.StartsWith("Pause"))
                                 {
-                                    med.changePlayerState(false);
+                                    changePlayerState(false);
                                     timer.Stop();
                                     timePaused = med.nextChange - System.Environment.TickCount;
                                 }
@@ -154,9 +154,6 @@ namespace Wallpapeuhrs
             MainWindow.sendData(tcp, "READY " + moni + " ", null);
         }
 
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetForegroundWindow();
-
         float timePaused = 0;
         List<int> win = new List<int>();
 
@@ -167,15 +164,15 @@ namespace Wallpapeuhrs
                 bool pause = false;
                 if (autostop)
                 {
-                    if (!win.Contains(GetForegroundWindow().ToInt32()))
+                    if (!win.Contains(W32.GetForegroundWindow().ToInt32()))
                     {
-                        med.changePlayerState(false);
+                        changePlayerState(false);
                         pause = true;
                         med.nextChange += 1 * 1000;
                     }
                     else
                     {
-                        med.changePlayerState(true);
+                        changePlayerState(true);
                     }
                 }
                 if (!pause && curUrl != "" && isDir)
@@ -202,36 +199,6 @@ namespace Wallpapeuhrs
 
         public void beginWP()
         {
-            IntPtr pp = IntPtr.Zero;
-            string[] wins = new string[] { "Task View", "Start", "Search" };
-            foreach(string w in wins)
-            {
-                if (!win.Contains(W32.FindWindow("Windows.UI.Core.CoreWindow", w).ToInt32()))
-                    win.Add(W32.FindWindow("Windows.UI.Core.CoreWindow", w).ToInt32());
-            }
-            W32.EnumWindows(new W32.EnumWindowsProc((tophandle, topparamhandle) =>
-            {
-                IntPtr p = W32.FindWindowEx(tophandle,
-                                            IntPtr.Zero,
-                                            "SHELLDLL_DefView",
-                                            IntPtr.Zero);
-                StringBuilder cn = new StringBuilder(256);
-                if (p != IntPtr.Zero)
-                {
-                    pp = tophandle;
-                    if (!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
-                }
-                int cls = W32.GetClassName(tophandle, cn, cn.Capacity);
-                if (cls != 0)
-                {
-                    if (cn.ToString().EndsWith("TrayWnd") && cn.ToString().StartsWith("Shell_"))
-                    {
-                        if (!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
-                    }
-                }
-                return true;
-            }), IntPtr.Zero);
-            //
             resizeApp();
             isOk = true;
             if (timer.Enabled) timer.Stop();
@@ -240,6 +207,7 @@ namespace Wallpapeuhrs
             med.repeat = repeat;
             try
             {
+                anPlay = true;
                 med.changeUrl(newUrl);
             }
             catch (Exception e)
@@ -307,6 +275,46 @@ namespace Wallpapeuhrs
         public void log(string log)
         {
             if (isDebug && System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni) Dispatcher.Invoke(() => dw.log(log));
+        }
+
+        bool anPlay = true;
+
+        public void changePlayerState(bool play)
+        {
+            if (play == anPlay) return;
+            anPlay = play;
+            IntPtr pp = IntPtr.Zero;
+            string[] wins = new string[] { "Task View", "Start", "Search" };
+            foreach (string w in wins)
+            {
+                if (!win.Contains(W32.FindWindow("Windows.UI.Core.CoreWindow", w).ToInt32()))
+                    win.Add(W32.FindWindow("Windows.UI.Core.CoreWindow", w).ToInt32());
+            }
+            W32.EnumWindows(new W32.EnumWindowsProc((tophandle, topparamhandle) =>
+            {
+                IntPtr p = W32.FindWindowEx(tophandle,
+                                            IntPtr.Zero,
+                                            "SHELLDLL_DefView",
+                                            IntPtr.Zero);
+                StringBuilder cn = new StringBuilder(256);
+                if (p != IntPtr.Zero)
+                {
+                    pp = tophandle;
+                    if (!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
+                }
+                int cls = W32.GetClassName(tophandle, cn, cn.Capacity);
+                if (cls != 0)
+                {
+                    if (cn.ToString().EndsWith("TrayWnd") && cn.ToString().StartsWith("Shell_"))
+                    {
+                        if (!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
+                    }
+                }
+                return true;
+            }), IntPtr.Zero);
+            //
+            if(play || !autostop || (!play && autostop && !win.Contains(W32.GetForegroundWindow().ToInt32()))) 
+                med.changePlayerState(play);
         }
     }
 }
