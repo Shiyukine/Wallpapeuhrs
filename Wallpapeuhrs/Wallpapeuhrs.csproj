@@ -134,6 +134,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="NativeWallpaper.cs" />
     <Compile Include="Update.cs" />
     <Compile Include="Utils\SettingsManager.cs" />
     <Compile Include="W32.cs" />

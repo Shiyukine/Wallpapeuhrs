@@ -82,8 +82,9 @@ namespace Wallpapeuhrs
                 wc.Encoding = Encoding.UTF8;
                 wc.DownloadFileCompleted += (sendere, ee) =>
                 {
+                    MainWindow.isclos = true;
                     Process.Start(AppDomain.CurrentDomain.BaseDirectory + "\\WallpapeuhrsInstall.exe");
-                    Process.GetCurrentProcess().Kill();
+                    App.Current.Shutdown();
                 };
                 wc.DownloadFileAsync(new Uri(url), AppDomain.CurrentDomain.BaseDirectory + "\\WallpapeuhrsInstall.exe");
             }
