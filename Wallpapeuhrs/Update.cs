@@ -55,10 +55,11 @@ namespace Wallpapeuhrs
                 string str = await httpRequestGET(serv + "/dl/Wallpapeuhrs/update.php");
                 if(str != null)
                 {
-                    int ver = int.Parse(str);
+                    string[] infos = str.Split(new string[] {" [|] "}, StringSplitOptions.None);
+                    int ver = int.Parse(infos[0]);
                     if(ver > versionNumber)
                     {
-                        DialogResult dr = MessageBox.Show("A new version of Wallpapeuhrs is out !\nDo you want to download this update and install it now ?", "Wallpapeuhrs - Update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                        DialogResult dr = MessageBox.Show("A new version of Wallpapeuhrs is out !\nDo you want to download this update and install it now ?\n\nChangelogs : " + infos[1], "Wallpapeuhrs - Update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
                         if(dr == DialogResult.Yes)
                         {
                             downloadExe(serv + "/dl/Wallpapeuhrs/download.php");
