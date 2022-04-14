@@ -41,7 +41,7 @@ namespace Wallpapeuhrs
         bool inbg = false;
         System.Windows.Forms.NotifyIcon ni = new System.Windows.Forms.NotifyIcon();
         bool loaded = false;
-        string curNativeWallpaper = "";
+        //string curNativeWallpaper = "";
 
         public MainWindow(bool inbg)
         {
@@ -50,7 +50,7 @@ namespace Wallpapeuhrs
             InitializeComponent();
             vname.Text = Update.getVersionName();
             Update.searchUpdates();
-            curNativeWallpaper = NativeWallpaper.getCurrentDesktopWallpaper();
+            //curNativeWallpaper = NativeWallpaper.getCurrentDesktopWallpaper();
             this.inbg = inbg;
             //
             string newF = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\";
@@ -234,7 +234,7 @@ namespace Wallpapeuhrs
             //W32.SetParent(new WindowInteropHelper(this).Handle, WPBG.Form1.workerw);
             if (isclos)
             {
-                NativeWallpaper.changeWallpaper(curNativeWallpaper);
+                //NativeWallpaper.changeWallpaper(curNativeWallpaper);
                 stopping = true;
                 if(PStcp != null) PStcp.Stop();
                 foreach (string moni in processes.Keys)
@@ -296,7 +296,7 @@ namespace Wallpapeuhrs
         {
             try
             {
-                NativeWallpaper.changeWallpaper("");
+                //NativeWallpaper.changeWallpaper("");
                 loaded = false;
                 if (!alreadyRestarted && sf.getBoolSetting("RestartExplorer") && inbg) await stopExplorer();
                 if (!ok)
