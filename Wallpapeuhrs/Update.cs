@@ -12,8 +12,8 @@ namespace Wallpapeuhrs
 {
     public static class Update
     {
-        static string versionName = "v1.1.24";
-        static int versionNumber = 42;
+        static string versionName = "v1.1.25";
+        static int versionNumber = 43;
 
         static Dictionary<string, string> pageCache = new Dictionary<string, string>();
         static HttpClient httpClient = new HttpClient();
@@ -48,25 +48,32 @@ namespace Wallpapeuhrs
 
         public static async void searchUpdates()
         {
-            string serv = await getServer();
-            if (serv != null)
+            try
             {
-                serv = serv.Replace("\n", "").Replace("\r", "");
-                string str = await httpRequestGET(serv + "/dl/Wallpapeuhrs/update.php");
-                if(str != null)
+                string serv = await getServer();
+                if (serv != null)
                 {
-                    string[] infos = str.Split(new string[] {" [|] "}, StringSplitOptions.None);
-                    int ver = int.Parse(infos[0]);
-                    if(ver > versionNumber)
+                    serv = serv.Replace("\n", "").Replace("\r", "");
+                    string str = await httpRequestGET(serv + "/dl/Wallpapeuhrs/update.php");
+                    if (str != null)
                     {
-                        DialogResult dr = MessageBox.Show("A new version of Wallpapeuhrs is out !\nDo you want to download this update and install it now ?\n\nChangelogs : " + infos[1], "Wallpapeuhrs - Update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-                        if(dr == DialogResult.Yes)
+                        string[] infos = str.Split(new string[] { " [|] " }, StringSplitOptions.None);
+                        int ver = int.Parse(infos[0]);
+                        if (ver > versionNumber)
                         {
-                            downloadExe(serv + "/dl/Wallpapeuhrs/download.php");
-                            MessageBox.Show("Downloading...\nWallpapeuhrs will restart in a short time.", "Wallpapeuhrs - Update available");
+                            DialogResult dr = MessageBox.Show("A new version of Wallpapeuhrs is out !\nDo you want to download this update and install it now ?\n\nChangelogs : " + infos[1], "Wallpapeuhrs - Update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                            if (dr == DialogResult.Yes)
+                            {
+                                downloadExe(serv + "/dl/Wallpapeuhrs/download.php");
+                                MessageBox.Show("Downloading...\nWallpapeuhrs will restart in a short time.", "Wallpapeuhrs - Update available");
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Can't search for updates. Error :\n" + ex, "Wallpapeurhs - Update failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -91,7 +98,7 @@ namespace Wallpapeuhrs
             }
             catch (Exception ei)
             {
-                MessageBox.Show("Can't install update\n" + ei, "Wallpapeuhrs - Update available", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Can't install update. Error :\n" + ei, "Wallpapeuhrs - Update failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
