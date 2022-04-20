@@ -38,22 +38,24 @@ namespace Wallpapeuhrs
         public string moni = "";
         double volume = 0;
         TcpClient tcp = new TcpClient();
-        bool isDebug = false;
+        bool isDebug = true;
+        bool allClients = false;
         DebugWindow dw;
 
         public WPBG(string moni, int startAfter)
         {
-            resizeApp();
+            this.moni = moni;
+            this.startAfter = startAfter;
             //
             InitializeComponent();
             //
-            if (isDebug && System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)
+            if (isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni))
             {
                 dw = new DebugWindow();
                 dw.Show();
             }
-            this.moni = moni;
-            this.startAfter = startAfter;
+            //
+            resizeApp();
             //
             med.parent = this;
             //
@@ -73,8 +75,17 @@ namespace Wallpapeuhrs
                 {
                     Width = s.Bounds.Width;
                     Height = s.Bounds.Height;
-                    Top = s.Bounds.Y;
-                    Left = s.Bounds.X;
+                    //Code from TouchTransporter
+                    double top = 0;
+                    double left = 0;
+                    foreach (System.Windows.Forms.Screen s2 in System.Windows.Forms.Screen.AllScreens)
+                    {
+                        if (s2.Bounds.Y < top && s2.Bounds.Y < 0) top = s2.Bounds.Y * -1;
+                        if (s2.Bounds.X < left && s2.Bounds.X < 0) left = s2.Bounds.X * -1;
+                    }
+                    //
+                    Left = s.Bounds.X + left;
+                    Top = s.Bounds.Y + top;
                     anSize = s.Bounds;
                     return;
                 }
@@ -274,13 +285,14 @@ namespace Wallpapeuhrs
 
         public void log(string log)
         {
-            if (isDebug && System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni) Dispatcher.Invoke(() => dw.log(log));
+            if (isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)) Dispatcher.Invoke(() => dw.log(log));
         }
 
         bool anPlay = true;
 
         public void changePlayerState(bool play)
         {
+            log("changePlayerState an " + anPlay + ", demand " + play);
             if (play == anPlay) return;
             anPlay = play;
             IntPtr pp = IntPtr.Zero;
