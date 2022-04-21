@@ -373,7 +373,7 @@ namespace Wallpapeuhrs
                             if (processes.ContainsKey(mon.DeviceName))
                                 sendChange(mon.DeviceName, processes[mon.DeviceName]);
                         }
-                        startAfter += 15;
+                        startAfter += 1;
                     }
                     ok = true;
                     loaded = true;

@@ -38,7 +38,7 @@ namespace Wallpapeuhrs
         public string moni = "";
         double volume = 0;
         TcpClient tcp = new TcpClient();
-        bool isDebug = true;
+        bool isDebug = false;
         bool allClients = false;
         DebugWindow dw;
 
@@ -167,38 +167,40 @@ namespace Wallpapeuhrs
 
         float timePaused = 0;
         List<int> win = new List<int>();
+        int anWin = -1;
 
         private void Timer_Tick(object sender, EventArgs ee)
         {
             try
             {
-                bool pause = false;
                 if (autostop)
                 {
-                    if (!win.Contains(W32.GetForegroundWindow().ToInt32()))
+                    int window = W32.GetForegroundWindow().ToInt32();
+                    //log("play " + ", contains " + !win.Contains(window) + ", diff win " + (anWin != window));
+                    if (anWin != window)
                     {
-                        changePlayerState(false);
-                        pause = true;
-                        med.nextChange += 1 * 1000;
+                        if (!win.Contains(window))
+                        {
+                            changePlayerState(false);
+                        }
+                        else
+                        {
+                            changePlayerState(true);
+                        }
                     }
-                    else
-                    {
-                        changePlayerState(true);
-                    }
+                    anWin = window;
                 }
-                if (!pause && curUrl != "" && isDir)
+                if(!curPlay) med.nextChange += 1 * 1000;
+                if (curUrl != "" && isDir && med.nextChange <= System.Environment.TickCount)
                 {
-                    if (med.nextChange <= System.Environment.TickCount)
+                    try
                     {
-                        try
-                        {
-                            med.changeUrl(getNewMedia());
-                            med.nextChange = System.Environment.TickCount + interval * 1000;
-                        }
-                        catch (Exception e)
-                        {
-                            MessageBox.Show("Unable to load the new media : " + e.Message + "\n" + e.StackTrace, "Error");
-                        }
+                        med.nextChange = System.Environment.TickCount + interval * 1000;
+                        med.changeUrl(getNewMedia());
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show("Unable to load the new media : " + e.Message + "\n" + e.StackTrace, "Error");
                     }
                 }
             }
@@ -218,14 +220,14 @@ namespace Wallpapeuhrs
             med.repeat = repeat;
             try
             {
-                anPlay = true;
+                curPlay = true;
                 med.changeUrl(newUrl);
             }
             catch (Exception e)
             {
                 MessageBox.Show("Unable to load the new media (" + newUrl + ") : " + e.Message + "\n" + e.StackTrace, "Error");
             }
-            med.nextChange = System.Environment.TickCount + (startAfter + interval) * 1000;
+            med.nextChange = System.Environment.TickCount + (interval + interval / 4 * startAfter) * 1000;
             timer.Start();
         }
 
@@ -288,15 +290,13 @@ namespace Wallpapeuhrs
             if (isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)) Dispatcher.Invoke(() => dw.log(log));
         }
 
-        bool anPlay = true;
+        bool curPlay = true;
 
         public void changePlayerState(bool play)
         {
-            log("changePlayerState an " + anPlay + ", demand " + play);
-            if (play == anPlay) return;
-            anPlay = play;
             IntPtr pp = IntPtr.Zero;
             string[] wins = new string[] { "Task View", "Start", "Search" };
+            int anLength = win.Count;
             foreach (string w in wins)
             {
                 if (!win.Contains(W32.FindWindow("Windows.UI.Core.CoreWindow", w).ToInt32()))
@@ -324,9 +324,13 @@ namespace Wallpapeuhrs
                 }
                 return true;
             }), IntPtr.Zero);
-            //
-            if(play || !autostop || (!play && autostop && !win.Contains(W32.GetForegroundWindow().ToInt32()))) 
+            if (autostop && anLength != win.Count) play = true;
+            if (play || !autostop || anLength == win.Count)
+            {
+                //log("changePlayerState " + play);
+                curPlay = play;
                 med.changePlayerState(play);
+            }
         }
     }
 }
