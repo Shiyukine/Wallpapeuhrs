@@ -114,7 +114,7 @@ namespace Wallpapeuhrs
                             {
                                 Uri source = (value.Source as MediaSource).Uri;
                                 string file = source.OriginalString != string.Empty ? source.OriginalString : source.AbsolutePath;
-                                MessageBox.Show("Unable to launch or read the media. Please verify the media's path and verify if it's an video (not a .webm).\nFile : " + file + "\n\nIntern error :\n" + e.Error.ToString() + "\n" + e.ExtendedErrorCode, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                MessageBox.Show("Unable to launch or read the media. Please verify the media's path and verify if it's an video.\nFile : " + file + "\n\nIntern error :\n" + e.Error.ToString() + "\n" + e.ExtendedErrorCode, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                             }
                         });
                     };

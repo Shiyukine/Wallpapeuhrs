@@ -12,8 +12,8 @@ namespace Wallpapeuhrs
 {
     public static class Update
     {
-        static string versionName = "v1.1.26";
-        static int versionNumber = 44;
+        static string versionName = "v1.1.27";
+        static int versionNumber = 45;
 
         static Dictionary<string, string> pageCache = new Dictionary<string, string>();
         static HttpClient httpClient = new HttpClient();
@@ -92,7 +92,8 @@ namespace Wallpapeuhrs
                 {
                     MainWindow.isclos = true;
                     Process.Start(AppDomain.CurrentDomain.BaseDirectory + "\\WallpapeuhrsInstall.exe");
-                    App.Current.Shutdown();
+                    //App.Current.Shutdown();
+                    Process.GetCurrentProcess().Kill();
                 };
                 wc.DownloadFileAsync(new Uri(url), AppDomain.CurrentDomain.BaseDirectory + "\\WallpapeuhrsInstall.exe");
             }

@@ -33,6 +33,8 @@ namespace Wallpapeuhrs
                     ".avi",
                     ".mp4",
                     ".mov",
+                    ".webm",
+                    ".m4v"
                 });
                 types.Add("Image files", new List<string>()
                 {
