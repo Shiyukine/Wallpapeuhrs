@@ -112,47 +112,50 @@ namespace Wallpapeuhrs
                 {
                     int bytesRead = ns.EndRead(ar);
                     string stra = Encoding.Unicode.GetString(read, 0, bytesRead);
-                    if (stra == "") Dispatcher.Invoke(() => Close());
-                    foreach (string s in stra.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries))
+                    if (stra == "") Dispatcher.Invoke(() => App.Current.Shutdown());
+                    else
                     {
-                        if (s.StartsWith(moni + ": "))
+                        foreach (string s in stra.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            string str = s.Replace(moni + ": ", "");
-                            Dispatcher.Invoke(() =>
+                            if (s.StartsWith(moni + ": "))
                             {
-                                if (str.StartsWith("Endliste")) isList = false;
-                                if (isList)
+                                string str = s.Replace(moni + ": ", "");
+                                Dispatcher.Invoke(() =>
                                 {
-                                    curUrl = str;
-                                    isDir = !File.Exists(curUrl);
-                                }
-                                if (str.StartsWith("Liste")) isList = true;
-                                //
-                                str = str.Replace(",", ".");
-                                if (str.StartsWith("Volume")) volume = Convert.ToDouble(str.Split('=')[1]);
-                                if (str.StartsWith("Interval")) interval = Convert.ToInt32(str.Split('=')[1]);
-                                if (str.StartsWith("Repeat")) repeat = Convert.ToBoolean(str.Split('=')[1]);
-                                if (str.StartsWith("Autostop"))
-                                {
-                                    autostop = Convert.ToBoolean(str.Split('=')[1]);
-                                    beginWP();
-                                }
-                                if (str.StartsWith("Play"))
-                                {
-                                    changePlayerState(true);
-                                    timer.Start();
-                                    med.nextChange = System.Environment.TickCount + timePaused;
-                                }
-                                if (str.StartsWith("Pause"))
-                                {
-                                    changePlayerState(false);
-                                    timer.Stop();
-                                    timePaused = med.nextChange - System.Environment.TickCount;
-                                }
-                            });
+                                    if (str.StartsWith("Endliste")) isList = false;
+                                    if (isList)
+                                    {
+                                        curUrl = str;
+                                        isDir = !File.Exists(curUrl);
+                                    }
+                                    if (str.StartsWith("Liste")) isList = true;
+                                    //
+                                    str = str.Replace(",", ".");
+                                    if (str.StartsWith("Volume")) volume = Convert.ToDouble(str.Split('=')[1]);
+                                    if (str.StartsWith("Interval")) interval = Convert.ToInt32(str.Split('=')[1]);
+                                    if (str.StartsWith("Repeat")) repeat = Convert.ToBoolean(str.Split('=')[1]);
+                                    if (str.StartsWith("Autostop"))
+                                    {
+                                        autostop = Convert.ToBoolean(str.Split('=')[1]);
+                                        beginWP();
+                                    }
+                                    if (str.StartsWith("Play"))
+                                    {
+                                        changePlayerState(true);
+                                        timer.Start();
+                                        med.nextChange = System.Environment.TickCount + timePaused;
+                                    }
+                                    if (str.StartsWith("Pause"))
+                                    {
+                                        changePlayerState(false);
+                                        timer.Stop();
+                                        timePaused = med.nextChange - System.Environment.TickCount;
+                                    }
+                                });
+                            }
                         }
+                        ns.BeginRead(read, 0, tcp.ReceiveBufferSize, asy, null);
                     }
-                    ns.BeginRead(read, 0, tcp.ReceiveBufferSize, asy, null);
                 }
                 catch (Exception ee)
                 {
@@ -307,8 +310,9 @@ namespace Wallpapeuhrs
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if(isDebug && System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni) Dispatcher.Invoke(() => dw.Close());
-            W32.SetParent(new WindowInteropHelper(this).Handle, IntPtr.Zero);
+            if(isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)) Dispatcher.Invoke(() => dw.Close());
+            //W32.SetParent(new WindowInteropHelper(this).Handle, IntPtr.Zero);
+            med.myHostControl.Dispose();
             W32.SetParent(Worker.workerw, IntPtr.Zero);
         }
 

@@ -40,6 +40,7 @@ namespace Wallpapeuhrs
 
         public Media()
         {
+            Windows.UI.Xaml.Hosting.WindowsXamlManager.InitializeForCurrentThread();
             InitializeComponent();
             myHostControl.ChildChanged += (sender, e) =>
             {
@@ -49,8 +50,7 @@ namespace Wallpapeuhrs
             };
             SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
             //setDWM();
-            /*Windows.UI.Xaml.Hosting.WindowsXamlManager.InitializeForCurrentThread();
-            main = new Windows.UI.Xaml.Controls.Grid();
+            /*main = new Windows.UI.Xaml.Controls.Grid();
             main.CanBeScrollAnchor = false;
             main.ReleasePointerCaptures();
             main.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Stretch;
