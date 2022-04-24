@@ -18,6 +18,8 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Windows.ApplicationModel;
+using Windows.Management.Deployment;
 using Windows.Media;
 using Windows.Media.Core;
 
@@ -235,6 +237,7 @@ namespace Wallpapeuhrs
 
         private string getNewMedia()
         {
+            string media = "";
             try
             {
                 if (isDir)
@@ -256,12 +259,12 @@ namespace Wallpapeuhrs
                     }
                     int newR = rng.Next(0, realList.Count());
                     isOk = true;
-                    return realList[newR];
+                    media = realList[newR];
                 }
                 else
                 {
                     isOk = true;
-                    return curUrl;
+                    media = curUrl;
                 }
             }
             catch
@@ -272,7 +275,34 @@ namespace Wallpapeuhrs
                     MessageBox.Show("The file or folder : \"" + curUrl + "\" doesn't exist. Please verify the path entered or if the file or folder exists really.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            return "";
+            /*async void verifyWebM()
+            {
+                await Task.Run(() =>
+                {
+                    if (media.EndsWith(".webm") && (isDir || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni))
+                    {
+                        try
+                        {
+                            PackageManager packageManager = new PackageManager();
+                            IEnumerable<Package> pkgs = packageManager.FindPackagesForUser(string.Empty, "Microsoft.AV1VideoExtension");
+                            if (pkgs.Count() == 0)
+                            {
+                                MessageBoxResult mbr = MessageBox.Show("AV1 video extension for .webm videos is not installed. Would you install it ?", "Wallpapeuhrs - Error", MessageBoxButton.YesNo, MessageBoxImage.Error);
+                                if (mbr == MessageBoxResult.Yes)
+                                {
+                                    Process.Start("ms-windows-store://pdp?productId=9mvzqvxjbq9v");
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.ToString());
+                        }
+                    }
+                });
+            }
+            verifyWebM();*/
+            return media;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
