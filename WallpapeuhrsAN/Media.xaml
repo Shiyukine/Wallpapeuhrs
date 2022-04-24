@@ -8,6 +8,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
-    <XamlHost:WindowsXamlHost x:Name="myHostControl" InitialTypeName="Windows.UI.Xaml.Controls.Grid" SnapsToDevicePixels="True" ClipToBounds="True" IsManipulationEnabled="True"/>
+    <!--<XamlHost:WindowsXamlHost x:Name="myHostControl" SnapsToDevicePixels="True" ClipToBounds="True" IsManipulationEnabled="True"/>-->
 
 </UserControl>

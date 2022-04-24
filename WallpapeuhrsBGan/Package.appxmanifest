@@ -7,15 +7,15 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="beb633c9-8b9b-4a87-a8b1-4fd548c11cf8"
-    Publisher="CN=benjb"
+    Name="be406d93-e67e-4769-a208-981d939bb17a"
+    Publisher="CN=Shiyuki"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="beb633c9-8b9b-4a87-a8b1-4fd548c11cf8" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="be406d93-e67e-4769-a208-981d939bb17a" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>WallpapeuhrsBG</DisplayName>
-    <PublisherDisplayName>benjb</PublisherDisplayName>
+    <PublisherDisplayName>Shiyuki</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

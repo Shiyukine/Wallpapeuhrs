@@ -1,7 +1,8 @@
-﻿<xaml:XamlApplication
-    xmlns:xaml="using:Microsoft.Toolkit.Win32.UI.XamlHost"
-    x:Class="WallpapeuhrsBG.App"
+﻿<Application
+    x:Class="WallpapeuhrsBG.App2"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:xaml="using:Microsoft.Toolkit.Win32.UI.XamlHost"
     xmlns:local="using:WallpapeuhrsBG">
-</xaml:XamlApplication>
+
+</Application>

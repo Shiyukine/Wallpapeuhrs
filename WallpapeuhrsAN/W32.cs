@@ -494,8 +494,21 @@ namespace Wallpapeuhrs
         [DllImport("dwmapi.dll", EntryPoint = "#131", PreserveSig = false)]
         public static extern void DwmSetColorizationParameters(ref DWM_COLORIZATION_PARAMS parameters, long uUnknown);
 
-        [DllImport("dwmapi.dll")]
-        public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+        [DllImport("dwmapi.dll", PreserveSig = false)]
+        public static extern void DwmEnableComposition(CompositionAction uCompositionAction);
+
+        [Flags]
+        public enum CompositionAction : uint
+        {
+            /// <summary>
+            /// To enable DWM composition
+            /// </summary>
+            DWM_EC_DISABLECOMPOSITION = 0,
+            /// <summary>
+            /// To disable composition.
+            /// </summary>
+            DWM_EC_ENABLECOMPOSITION = 1
+        }
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -785,5 +798,43 @@ namespace Wallpapeuhrs
                 cb = Marshal.SizeOf(this);
             }
         }
+
+        public enum DWMWINDOWATTRIBUTE : uint
+        {
+            NCRenderingEnabled = 1,
+            NCRenderingPolicy,
+            TransitionsForceDisabled,
+            AllowNCPaint,
+            CaptionButtonBounds,
+            NonClientRtlLayout,
+            ForceIconicRepresentation,
+            Flip3DPolicy,
+            ExtendedFrameBounds,
+            HasIconicBitmap,
+            DisallowPeek,
+            ExcludedFromPeek,
+            Cloak,
+            Cloaked,
+            FreezeRepresentation,
+            DWMWA_USE_HOSTBACKDROPBRUSH = 17
+        }
+
+        [DllImport("dwmapi.dll", PreserveSig = true)]
+        public static extern int DwmSetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE attr, ref int attrValue, int attrSize);
+
+        public const int GWL_EXSTYLE = -20;
+        public const int WS_EX_LAYERED = 0x00080000;
+        public const int LWA_ALPHA = 2;
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetWindowLongPtr(IntPtr hwnd, int index);
+
+        public delegate bool EnumThreadDelegate(IntPtr hwnd, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool EnumThreadWindows(uint dwThreadId, EnumThreadDelegate lpfn, IntPtr lParam);
     }
 }

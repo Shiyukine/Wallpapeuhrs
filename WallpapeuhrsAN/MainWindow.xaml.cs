@@ -1,4 +1,7 @@
-﻿using ShiyukiUtils.Settings;
+﻿using Microsoft.WindowsAPICodePack;
+using Microsoft.WindowsAPICodePack.Dialogs;
+using Microsoft.WindowsAPICodePack.Shell;
+using ShiyukiUtils.Settings;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,17 +37,20 @@ namespace Wallpapeuhrs
         TcpListener PStcp = null;
         SettingsManager sf = null;
         bool ok = false;
-        bool isclos = false;
+        public static bool isclos = false;
         bool inbg = false;
-        string version = "v1.1.17";
         System.Windows.Forms.NotifyIcon ni = new System.Windows.Forms.NotifyIcon();
+        bool loaded = false;
+        //string curNativeWallpaper = "";
 
         public MainWindow(bool inbg)
         {
             App.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
             App.Current.MainWindow = this;
             InitializeComponent();
-            vname.Text = version;
+            vname.Text = Update.getVersionName();
+            Update.searchUpdates();
+            //curNativeWallpaper = NativeWallpaper.getCurrentDesktopWallpaper();
             this.inbg = inbg;
             //
             string newF = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\";
@@ -104,6 +110,55 @@ namespace Wallpapeuhrs
             ni.Visible = true;
             //
             connectLocalTCP();
+            //
+            System.Windows.Forms.Timer t = new System.Windows.Forms.Timer();
+            Dictionary<string, System.Drawing.Rectangle> monis = new Dictionary<string, System.Drawing.Rectangle>();
+            t.Interval = 200;
+            t.Tick += (sender, e) =>
+            {
+                if (processes.Count > 0 && loaded)
+                {
+                    List<string> queredScreen = new List<string>();
+                    foreach (System.Windows.Forms.Screen s in System.Windows.Forms.Screen.AllScreens)
+                    {
+                        queredScreen.Add(s.DeviceName);
+                        if (!monis.ContainsKey(s.DeviceName))
+                        {
+                            monis.Add(s.DeviceName, s.Bounds);
+                            if(!processes.ContainsKey(s.DeviceName))
+                            {
+                                beginWP();
+                            }
+                        }
+                        else
+                        {
+                            if(s.Bounds != monis[s.DeviceName])
+                            {
+                                beginWP();
+                                monis[s.DeviceName] = s.Bounds;
+                            }
+                        }
+                    }
+                    for(int i = 0; i < processes.Count; i++)
+                    {
+                        string s = processes.Keys.ToList()[i];
+                        if(!queredScreen.Contains(s))
+                        {
+                            Process[] pl = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
+                            foreach (Process p in pl)
+                            {
+                                if (GetCommandLine(p).Contains("/moni \"" + s + "\""))
+                                {
+                                    p.Kill();
+                                    processes.Remove(s);
+                                    monis.Remove(s);
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            t.Start();
             // 
             if (urls.Text != "") beginWP();
         }
@@ -144,10 +199,11 @@ namespace Wallpapeuhrs
                     {
                         Dispatcher.Invoke(() =>
                         {
+                            if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
                             Show();
-                            if(WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
                             Activate();
                             Focus();
+                            Show();
                             inbg = false;
                         });
                     }
@@ -178,8 +234,9 @@ namespace Wallpapeuhrs
             //W32.SetParent(new WindowInteropHelper(this).Handle, WPBG.Form1.workerw);
             if (isclos)
             {
+                //NativeWallpaper.changeWallpaper(curNativeWallpaper);
                 stopping = true;
-                PStcp.Stop();
+                if(PStcp != null) PStcp.Stop();
                 foreach (string moni in processes.Keys)
                 {
                     processes[moni].Close();
@@ -205,6 +262,7 @@ namespace Wallpapeuhrs
                 sf.setSetting("Start", (bool)startwithw.IsChecked, null);
                 sf.setSetting("Stop", (bool)stopan.IsChecked, null);
                 sf.setSetting("RestartExplorer", (bool)restartexplo.IsChecked, null);
+                restart_dwm.Visibility = sf.getBoolSetting("RestartExplorer") ? Visibility.Visible : Visibility.Collapsed;
             }
             catch
             {
@@ -217,7 +275,7 @@ namespace Wallpapeuhrs
             if (!sf.settingExists("Path")) sf.setSetting("Path", "", null);
             if (!sf.settingExists("Vol")) sf.setSetting("Vol", 0, null);
             if (!sf.settingExists("Interval")) sf.setSetting("Interval", 60, null);
-            if (!sf.settingExists("Start")) sf.setSetting("Start", false, null);
+            if (!sf.settingExists("Start")) sf.setSetting("Start", true, null);
             if (!sf.settingExists("Repeat")) sf.setSetting("Repeat", true, null);
             if (!sf.settingExists("Stop")) sf.setSetting("Stop", false, null);
             if (!sf.settingExists("RestartExplorer")) sf.setSetting("RestartExplorer", false, null);
@@ -228,6 +286,7 @@ namespace Wallpapeuhrs
             startwithw.IsChecked = sf.getBoolSetting("Start");
             stopan.IsChecked = sf.getBoolSetting("Stop");
             restartexplo.IsChecked = sf.getBoolSetting("RestartExplorer");
+            restart_dwm.Visibility = sf.getBoolSetting("RestartExplorer") ? Visibility.Visible : Visibility.Collapsed;
         }
 
         //for explorer.exe
@@ -237,6 +296,8 @@ namespace Wallpapeuhrs
         {
             try
             {
+                //NativeWallpaper.changeWallpaper("");
+                loaded = false;
                 if (!alreadyRestarted && sf.getBoolSetting("RestartExplorer") && inbg) await stopExplorer();
                 if (!ok)
                 {
@@ -263,62 +324,59 @@ namespace Wallpapeuhrs
                         bool haveWPBG = false;
                         foreach (Process p in pl)
                         {
-                            if (GetCommandLine(p).Contains("/moni \"" + mon.DeviceName + "\"")) haveWPBG = true;
+                            var cmdL = GetCommandLine(p);
+                            if (cmdL != null && cmdL.Contains("/moni \"" + mon.DeviceName + "\"")) haveWPBG = true;
                         }
-                        if (!haveWPBG)
+                        if (!haveWPBG && !processes.ContainsKey(mon.DeviceName))
                         {
                             Process p = new Process();
                             p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + Process.GetCurrentProcess().ProcessName + ".exe";
                             p.StartInfo.Arguments = "--wp /startAfter " + startAfter + " /moni \"" + mon.DeviceName + "\"";
                             p.StartInfo.UseShellExecute = true;
                             p.Start();
-                            try
+                            TcpClient PCtcp = await PStcp.AcceptTcpClientAsync();
+                            NetworkStream ns = PCtcp.GetStream();
+                            byte[] read = new byte[PCtcp.ReceiveBufferSize];
+                            //
+                            AsyncCallback asy = null;
+                            asy = (ar) =>
                             {
-                                TcpClient PCtcp = await PStcp.AcceptTcpClientAsync();
-                                NetworkStream ns = PCtcp.GetStream();
-                                byte[] read = new byte[PCtcp.ReceiveBufferSize];
-                                //
-                                AsyncCallback asy = null;
-                                asy = (ar) =>
+                                try
                                 {
-                                    try
+                                    int bytesRead = ns.EndRead(ar);
+                                    string stra = Encoding.Unicode.GetString(read, 0, bytesRead).Replace(",", ".");
+                                    if (stra.StartsWith("READY "))
                                     {
-                                        int bytesRead = ns.EndRead(ar);
-                                        string stra = Encoding.Unicode.GetString(read, 0, bytesRead).Replace(",", ".");
-                                        if (stra.StartsWith("READY "))
+                                        //Dispatcher.Invoke(() => Activate());
+                                        string moni = stra.Split(' ')[1];
+                                        sendChange(moni, PCtcp);
+                                    }
+                                    ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
+                                }
+                                catch
+                                {
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        if (!stopping && System.Windows.Forms.Screen.AllScreens.Contains(mon))
                                         {
-                                            //Dispatcher.Invoke(() => Activate());
-                                            string moni = stra.Split(' ')[1];
-                                            sendChange(moni, PCtcp);
+                                            processes.Remove(mon.DeviceName);
+                                            beginWP();
                                         }
-                                        ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Dispatcher.Invoke(() =>
-                                        {
-                                            if (!stopping)
-                                            {
-                                                if (MessageBox.Show("One of the Wallpapeuhrs's background service was forced to close. Restart service ?\n\n\n\n\nCurrent error :\n" + e, "Error", MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.Yes)
-                                                {
-                                                    beginWP();
-                                                }
-                                            }
-                                        });
-                                    }
-                                };
-                                ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
-                                processes.Add(mon.DeviceName, PCtcp);
-                            }
-                            catch { }
+                                    });
+                                }
+                            };
+                            ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
+                            processes.Add(mon.DeviceName, PCtcp);
                         }
                         else
                         {
-                            sendChange(mon.DeviceName, processes[mon.DeviceName]);
+                            if (processes.ContainsKey(mon.DeviceName))
+                                sendChange(mon.DeviceName, processes[mon.DeviceName]);
                         }
-                        startAfter += 15;
+                        startAfter += 1;
                     }
                     ok = true;
+                    loaded = true;
                 }
                 else MessageBox.Show("Please put the path of a media or a folder to continue.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 /*Microsoft.Win32.RegistryKey keyk = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\DirectX\\UserGpuPreferences", true);
@@ -392,13 +450,14 @@ namespace Wallpapeuhrs
 
         private void slide_Click(object sender, RoutedEventArgs e)
         {
-            var fbd = new System.Windows.Forms.FolderBrowserDialog();
-            System.Windows.Forms.DialogResult result = fbd.ShowDialog();
-            fbd.RootFolder = Environment.SpecialFolder.MyVideos;
-            fbd.ShowNewFolderButton = true;
-            if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+            var dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = System.IO.Path.GetFullPath(urls.Text != "" ? urls.Text : "c:\\");
+            dialog.AllowNonFileSystemItems = true;
+            dialog.Multiselect = false;
+            dialog.IsFolderPicker = true;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                urls.Text = fbd.SelectedPath;
+                urls.Text = dialog.FileName;
             }
         }
 
@@ -438,6 +497,16 @@ namespace Wallpapeuhrs
                 await Task.Delay(5000);
             }
             catch { }
+        }
+
+        private async void restart_dwm_Click(object sender, RoutedEventArgs e)
+        {
+            await stopExplorer();
+        }
+
+        private void intel_link_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Process.Start("https://www.intel.com/content/www/us/en/download/19344/691496/intel-graphics-windows-dch-drivers.html");
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Wallpapeuhrs
 
         public Media()
         {
-            Windows.UI.Xaml.Hosting.WindowsXamlManager.InitializeForCurrentThread();
+            //Windows.UI.Xaml.Hosting.WindowsXamlManager.InitializeForCurrentThread();
             InitializeComponent();
             myHostControl.ChildChanged += (sender, e) =>
             {

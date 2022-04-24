@@ -1,9 +1,11 @@
+using Microsoft.Toolkit.Wpf.UI.XamlHost;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -34,17 +36,23 @@ namespace Wallpapeuhrs
         public bool repeat;
         public float nextChange = 0;
         public WPBG parent;
+        public WindowsXamlHost myHostControl;
         Windows.UI.Xaml.Controls.Grid main;
         Dictionary<string, BitmapCache> caches = new Dictionary<string, BitmapCache>();
 
         public Media()
         {
-            InitializeComponent();
-            myHostControl.ChildChanged += (sender, e) =>
+            //x:Name="myHostControl" SnapsToDevicePixels="True" ClipToBounds="True" IsManipulationEnabled="True"
+            /*myHostControl.ChildChanged += (sender, e) =>
             {
                 main = myHostControl.GetUwpInternalObject() as Windows.UI.Xaml.Controls.Grid;
-            };
-            /*Windows.UI.Xaml.Hosting.WindowsXamlManager.InitializeForCurrentThread();
+                SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
+                //setDWM();
+            };*/
+            //setDWM();
+            Windows.UI.Xaml.Hosting.WindowsXamlManager.InitializeForCurrentThread();
+            InitializeComponent();
+            //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
             main = new Windows.UI.Xaml.Controls.Grid();
             main.CanBeScrollAnchor = false;
             main.ReleasePointerCaptures();
@@ -55,8 +63,21 @@ namespace Wallpapeuhrs
             IsHitTestVisible = false;
             main.AllowFocusWhenDisabled = false;
             main.IsTapEnabled = main.IsRightTapEnabled = main.IsDoubleTapEnabled = main.IsHoldingEnabled = false;
-            myHostControl.Child = main;
-            main.ManipulationMode = Windows.UI.Xaml.Input.ManipulationModes.None;*/
+            main.ManipulationMode = Windows.UI.Xaml.Input.ManipulationModes.None;
+        }
+
+        private void setDWM()
+        {
+            int a = 1;
+            int b = 0;
+            W32.DwmSetWindowAttribute(myHostControl.Handle, W32.DWMWINDOWATTRIBUTE.DisallowPeek, ref a, Marshal.SizeOf(typeof(int)));
+            W32.DwmSetWindowAttribute(myHostControl.Handle, W32.DWMWINDOWATTRIBUTE.AllowNCPaint, ref b, Marshal.SizeOf(typeof(int)));
+            W32.DwmSetWindowAttribute(myHostControl.Handle, W32.DWMWINDOWATTRIBUTE.ExcludedFromPeek, ref a, Marshal.SizeOf(typeof(int)));
+            W32.DwmSetWindowAttribute(myHostControl.Handle, W32.DWMWINDOWATTRIBUTE.DWMWA_USE_HOSTBACKDROPBRUSH, ref b, Marshal.SizeOf(typeof(int)));
+            //W32.DwmSetWindowAttribute(myHostControl.Handle, W32.DWMWINDOWATTRIBUTE.Cloak, ref c, Marshal.SizeOf(typeof(int)));
+            IntPtr exStyle = W32.GetWindowLongPtr(myHostControl.Handle, W32.GWL_EXSTYLE);
+            W32.SetWindowLongPtr(myHostControl.Handle, W32.GWL_EXSTYLE, (IntPtr)(exStyle.ToInt64() | W32.WS_EX_LAYERED));
+            W32.DwmEnableComposition(W32.CompositionAction.DWM_EC_DISABLECOMPOSITION);
         }
 
         private Windows.UI.Xaml.Controls.MediaPlayerElement _media = null;
@@ -71,15 +92,17 @@ namespace Wallpapeuhrs
                 try
                 {
                     SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
+                    //setDWM();
                     double v = volume;
                     if (v == 100) v = 99.4;
                     value.MediaPlayer.SystemMediaTransportControls.IsEnabled = false;
                     value.MediaPlayer.CommandManager.IsEnabled = false;
+                    value.AreTransportControlsEnabled = false;
+                    value.TransportControls = null;
                     value.AutoPlay = true;
                     value.MediaPlayer.IsLoopingEnabled = true;
                     main.Children.Insert(0, value);
                     value.Stretch = Windows.UI.Xaml.Media.Stretch.UniformToFill;
-                    value.MediaPlayer.SetSurfaceSize(new Windows.Foundation.Size(ActualWidth, ActualHeight));
                     value.MediaPlayer.MediaOpened += (sender, eee) =>
                     {
                         remove(value);
@@ -93,7 +116,7 @@ namespace Wallpapeuhrs
                             {
                                 Uri source = (value.Source as MediaSource).Uri;
                                 string file = source.OriginalString != string.Empty ? source.OriginalString : source.AbsolutePath;
-                                MessageBox.Show("Unable to launch or read the media. Please verify the media's path and verify if it's an video (not a .webm).\nFile : " + file + "\n\nIntern error :\n" + e.Error.ToString() + "\n" + e.ExtendedErrorCode, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                MessageBox.Show("Unable to launch or read the media. Please verify the media's path and verify if it's an video.\nFile : " + file + "\n\nIntern error :\n" + e.Error.ToString() + "\n" + e.ExtendedErrorCode, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                             }
                         });
                     };
@@ -132,8 +155,18 @@ namespace Wallpapeuhrs
 
         public void changeUrl(string newUrl)
         {
+            if(myHostControl == null)
+            {
+                myHostControl = new WindowsXamlHost();
+                myHostControl.SnapsToDevicePixels = true;
+                myHostControl.ClipToBounds = true;
+                myHostControl.IsManipulationEnabled = true;
+                myHostControl.Child = main;
+                AddChild(myHostControl);
+            }
             curUrl = newUrl;
             parent.log("aaaaaaaa " + newUrl + " " + System.IO.Path.GetExtension(newUrl));
+            SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
             foreach (string ext in App.types.Keys)
             {
                 parent.log("aaaaaaab " + ext);

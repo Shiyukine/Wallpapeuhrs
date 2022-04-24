@@ -13,7 +13,7 @@
                 <Grid Margin="15,15,15,15">
                     <TextBlock Foreground="Gainsboro" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5,0,0">Path</TextBlock>
                     <Border Margin="48,0,0,0" VerticalAlignment="Top" Background="#FF3C3C3C" CornerRadius="12.5" Height="30">
-                        <TextBox x:Name="urls" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" Text="ActualPath" VerticalContentAlignment="Center" Margin="10,0"></TextBox>
+                        <TextBox x:Name="urls" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" Text="" VerticalContentAlignment="Center" Margin="10,0"></TextBox>
                     </Border>
                     <Border Background="#FF3A3A3A" Margin="0,74,0,0" CornerRadius="15">
                         <StackPanel Margin="0,5">

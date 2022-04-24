@@ -16,6 +16,6 @@
     </WindowChrome.WindowChrome>
 
 
-    <local:Media x:Name="med"></local:Media>
+    <!--<local:Media x:Name="med"></local:Media>-->
 
 </Window>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
@@ -86,13 +87,12 @@ namespace Wallpapeuhrs
 
             // Draw graphics between icons and wallpaper
             // Get the Device Context of the WorkerW
-            //IntPtr dc = W32.GetDCEx(workerw, IntPtr.Zero, (W32.DeviceContextValues)0x403);
-            /*if (dc != IntPtr.Zero)
+            /*IntPtr dc = W32.GetDCEx(workerw, IntPtr.Zero, (W32.DeviceContextValues)0x403);
+            if (dc != IntPtr.Zero)
             {
                 // Create a Graphics instance from the Device Context
                 using (Graphics g = Graphics.FromHdc(dc))
                 {
-
                     // Use the Graphics instance to draw a white rectangle in the upper
                     // left corner. In case you have more than one monitor think of the
                     // drawing area as a rectangle that spans across all monitors, and
@@ -104,9 +104,9 @@ namespace Wallpapeuhrs
                     g.FillPath(Brushes.White, gp);
                     g.DrawString("Loading...", new Font("Century Gothic", 24, FontStyle.Bold), Brushes.Black, (float)x, (float)y);
                 }
-                // make sure to release the device context after use.*/
-                //W32.ReleaseDC(workerw, dc);
-            //}
+                // make sure to release the device context after use.
+                W32.ReleaseDC(workerw, dc);
+            }*/
         }
 
         static void PrintVisibleWindowHandles(IntPtr hwnd, int maxLevel = -1, int level = 0)

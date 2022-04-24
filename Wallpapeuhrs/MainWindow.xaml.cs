@@ -25,6 +25,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Management;
 
 namespace Wallpapeuhrs
 {
@@ -59,12 +60,12 @@ namespace Wallpapeuhrs
             sf = new SettingsManager(newF + "Settings.cfg");
             loadSettings();
             //
-            System.Windows.Forms.ContextMenu cm = new System.Windows.Forms.ContextMenu();
+            System.Windows.Forms.ContextMenuStrip cm = new System.Windows.Forms.ContextMenuStrip();
             Stream iconStream = Application.GetResourceStream(new Uri("/Wallpapeuhrs;component/Resources/Icon.ico", UriKind.RelativeOrAbsolute)).Stream;
             ni.Icon = new System.Drawing.Icon(iconStream);
             iconStream.Dispose();
             ni.Text = "Wallpapeuhrs";
-            System.Windows.Forms.MenuItem mi3 = new System.Windows.Forms.MenuItem() { Text = "Show app" };
+            var mi3 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Show app" };
             mi3.Click += (s, ev) =>
             {
                 Show();
@@ -74,8 +75,8 @@ namespace Wallpapeuhrs
                 Focus();
                 inbg = false;
             };
-            cm.MenuItems.Add(mi3);
-            System.Windows.Forms.MenuItem mi1 = new System.Windows.Forms.MenuItem() { Text = "Play" };
+            cm.Items.Add(mi3);
+            var mi1 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Play" };
             mi1.Click += (s, ev) =>
             {
                 foreach (string moni in processes.Keys)
@@ -83,8 +84,8 @@ namespace Wallpapeuhrs
                     sendData(processes[moni], "Play", moni);
                 }
             };
-            cm.MenuItems.Add(mi1);
-            System.Windows.Forms.MenuItem mi2 = new System.Windows.Forms.MenuItem() { Text = "Pause" };
+            cm.Items.Add(mi1);
+            var mi2 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Pause" };
             mi2.Click += (s, ev) =>
             {
                 foreach (string moni in processes.Keys)
@@ -92,21 +93,21 @@ namespace Wallpapeuhrs
                     sendData(processes[moni], "Pause", moni);
                 }
             };
-            cm.MenuItems.Add(mi2);
-            System.Windows.Forms.MenuItem mi0 = new System.Windows.Forms.MenuItem() { Text = "Change wallpaper" };
+            cm.Items.Add(mi2);
+            var mi0 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Change wallpaper" };
             mi0.Click += (s, ev) =>
             {
                 beginWP();
             };
-            cm.MenuItems.Add(mi0);
-            System.Windows.Forms.MenuItem mi = new System.Windows.Forms.MenuItem() { Text = "Close" };
+            cm.Items.Add(mi0);
+            var mi = new System.Windows.Forms.ToolStripMenuItem() { Text = "Close" };
             mi.Click += (s, ev) =>
             {
                 isclos = true;
                 Close();
             };
-            cm.MenuItems.Add(mi);
-            ni.ContextMenu = cm;
+            cm.Items.Add(mi);
+            ni.ContextMenuStrip = cm;
             ni.Visible = true;
             //
             connectLocalTCP();
@@ -183,6 +184,7 @@ namespace Wallpapeuhrs
             {
                 MessageBox.Show("Unable to start Wallpapeuhrs. The TCP at port locahost:" + port + " is already used. Please kill all applications who use this port and then restart Wallpapeuhrs.",
                     "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                App.Current.Shutdown();
             }
             NetworkStream ns = tcp.GetStream();
             tcp.ReceiveBufferSize = 1024;
@@ -315,7 +317,7 @@ namespace Wallpapeuhrs
                         {
                             //Computer\HKEY_CURRENT_USER\SOFTWARE\Microsoft\DirectX\UserGpuPreferences
                             Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\DirectX\\UserGpuPreferences", true);
-                            string str = Assembly.GetExecutingAssembly().Location;
+                            string str = Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe");
                             string gpu = monis[mon.DeviceName].Contains("NVIDIA") ? "2" : "1";
                             key.SetValue(str, "GpuPreference=" + gpu + ";");
                             //await Task.Delay(1000);
@@ -327,46 +329,50 @@ namespace Wallpapeuhrs
                             var cmdL = GetCommandLine(p);
                             if (cmdL != null && cmdL.Contains("/moni \"" + mon.DeviceName + "\"")) haveWPBG = true;
                         }
-                        if (!haveWPBG)
+                        if (!haveWPBG && !processes.ContainsKey(mon.DeviceName))
                         {
-                            Process p = new Process();
-                            p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + Process.GetCurrentProcess().ProcessName + ".exe";
-                            p.StartInfo.Arguments = "--wp /startAfter " + startAfter + " /moni \"" + mon.DeviceName + "\"";
-                            p.StartInfo.UseShellExecute = true;
-                            p.Start();
-                            TcpClient PCtcp = await PStcp.AcceptTcpClientAsync();
-                            NetworkStream ns = PCtcp.GetStream();
-                            byte[] read = new byte[PCtcp.ReceiveBufferSize];
-                            //
-                            AsyncCallback asy = null;
-                            asy = (ar) =>
+                            async void a()
                             {
-                                try
+                                Process p = new Process();
+                                p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + Process.GetCurrentProcess().ProcessName + ".exe";
+                                p.StartInfo.Arguments = "--wp /startAfter " + startAfter + " /moni \"" + mon.DeviceName + "\"";
+                                p.StartInfo.UseShellExecute = true;
+                                p.Start();
+                                TcpClient PCtcp = await PStcp.AcceptTcpClientAsync();
+                                NetworkStream ns = PCtcp.GetStream();
+                                byte[] read = new byte[PCtcp.ReceiveBufferSize];
+                                //
+                                AsyncCallback asy = null;
+                                asy = (ar) =>
                                 {
-                                    int bytesRead = ns.EndRead(ar);
-                                    string stra = Encoding.Unicode.GetString(read, 0, bytesRead).Replace(",", ".");
-                                    if (stra.StartsWith("READY "))
+                                    try
                                     {
-                                        //Dispatcher.Invoke(() => Activate());
-                                        string moni = stra.Split(' ')[1];
-                                        sendChange(moni, PCtcp);
-                                    }
-                                    ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
-                                }
-                                catch
-                                {
-                                    Dispatcher.Invoke(() =>
-                                    {
-                                        if (!stopping && System.Windows.Forms.Screen.AllScreens.Contains(mon))
+                                        int bytesRead = ns.EndRead(ar);
+                                        string stra = Encoding.Unicode.GetString(read, 0, bytesRead).Replace(",", ".");
+                                        if (stra.StartsWith("READY "))
                                         {
-                                            processes.Remove(mon.DeviceName);
-                                            beginWP();
+                                            //Dispatcher.Invoke(() => Activate());
+                                            string moni = stra.Split(' ')[1];
+                                            sendChange(moni, PCtcp);
                                         }
-                                    });
-                                }
-                            };
-                            ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
-                            processes.Add(mon.DeviceName, PCtcp);
+                                        ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
+                                    }
+                                    catch
+                                    {
+                                        Dispatcher.Invoke(() =>
+                                        {
+                                            if (!stopping && System.Windows.Forms.Screen.AllScreens.Contains(mon))
+                                            {
+                                                processes.Remove(mon.DeviceName);
+                                                beginWP();
+                                            }
+                                        });
+                                    }
+                                };
+                                ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
+                                processes.Add(mon.DeviceName, PCtcp);
+                            }
+                            a();
                         }
                         else
                         {
@@ -380,10 +386,10 @@ namespace Wallpapeuhrs
                 }
                 else MessageBox.Show("Please put the path of a media or a folder to continue.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 /*Microsoft.Win32.RegistryKey keyk = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\DirectX\\UserGpuPreferences", true);
-                string strk = Assembly.GetExecutingAssembly().Location;
+                string strk = Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe");
                 keyk.SetValue(strk, "GpuPreference=0;");*/
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 MessageBox.Show("beginWP\n" + e.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -415,7 +421,7 @@ namespace Wallpapeuhrs
         {
             setSettings();
             Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-            string str = Assembly.GetExecutingAssembly().Location;
+            string str = Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe");
             try { key.DeleteValue("Wallpapeuhrs"); } catch { }
             if ((bool)startwithw.IsChecked) key.SetValue("Wallpapeuhrs", "\"" + str + "\" --background");
             beginWP();

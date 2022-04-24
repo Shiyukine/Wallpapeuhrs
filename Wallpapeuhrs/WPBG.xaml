@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Wallpapeuhrs"
         x:Class="Wallpapeuhrs.WPBG"
         mc:Ignorable="d"
-        Title="WPBG" Height="450" Width="800" Closing="Window_Closing" Loaded="Window_Loaded" WindowStartupLocation="Manual">
+        Title="WPBG" Height="450" Width="800" Closing="Window_Closing" Loaded="Window_Loaded" WindowStartupLocation="Manual" Icon="/Wallpapeuhrs;component/Resources/Icon.ico">
     <WindowChrome.WindowChrome>
         <WindowChrome
         CaptionHeight="0"

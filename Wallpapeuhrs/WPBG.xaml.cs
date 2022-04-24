@@ -94,13 +94,13 @@ namespace Wallpapeuhrs
             }
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             Worker.Init();
             IntPtr p = new WindowInteropHelper(this).Handle;
             W32.SetParent(p, Worker.workerw);
             //
-            tcp.Connect("localhost", 30930);
+            await tcp.ConnectAsync("127.0.0.1", 30930);
             NetworkStream ns = tcp.GetStream();
             byte[] read = new byte[tcp.ReceiveBufferSize];
             bool isList = false;

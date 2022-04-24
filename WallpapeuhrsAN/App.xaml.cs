@@ -23,6 +23,7 @@ namespace Wallpapeuhrs
     public partial class App : Application
     {
         public static Dictionary<string, List<string>> types = new Dictionary<string, List<string>>();
+        public static string[] nargs;
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
@@ -33,6 +34,8 @@ namespace Wallpapeuhrs
                     ".avi",
                     ".mp4",
                     ".mov",
+                    ".webm",
+                    ".m4v"
                 });
                 types.Add("Image files", new List<string>()
                 {
@@ -44,7 +47,7 @@ namespace Wallpapeuhrs
                     ".gif"
                 });
                 //
-                if (e.Args.Length == 0 || !e.Args[0].Contains("wp"))
+                if (nargs.Length == 0 || !nargs[0].Contains("wp"))
                 {
                     try
                     {
@@ -64,13 +67,13 @@ namespace Wallpapeuhrs
                     }
                     catch
                     {
-                        bool inbg = e.Args.Length > 0 && e.Args[0].Contains("background");
+                        bool inbg = nargs.Length > 0 && nargs[0].Contains("background");
                         new MainWindow(inbg);
                     }
                 }
                 else
                 {
-                    new WPBG(e.Args[4], Convert.ToInt32(e.Args[2]));
+                    new WPBG(nargs[4], Convert.ToInt32(nargs[2]));
                 }
             }
             catch (Exception ee)
