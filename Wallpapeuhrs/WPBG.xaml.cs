@@ -241,20 +241,22 @@ namespace Wallpapeuhrs
                 {
                     Random rng = new Random(Guid.NewGuid().GetHashCode());
                     IEnumerable<string> list = Directory.EnumerateFiles(curUrl + "\\", "*");
-                    int newR = rng.Next(0, list.Count());
-                    int index = 0;
+                    List<string> realList = new List<string>();
+                    List<string> exts = new List<string>();
+                    foreach(List<string> ext in App.types.Values)
+                    {
+                        exts.AddRange(ext);
+                    }
                     foreach (string f in list)
                     {
-                        foreach (List<string> ext in App.types.Values)
+                        if (exts.Contains(System.IO.Path.GetExtension(f)))
                         {
-                            if (ext.Contains(System.IO.Path.GetExtension(f)) && newR == index)
-                            {
-                                isOk = true;
-                                return f;
-                            }
+                            realList.Add(f);
                         }
-                        index++;
                     }
+                    int newR = rng.Next(0, realList.Count());
+                    isOk = true;
+                    return realList[newR];
                 }
                 else
                 {
