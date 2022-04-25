@@ -331,48 +331,49 @@ namespace Wallpapeuhrs
                         }
                         if (!haveWPBG && !processes.ContainsKey(mon.DeviceName))
                         {
-                            async void a()
+                            Process p = new Process();
+                            p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + Process.GetCurrentProcess().ProcessName + ".exe";
+                            p.StartInfo.Arguments = "--wp /startAfter " + startAfter + " /moni \"" + mon.DeviceName + "\"";
+                            p.StartInfo.UseShellExecute = true;
+                            p.Start();
+                            TcpClient PCtcp = await PStcp.AcceptTcpClientAsync();
+                            processes.Add(mon.DeviceName, PCtcp);
+                            NetworkStream ns = PCtcp.GetStream();
+                            byte[] read = new byte[PCtcp.ReceiveBufferSize];
+                            int index = startAfter;
+                            //
+                            AsyncCallback asy = null;
+                            asy = (ar) =>
                             {
-                                Process p = new Process();
-                                p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + Process.GetCurrentProcess().ProcessName + ".exe";
-                                p.StartInfo.Arguments = "--wp /startAfter " + startAfter + " /moni \"" + mon.DeviceName + "\"";
-                                p.StartInfo.UseShellExecute = true;
-                                p.Start();
-                                TcpClient PCtcp = await PStcp.AcceptTcpClientAsync();
-                                NetworkStream ns = PCtcp.GetStream();
-                                byte[] read = new byte[PCtcp.ReceiveBufferSize];
-                                //
-                                AsyncCallback asy = null;
-                                asy = (ar) =>
+                                try
                                 {
-                                    try
+                                    int bytesRead = ns.EndRead(ar);
+                                    string stra = Encoding.Unicode.GetString(read, 0, bytesRead).Replace(",", ".");
+                                    if (stra.StartsWith("READY ") && index == System.Windows.Forms.Screen.AllScreens.Count() - 1)
                                     {
-                                        int bytesRead = ns.EndRead(ar);
-                                        string stra = Encoding.Unicode.GetString(read, 0, bytesRead).Replace(",", ".");
-                                        if (stra.StartsWith("READY "))
+                                        //Dispatcher.Invoke(() => Activate());
+                                        //string moni = stra.Split(' ')[1];
+                                        //sendChange(moni, PCtcp);
+                                        foreach(string moni in processes.Keys)
                                         {
-                                            //Dispatcher.Invoke(() => Activate());
-                                            string moni = stra.Split(' ')[1];
-                                            sendChange(moni, PCtcp);
+                                            sendChange(moni, processes[moni]);
                                         }
-                                        ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
                                     }
-                                    catch
+                                    ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
+                                }
+                                catch
+                                {
+                                    Dispatcher.Invoke(() =>
                                     {
-                                        Dispatcher.Invoke(() =>
+                                        if (!stopping && System.Windows.Forms.Screen.AllScreens.Contains(mon))
                                         {
-                                            if (!stopping && System.Windows.Forms.Screen.AllScreens.Contains(mon))
-                                            {
-                                                processes.Remove(mon.DeviceName);
-                                                beginWP();
-                                            }
-                                        });
-                                    }
-                                };
-                                ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
-                                processes.Add(mon.DeviceName, PCtcp);
-                            }
-                            a();
+                                            processes.Remove(mon.DeviceName);
+                                            beginWP();
+                                        }
+                                    });
+                                }
+                            };
+                            ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
                         }
                         else
                         {
@@ -472,6 +473,9 @@ namespace Wallpapeuhrs
             try
             {
                 byte[] data2 = System.Text.Encoding.Unicode.GetBytes((moni != null ? moni + ": " : "") + text + "|");
+                /*NetworkStream nwStream = tcp.GetStream();
+                await nwStream.WriteAsync(data2, 0, data2.Length);
+                nwStream.Flush();*/
                 SocketAsyncEventArgs sa = new SocketAsyncEventArgs();
                 sa.Completed += (sendere, ee) =>
                 {
