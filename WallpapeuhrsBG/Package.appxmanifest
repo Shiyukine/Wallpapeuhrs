@@ -8,14 +8,14 @@
 
   <Identity
     Name="beb633c9-8b9b-4a87-a8b1-4fd548c11cf8"
-    Publisher="CN=benjb"
+    Publisher="CN=Aketsuky"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="beb633c9-8b9b-4a87-a8b1-4fd548c11cf8" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>WallpapeuhrsBG</DisplayName>
-    <PublisherDisplayName>benjb</PublisherDisplayName>
+    <PublisherDisplayName>Aketsuky</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -36,8 +36,8 @@
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="WallpapeuhrsBG"
-        BackgroundColor="transparent">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
+        BackgroundColor="#180F2A">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
     </Application>
