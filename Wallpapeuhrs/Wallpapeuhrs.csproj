@@ -5,7 +5,7 @@
 	  <LangVersion>8.0</LangVersion>
     <TargetFramework>netcoreapp3.1</TargetFramework>
 	  <AssetTargetFallback>uap10.0.19041</AssetTargetFallback>
-    <Nullable>enable</Nullable>
+    <!--<Nullable>enable</Nullable>-->
     <UseWPF>true</UseWPF>
     <Platforms>AnyCPU;x64</Platforms>
     <StartupObject>Wallpapeuhrs.Program</StartupObject>
@@ -17,6 +17,8 @@
     <Company>Aketsuky</Company>
     <Copyright>Aketsuky™</Copyright>
     <PackageProjectUrl>https://aketsuky.eu/</PackageProjectUrl>
+	  <SelfContained>true</SelfContained>
+	  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -70,7 +72,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy &quot;$(TargetDir)$(ProjectName).exe&quot; &quot;$(TargetDir)\app.publish\$(ProjectName).exe&quot;&#xD;&#xA;&quot;E:\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe&quot; sign /fd sha256 /sha1 B496F8648E8B57D13C657A4DF4D709EF5333B0B3 /tr http://timestamp.digicert.com/ &quot;$(TargetDir)\app.publish\$(ProjectName).exe&quot;" />
+    <Exec Command="mkdir &quot;$(TargetDir)\app.publish\&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(ProjectName).exe&quot; &quot;$(TargetDir)\app.publish\$(ProjectName).exe&quot;&#xD;&#xA;&quot;E:\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe&quot; sign /fd sha256 /sha1 B496F8648E8B57D13C657A4DF4D709EF5333B0B3 /tr http://timestamp.digicert.com/ &quot;$(TargetDir)\app.publish\$(ProjectName).exe&quot;" />
   </Target>
 
 </Project>

@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -51,29 +53,33 @@ namespace Wallpapeuhrs
                 {
                     try
                     {
-                        TcpClient tcp = new TcpClient();
-                        tcp.Connect("127.0.0.1", 30929);
-                        SocketAsyncEventArgs sa = new SocketAsyncEventArgs();
-                        sa.Completed += (sendere, ee) =>
+                        int port = 30929;
+                        if (!isTCPAvailable(port))
                         {
-                            if (ee.SocketError != SocketError.Success) MessageBox.Show("An instance of Wallpapeuhrs is already opened !");
-                            tcp.Close();
-                            tcp.Dispose();
-                            Dispatcher.Invoke(() => App.Current.Shutdown());
-                        };
-                        byte[] data2 = System.Text.Encoding.ASCII.GetBytes("SHOW");
-                        sa.SetBuffer(data2, 0, data2.Length);
-                        if (!tcp.Client.SendAsync(sa))
+                            TcpClient tcp = new TcpClient();
+                            tcp.Connect("127.0.0.1", port);
+                            SocketAsyncEventArgs sa = new SocketAsyncEventArgs();
+                            sa.Completed += (sendere, ee) =>
+                            {
+                                if (ee.SocketError != SocketError.Success) MessageBox.Show("An instance of Wallpapeuhrs is already opened !");
+                                closeApp(tcp);
+                            };
+                            byte[] data2 = System.Text.Encoding.ASCII.GetBytes("SHOW");
+                            sa.SetBuffer(data2, 0, data2.Length);
+                            if (!tcp.Client.SendAsync(sa))
+                            {
+                                closeApp(tcp);
+                            }
+                        }
+                        else
                         {
-                            tcp.Close();
-                            tcp.Dispose();
-                            Dispatcher.Invoke(() => App.Current.Shutdown());
+                            bool inbg = nargs.Length > 0 && nargs[0].Contains("background");
+                            new MainWindow(inbg);
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        bool inbg = nargs.Length > 0 && nargs[0].Contains("background");
-                        new MainWindow(inbg);
+                        MessageBox.Show(ex.ToString());
                     }
                 }
                 else
@@ -86,6 +92,33 @@ namespace Wallpapeuhrs
                 MessageBox.Show(ee.ToString());
                 App.Current.Shutdown();
             }
+        }
+
+        private void closeApp(TcpClient tcp)
+        {
+            tcp.Close();
+            tcp.Dispose();
+            Dispatcher.Invoke(() => App.Current.Shutdown());
+        }
+
+        public bool isTCPAvailable(int port)
+        {
+            IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
+            foreach (TcpConnectionInformation tcpi in ipGlobalProperties.GetActiveTcpConnections())
+            {
+                if (tcpi.LocalEndPoint.Port == port)
+                {
+                    return false;
+                }
+            }
+            foreach (IPEndPoint tcpi in ipGlobalProperties.GetActiveTcpListeners())
+            {
+                if (tcpi.Port == port)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
