@@ -368,5 +368,13 @@ namespace Wallpapeuhrs
                 med.changePlayerState(play);
             }
         }
+
+        private void main_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.System && e.SystemKey == Key.F4)
+            {
+                e.Handled = true;
+            }
+        }
     }
 }

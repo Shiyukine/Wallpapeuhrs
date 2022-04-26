@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Wallpapeuhrs"
+        xmlns:local="clr-namespace:Wallpapeuhrs" x:Name="main"
         x:Class="Wallpapeuhrs.WPBG"
         mc:Ignorable="d"
-        Title="WPBG" Height="450" Width="800" Closing="Window_Closing" Loaded="Window_Loaded" WindowStartupLocation="Manual" Icon="/Wallpapeuhrs;component/Resources/Icon.ico">
+        Title="WPBG" Height="450" Width="800" Closing="Window_Closing" Loaded="Window_Loaded" WindowStartupLocation="Manual" Icon="/Wallpapeuhrs;component/Resources/Icon.ico" KeyDown="main_KeyDown">
     <WindowChrome.WindowChrome>
         <WindowChrome
         CaptionHeight="0"
