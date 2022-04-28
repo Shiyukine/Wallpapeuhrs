@@ -256,7 +256,7 @@ namespace Wallpapeuhrs
                     foreach (string f in list)
                     {
                         if (exts.Contains(System.IO.Path.GetExtension(f)))
-                        {
+                        {   
                             realList.Add(f);
                         }
                     }

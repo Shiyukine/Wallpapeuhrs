@@ -13,7 +13,6 @@ namespace Wallpapeuhrs
 
         public const int SM_CYSCREEN = 1;
 
-        public const int SPI_SETDESKWALLPAPER = 20;
         public const int SPIF_SENDWININICHANGE = 0x02;
         public const int SPIF_UPDATEINIFILE = 0x01;
         public const int SRCCOPY = 13369376;
@@ -605,8 +604,12 @@ namespace Wallpapeuhrs
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, SetWindowPosFlags uFlags);
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern Int32 SystemParametersInfo(UInt32 action, UInt32 uParam, string vParam, UInt32 winIni);
+        /*[DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern Int32 SystemParametersInfo(UInt32 action, UInt32 uParam, string vParam, UInt32 winIni);*/
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SystemParametersInfo(uint uiAction, uint uiParam, ref uint pvParam, uint fWinIni); // T = any type
 
         [StructLayout(LayoutKind.Sequential)]
         public struct BbStruct //Blur Behind Structure
@@ -836,5 +839,289 @@ namespace Wallpapeuhrs
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool EnumThreadWindows(uint dwThreadId, EnumThreadDelegate lpfn, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SetActiveWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool BringWindowToTop(IntPtr hWnd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool BringWindowToTop(HandleRef hWnd);
+
+        [DllImport("user32.dll")]
+        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        [DllImport("kernel32.dll")]
+        public static extern uint GetCurrentThreadId();
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        // When you don't want the ProcessId, use this overload and pass IntPtr.Zero for the second parameter
+        [DllImport("user32.dll")]
+        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
+
+        [DllImport("user32.dll")]
+        public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+
+        public const uint SPI_GETBEEP = 0x0001;
+        public const uint SPI_SETBEEP = 0x0002;
+        public const uint SPI_GETMOUSE = 0x0003;
+        public const uint SPI_SETMOUSE = 0x0004;
+        public const uint SPI_GETBORDER = 0x0005;
+        public const uint SPI_SETBORDER = 0x0006;
+        public const uint SPI_GETKEYBOARDSPEED = 0x000A;
+        public const uint SPI_SETKEYBOARDSPEED = 0x000B;
+        public const uint SPI_LANGDRIVER = 0x000C;
+        public const uint SPI_ICONHORIZONTALSPACING = 0x000D;
+        public const uint SPI_GETSCREENSAVETIMEOUT = 0x000E;
+        public const uint SPI_SETSCREENSAVETIMEOUT = 0x000F;
+        public const uint SPI_GETSCREENSAVEACTIVE = 0x0010;
+        public const uint SPI_SETSCREENSAVEACTIVE = 0x0011;
+        public const uint SPI_GETGRIDGRANULARITY = 0x0012;
+        public const uint SPI_SETGRIDGRANULARITY = 0x0013;
+        public const uint SPI_SETDESKWALLPAPER = 0x0014;
+        public const uint SPI_SETDESKPATTERN = 0x0015;
+        public const uint SPI_GETKEYBOARDDELAY = 0x0016;
+        public const uint SPI_SETKEYBOARDDELAY = 0x0017;
+        public const uint SPI_ICONVERTICALSPACING = 0x0018;
+        public const uint SPI_GETICONTITLEWRAP = 0x0019;
+        public const uint SPI_SETICONTITLEWRAP = 0x001A;
+        public const uint SPI_GETMENUDROPALIGNMENT = 0x001B;
+        public const uint SPI_SETMENUDROPALIGNMENT = 0x001C;
+        public const uint SPI_SETDOUBLECLKWIDTH = 0x001D;
+        public const uint SPI_SETDOUBLECLKHEIGHT = 0x001E;
+        public const uint SPI_GETICONTITLELOGFONT = 0x001F;
+        public const uint SPI_SETDOUBLECLICKTIME = 0x0020;
+        public const uint SPI_SETMOUSEBUTTONSWAP = 0x0021;
+        public const uint SPI_SETICONTITLELOGFONT = 0x0022;
+        public const uint SPI_GETFASTTASKSWITCH = 0x0023;
+        public const uint SPI_SETFASTTASKSWITCH = 0x0024;
+        public const uint SPI_SETDRAGFULLWINDOWS = 0x0025;
+        public const uint SPI_GETDRAGFULLWINDOWS = 0x0026;
+        public const uint SPI_GETNONCLIENTMETRICS = 0x0029;
+        public const uint SPI_SETNONCLIENTMETRICS = 0x002A;
+        public const uint SPI_GETMINIMIZEDMETRICS = 0x002B;
+        public const uint SPI_SETMINIMIZEDMETRICS = 0x002C;
+        public const uint SPI_GETICONMETRICS = 0x002D;
+        public const uint SPI_SETICONMETRICS = 0x002E;
+        public const uint SPI_SETWORKAREA = 0x002F;
+        public const uint SPI_GETWORKAREA = 0x0030;
+        public const uint SPI_SETPENWINDOWS = 0x0031;
+        public const uint SPI_GETHIGHCONTRAST = 0x0042;
+        public const uint SPI_SETHIGHCONTRAST = 0x0043;
+        public const uint SPI_GETKEYBOARDPREF = 0x0044;
+        public const uint SPI_SETKEYBOARDPREF = 0x0045;
+        public const uint SPI_GETSCREENREADER = 0x0046;
+        public const uint SPI_SETSCREENREADER = 0x0047;
+        public const uint SPI_GETANIMATION = 0x0048;
+        public const uint SPI_SETANIMATION = 0x0049;
+        public const uint SPI_GETFONTSMOOTHING = 0x004A;
+        public const uint SPI_SETFONTSMOOTHING = 0x004B;
+        public const uint SPI_SETDRAGWIDTH = 0x004C;
+        public const uint SPI_SETDRAGHEIGHT = 0x004D;
+        public const uint SPI_SETHANDHELD = 0x004E;
+        public const uint SPI_GETLOWPOWERTIMEOUT = 0x004F;
+        public const uint SPI_GETPOWEROFFTIMEOUT = 0x0050;
+        public const uint SPI_SETLOWPOWERTIMEOUT = 0x0051;
+        public const uint SPI_SETPOWEROFFTIMEOUT = 0x0052;
+        public const uint SPI_GETLOWPOWERACTIVE = 0x0053;
+        public const uint SPI_GETPOWEROFFACTIVE = 0x0054;
+        public const uint SPI_SETLOWPOWERACTIVE = 0x0055;
+        public const uint SPI_SETPOWEROFFACTIVE = 0x0056;
+        public const uint SPI_SETICONS = 0x0058;
+        public const uint SPI_GETDEFAULTINPUTLANG = 0x0059;
+        public const uint SPI_SETDEFAULTINPUTLANG = 0x005A;
+        public const uint SPI_SETLANGTOGGLE = 0x005B;
+        public const uint SPI_GETWINDOWSEXTENSION = 0x005C;
+        public const uint SPI_SETMOUSETRAILS = 0x005D;
+        public const uint SPI_GETMOUSETRAILS = 0x005E;
+        public const uint SPI_SCREENSAVERRUNNING = 0x0061;
+        public const uint SPI_GETFILTERKEYS = 0x0032;
+        public const uint SPI_SETFILTERKEYS = 0x0033;
+        public const uint SPI_GETTOGGLEKEYS = 0x0034;
+        public const uint SPI_SETTOGGLEKEYS = 0x0035;
+        public const uint SPI_GETMOUSEKEYS = 0x0036;
+        public const uint SPI_SETMOUSEKEYS = 0x0037;
+        public const uint SPI_GETSHOWSOUNDS = 0x0038;
+        public const uint SPI_SETSHOWSOUNDS = 0x0039;
+        public const uint SPI_GETSTICKYKEYS = 0x003A;
+        public const uint SPI_SETSTICKYKEYS = 0x003B;
+        public const uint SPI_GETACCESSTIMEOUT = 0x003C;
+        public const uint SPI_SETACCESSTIMEOUT = 0x003D;
+        public const uint SPI_GETSERIALKEYS = 0x003E;
+        public const uint SPI_SETSERIALKEYS = 0x003F;
+        public const uint SPI_GETSOUNDSENTRY = 0x0040;
+        public const uint SPI_SETSOUNDSENTRY = 0x0041;
+        public const uint SPI_GETSNAPTODEFBUTTON = 0x005F;
+        public const uint SPI_SETSNAPTODEFBUTTON = 0x0060;
+        public const uint SPI_GETMOUSEHOVERWIDTH = 0x0062;
+        public const uint SPI_SETMOUSEHOVERWIDTH = 0x0063;
+        public const uint SPI_GETMOUSEHOVERHEIGHT = 0x0064;
+        public const uint SPI_SETMOUSEHOVERHEIGHT = 0x0065;
+        public const uint SPI_GETMOUSEHOVERTIME = 0x0066;
+        public const uint SPI_SETMOUSEHOVERTIME = 0x0067;
+        public const uint SPI_GETWHEELSCROLLLINES = 0x0068;
+        public const uint SPI_SETWHEELSCROLLLINES = 0x0069;
+        public const uint SPI_GETMENUSHOWDELAY = 0x006A;
+        public const uint SPI_SETMENUSHOWDELAY = 0x006B;
+        public const uint SPI_GETSHOWIMEUI = 0x006E;
+        public const uint SPI_SETSHOWIMEUI = 0x006F;
+        public const uint SPI_GETMOUSESPEED = 0x0070;
+        public const uint SPI_SETMOUSESPEED = 0x0071;
+        public const uint SPI_GETSCREENSAVERRUNNING = 0x0072;
+        public const uint SPI_GETDESKWALLPAPER = 0x0073;
+        public const uint SPI_GETACTIVEWINDOWTRACKING = 0x1000;
+        public const uint SPI_SETACTIVEWINDOWTRACKING = 0x1001;
+        public const uint SPI_GETMENUANIMATION = 0x1002;
+        public const uint SPI_SETMENUANIMATION = 0x1003;
+        public const uint SPI_GETCOMBOBOXANIMATION = 0x1004;
+        public const uint SPI_SETCOMBOBOXANIMATION = 0x1005;
+        public const uint SPI_GETLISTBOXSMOOTHSCROLLING = 0x1006;
+        public const uint SPI_SETLISTBOXSMOOTHSCROLLING = 0x1007;
+        public const uint SPI_GETGRADIENTCAPTIONS = 0x1008;
+        public const uint SPI_SETGRADIENTCAPTIONS = 0x1009;
+        public const uint SPI_GETKEYBOARDCUES = 0x100A;
+        public const uint SPI_SETKEYBOARDCUES = 0x100B;
+        public const uint SPI_GETMENUUNDERLINES = SPI_GETKEYBOARDCUES;
+        public const uint SPI_SETMENUUNDERLINES = SPI_SETKEYBOARDCUES;
+        public const uint SPI_GETACTIVEWNDTRKZORDER = 0x100C;
+        public const uint SPI_SETACTIVEWNDTRKZORDER = 0x100D;
+        public const uint SPI_GETHOTTRACKING = 0x100E;
+        public const uint SPI_SETHOTTRACKING = 0x100F;
+        public const uint SPI_GETMENUFADE = 0x1012;
+        public const uint SPI_SETMENUFADE = 0x1013;
+        public const uint SPI_GETSELECTIONFADE = 0x1014;
+        public const uint SPI_SETSELECTIONFADE = 0x1015;
+        public const uint SPI_GETTOOLTIPANIMATION = 0x1016;
+        public const uint SPI_SETTOOLTIPANIMATION = 0x1017;
+        public const uint SPI_GETTOOLTIPFADE = 0x1018;
+        public const uint SPI_SETTOOLTIPFADE = 0x1019;
+        public const uint SPI_GETCURSORSHADOW = 0x101A;
+        public const uint SPI_SETCURSORSHADOW = 0x101B;
+        public const uint SPI_GETMOUSESONAR = 0x101C;
+        public const uint SPI_SETMOUSESONAR = 0x101D;
+        public const uint SPI_GETMOUSECLICKLOCK = 0x101E;
+        public const uint SPI_SETMOUSECLICKLOCK = 0x101F;
+        public const uint SPI_GETMOUSEVANISH = 0x1020;
+        public const uint SPI_SETMOUSEVANISH = 0x1021;
+        public const uint SPI_GETFLATMENU = 0x1022;
+        public const uint SPI_SETFLATMENU = 0x1023;
+        public const uint SPI_GETDROPSHADOW = 0x1024;
+        public const uint SPI_SETDROPSHADOW = 0x1025;
+        public const uint SPI_GETBLOCKSENDINPUTRESETS = 0x1026;
+        public const uint SPI_SETBLOCKSENDINPUTRESETS = 0x1027;
+        public const uint SPI_GETUIEFFECTS = 0x103E;
+        public const uint SPI_SETUIEFFECTS = 0x103F;
+        public const uint SPI_GETFOREGROUNDLOCKTIMEOUT = 0x2000;
+        public const uint SPI_SETFOREGROUNDLOCKTIMEOUT = 0x2001;
+        public const uint SPI_GETACTIVEWNDTRKTIMEOUT = 0x2002;
+        public const uint SPI_SETACTIVEWNDTRKTIMEOUT = 0x2003;
+        public const uint SPI_GETFOREGROUNDFLASHCOUNT = 0x2004;
+        public const uint SPI_SETFOREGROUNDFLASHCOUNT = 0x2005;
+        public const uint SPI_GETCARETWIDTH = 0x2006;
+        public const uint SPI_SETCARETWIDTH = 0x2007;
+        public const uint SPI_GETMOUSECLICKLOCKTIME = 0x2008;
+        public const uint SPI_SETMOUSECLICKLOCKTIME = 0x2009;
+        public const uint SPI_GETFONTSMOOTHINGTYPE = 0x200A;
+        public const uint SPI_SETFONTSMOOTHINGTYPE = 0x200B;
+        public const uint SPI_GETFONTSMOOTHINGCONTRAST = 0x200C;
+        public const uint SPI_SETFONTSMOOTHINGCONTRAST = 0x200D;
+        public const uint SPI_GETFOCUSBORDERWIDTH = 0x200E;
+        public const uint SPI_SETFOCUSBORDERWIDTH = 0x200F;
+        public const uint SPI_GETFOCUSBORDERHEIGHT = 0x2010;
+        public const uint SPI_SETFOCUSBORDERHEIGHT = 0x2011;
+        public const uint SPI_GETFONTSMOOTHINGORIENTATION = 0x2012;
+        public const uint SPI_SETFONTSMOOTHINGORIENTATION = 0x2013;
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool LockSetForegroundWindow(uint uLockCode);
+
+        public static readonly uint LSFW_LOCK = 1;
+        public static readonly uint LSFW_UNLOCK = 2;
+
+        [DllImport("user32.dll")]
+        public static extern bool AllowSetForegroundWindow(int dwProcessId);
+
+        public static readonly int ASFW_ANY = -1;
+
+        public enum ShowWindowCommands
+        {
+            /// <summary>
+            /// Hides the window and activates another window.
+            /// </summary>
+            Hide = 0,
+            /// <summary>
+            /// Activates and displays a window. If the window is minimized or
+            /// maximized, the system restores it to its original size and position.
+            /// An application should specify this flag when displaying the window
+            /// for the first time.
+            /// </summary>
+            Normal = 1,
+            /// <summary>
+            /// Activates the window and displays it as a minimized window.
+            /// </summary>
+            ShowMinimized = 2,
+            /// <summary>
+            /// Maximizes the specified window.
+            /// </summary>
+            Maximize = 3, // is this the right value?
+            /// <summary>
+            /// Activates the window and displays it as a maximized window.
+            /// </summary>      
+            ShowMaximized = 3,
+            /// <summary>
+            /// Displays a window in its most recent size and position. This value
+            /// is similar to <see cref="Win32.ShowWindowCommand.Normal"/>, except
+            /// the window is not activated.
+            /// </summary>
+            ShowNoActivate = 4,
+            /// <summary>
+            /// Activates the window and displays it in its current size and position.
+            /// </summary>
+            Show = 5,
+            /// <summary>
+            /// Minimizes the specified window and activates the next top-level
+            /// window in the Z order.
+            /// </summary>
+            Minimize = 6,
+            /// <summary>
+            /// Displays the window as a minimized window. This value is similar to
+            /// <see cref="Win32.ShowWindowCommand.ShowMinimized"/>, except the
+            /// window is not activated.
+            /// </summary>
+            ShowMinNoActive = 7,
+            /// <summary>
+            /// Displays the window in its current size and position. This value is
+            /// similar to <see cref="Win32.ShowWindowCommand.Show"/>, except the
+            /// window is not activated.
+            /// </summary>
+            ShowNA = 8,
+            /// <summary>
+            /// Activates and displays the window. If the window is minimized or
+            /// maximized, the system restores it to its original size and position.
+            /// An application should specify this flag when restoring a minimized window.
+            /// </summary>
+            Restore = 9,
+            /// <summary>
+            /// Sets the show state based on the SW_* value specified in the
+            /// STARTUPINFO structure passed to the CreateProcess function by the
+            /// program that started the application.
+            /// </summary>
+            ShowDefault = 10,
+            /// <summary>
+            ///  <b>Windows 2000/XP:</b> Minimizes a window, even if the thread
+            /// that owns the window is not responding. This flag should only be
+            /// used when minimizing windows from a different thread.
+            /// </summary>
+            ForceMinimize = 11
+        }
+
     }
 }

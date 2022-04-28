@@ -99,6 +99,7 @@ namespace Wallpapeuhrs
                     value.TransportControls = null;
                     value.AutoPlay = true;
                     value.MediaPlayer.IsLoopingEnabled = true;
+                    value.MediaPlayer.Volume = v / 100;
                     main.Children.Insert(0, value);
                     value.Stretch = Windows.UI.Xaml.Media.Stretch.UniformToFill;
                     value.MediaPlayer.MediaOpened += (sender, eee) =>
@@ -118,7 +119,6 @@ namespace Wallpapeuhrs
                             }
                         });
                     };
-                    value.MediaPlayer.Volume = v / 100;
                 }
                 catch (Exception e)
                 {

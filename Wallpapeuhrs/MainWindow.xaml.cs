@@ -22,9 +22,12 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Wallpapeuhrs.Styles;
+using Wallpapeuhrs.Utils;
 
 namespace Wallpapeuhrs
 {
@@ -60,22 +63,21 @@ namespace Wallpapeuhrs
             loadSettings();
             //
             System.Windows.Forms.ContextMenuStrip cm = new System.Windows.Forms.ContextMenuStrip();
+            cm.BackColor = System.Drawing.Color.FromArgb(38, 38, 38);
+            cm.Renderer = new MenuStripRenderer();
             Stream iconStream = Application.GetResourceStream(new Uri("/Wallpapeuhrs;component/Resources/Icon.ico", UriKind.RelativeOrAbsolute)).Stream;
             ni.Icon = new System.Drawing.Icon(iconStream);
             iconStream.Dispose();
             ni.Text = "Wallpapeuhrs";
-            var mi3 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Show app" };
+            var mi3 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Show app", ForeColor = System.Drawing.Color.White };
             mi3.Click += (s, ev) =>
             {
-                Show();
-                Activate();
                 if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
-                Activate();
-                Focus();
+                ForceWindowIntoForeground(new WindowInteropHelper(this).Handle);
                 inbg = false;
             };
             cm.Items.Add(mi3);
-            var mi1 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Play" };
+            var mi1 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Play", ForeColor = System.Drawing.Color.White };
             mi1.Click += (s, ev) =>
             {
                 foreach (string moni in processes.Keys)
@@ -84,7 +86,7 @@ namespace Wallpapeuhrs
                 }
             };
             cm.Items.Add(mi1);
-            var mi2 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Pause" };
+            var mi2 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Pause", ForeColor = System.Drawing.Color.White };
             mi2.Click += (s, ev) =>
             {
                 foreach (string moni in processes.Keys)
@@ -93,13 +95,13 @@ namespace Wallpapeuhrs
                 }
             };
             cm.Items.Add(mi2);
-            var mi0 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Change wallpaper" };
+            var mi0 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Change wallpaper", ForeColor = System.Drawing.Color.White };
             mi0.Click += (s, ev) =>
             {
                 beginWP();
             };
             cm.Items.Add(mi0);
-            var mi = new System.Windows.Forms.ToolStripMenuItem() { Text = "Close" };
+            var mi = new System.Windows.Forms.ToolStripMenuItem() { Text = "Close", ForeColor = System.Drawing.Color.White };
             mi.Click += (s, ev) =>
             {
                 isclos = true;
@@ -108,6 +110,38 @@ namespace Wallpapeuhrs
             cm.Items.Add(mi);
             ni.ContextMenuStrip = cm;
             ni.Visible = true;
+            //
+            foreach (ScrollViewer sv in FindVisualChildren<ScrollViewer>(g_main))
+            {
+                //sv.CanContentScroll = false;
+                int ii = 0;
+                sv.PreviewMouseWheel += (sendere, ee) =>
+                {
+                    sv.InvalidateScrollInfo();
+                    ee.Handled = true;
+                    sv.ScrollToVerticalOffset(sv.VerticalOffset);
+                    ii++;
+                    DoubleAnimation verticalAnimation = new DoubleAnimation();
+
+                    verticalAnimation.From = sv.VerticalOffset;
+                    int delta = ee.Delta;
+                    //if (delta < 0) delta = ee.Delta * (-1);
+                    int offset = 40 * ee.Delta / 120 * ii;
+                    verticalAnimation.To = sv.VerticalOffset - offset;
+                    verticalAnimation.Duration = new Duration(TimeSpan.FromMilliseconds(150));
+
+                    Storyboard storyboard = new Storyboard();
+
+                    storyboard.Children.Add(verticalAnimation);
+                    Storyboard.SetTarget(verticalAnimation, sv);
+                    Storyboard.SetTargetProperty(verticalAnimation, new PropertyPath(ScrollAnimationBehavior.VerticalOffsetProperty));
+                    storyboard.Completed += (ss, eee) =>
+                    {
+                        ii = 0;
+                    };
+                    storyboard.Begin();
+                };
+            }
             //
             connectLocalTCP();
             //
@@ -200,11 +234,9 @@ namespace Wallpapeuhrs
                     {
                         Dispatcher.Invoke(() =>
                         {
-                            if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
-                            Show();
-                            Activate();
-                            Focus();
-                            Show();
+                            if (WindowState != WindowState.Maximized) WindowState = WindowState.Normal;
+                            IntPtr handle = new WindowInteropHelper(this).Handle;
+                            ForceWindowIntoForeground(handle);
                             inbg = false;
                         });
                     }
@@ -293,6 +325,9 @@ namespace Wallpapeuhrs
         //for explorer.exe
         bool alreadyRestarted = false;
 
+        //for beginWP
+        bool isAddingNewProcess = false;
+
         private async void beginWP()
         {
             try
@@ -310,6 +345,16 @@ namespace Wallpapeuhrs
                 {
                     //Dictionary<string, string> monis = W32.getMoniGPU();
                     int startAfter = 0;
+                    var pe = new List<string>();
+                    Process[] pl = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
+                    foreach (System.Windows.Forms.Screen mon in System.Windows.Forms.Screen.AllScreens)
+                    {
+                        foreach (Process p in pl)
+                        {
+                            var cmdL = GetCommandLine(p);
+                            if (cmdL != null && cmdL.Contains("/moni \"" + mon.DeviceName + "\"")) pe.Add(mon.DeviceName);
+                        }
+                    }
                     foreach (System.Windows.Forms.Screen mon in System.Windows.Forms.Screen.AllScreens)
                     {
                         /*if(monis.ContainsKey(mon.DeviceName))
@@ -321,62 +366,71 @@ namespace Wallpapeuhrs
                             key.SetValue(str, "GpuPreference=" + gpu + ";");
                             //await Task.Delay(1000);
                         }*/
-                        Process[] pl = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
-                        bool haveWPBG = false;
-                        foreach (Process p in pl)
+                        if (!pe.Contains(mon.DeviceName) && !processes.ContainsKey(mon.DeviceName))
                         {
-                            var cmdL = GetCommandLine(p);
-                            if (cmdL != null && cmdL.Contains("/moni \"" + mon.DeviceName + "\"")) haveWPBG = true;
-                        }
-                        if (!haveWPBG && !processes.ContainsKey(mon.DeviceName))
-                        {
+                            isAddingNewProcess = true;
                             Process p = new Process();
                             p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + Process.GetCurrentProcess().ProcessName + ".exe";
                             p.StartInfo.Arguments = "--wp /startAfter " + startAfter + " /moni \"" + mon.DeviceName + "\"";
                             p.StartInfo.UseShellExecute = true;
                             p.Start();
-                            TcpClient PCtcp = await PStcp.AcceptTcpClientAsync();
-                            processes.Add(mon.DeviceName, PCtcp);
-                            NetworkStream ns = PCtcp.GetStream();
-                            byte[] read = new byte[PCtcp.ReceiveBufferSize];
-                            int index = startAfter;
-                            //
-                            AsyncCallback asy = null;
-                            asy = (ar) =>
+                            async void a()
                             {
-                                try
+                                TcpClient PCtcp = await PStcp.AcceptTcpClientAsync();
+                                NetworkStream ns = PCtcp.GetStream();
+                                byte[] read = new byte[PCtcp.ReceiveBufferSize];
+                                int index = startAfter;
+                                //
+                                AsyncCallback asy = null;
+                                asy = (ar) =>
                                 {
-                                    int bytesRead = ns.EndRead(ar);
-                                    string stra = Encoding.Unicode.GetString(read, 0, bytesRead).Replace(",", ".");
-                                    if (stra.StartsWith("READY ") && index == System.Windows.Forms.Screen.AllScreens.Count() - 1)
+                                    try
                                     {
-                                        //Dispatcher.Invoke(() => Activate());
-                                        //string moni = stra.Split(' ')[1];
-                                        //sendChange(moni, PCtcp);
-                                        foreach(string moni in processes.Keys)
+                                        int bytesRead = ns.EndRead(ar);
+                                        string stra = Encoding.Unicode.GetString(read, 0, bytesRead).Replace(",", ".");
+                                        if (stra.StartsWith("READY "))
                                         {
-                                            sendChange(moni, processes[moni]);
+                                            string moni = stra.Split(" ", StringSplitOptions.RemoveEmptyEntries)[1];
+                                            processes.Add(moni, PCtcp);
+                                            //MessageBox.Show(processes.Count.ToString());
+                                            if(processes.Count == System.Windows.Forms.Screen.AllScreens.Count())
+                                            {
+                                                foreach (string monii in processes.Keys)
+                                                {
+                                                    sendChange(monii, processes[monii]);
+                                                }
+                                            }
                                         }
+                                        ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
                                     }
-                                    ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
-                                }
-                                catch
-                                {
-                                    Dispatcher.Invoke(() =>
+                                    catch
                                     {
-                                        if (!stopping && System.Windows.Forms.Screen.AllScreens.Contains(mon))
+                                        Dispatcher.Invoke(() =>
                                         {
-                                            processes.Remove(mon.DeviceName);
-                                            beginWP();
-                                        }
-                                    });
-                                }
-                            };
-                            ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
+                                            if (!stopping)
+                                            {
+                                                foreach (string moni in processes.Keys)
+                                                {
+                                                    var tcp = processes[moni];
+                                                    if (tcp == PCtcp)
+                                                    {
+                                                        processes.Remove(moni);
+                                                        isAddingNewProcess = true;
+                                                        beginWP();
+                                                        return;
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                };
+                                ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
+                            }
+                            a();
                         }
                         else
                         {
-                            if (processes.ContainsKey(mon.DeviceName))
+                            if (processes.ContainsKey(mon.DeviceName) && !isAddingNewProcess)
                                 sendChange(mon.DeviceName, processes[mon.DeviceName]);
                         }
                         startAfter += 1;
@@ -385,6 +439,7 @@ namespace Wallpapeuhrs
                     loaded = true;
                 }
                 else MessageBox.Show("Please put the path of a media or a folder to continue.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                isAddingNewProcess = false;
                 /*Microsoft.Win32.RegistryKey keyk = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\DirectX\\UserGpuPreferences", true);
                 string strk = Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe");
                 keyk.SetValue(strk, "GpuPreference=0;");*/
@@ -515,7 +570,66 @@ namespace Wallpapeuhrs
 
         private void intel_link_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            Process.Start("https://www.intel.com/content/www/us/en/download/19344/691496/intel-graphics-windows-dch-drivers.html");
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "https://www.intel.com/content/www/us/en/download/19344/691496/intel-graphics-windows-dch-drivers.html",
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+        }
+
+        public void ForceWindowIntoForeground(IntPtr window)
+        {
+            Show();
+            uint currentThread = W32.GetCurrentThreadId();
+
+            IntPtr activeWindow = W32.GetForegroundWindow();
+            uint activeProcess;
+            uint activeThread = W32.GetWindowThreadProcessId(activeWindow, out activeProcess);
+
+            uint windowProcess;
+            uint windowThread = W32.GetWindowThreadProcessId(window, out windowProcess);
+
+            if (currentThread != activeThread)
+                W32.AttachThreadInput(currentThread, activeThread, true);
+            if (windowThread != currentThread)
+                W32.AttachThreadInput(windowThread, currentThread, true);
+
+            uint oldTimeout = 0, newTimeout = 0;
+            W32.SystemParametersInfo(W32.SPI_GETFOREGROUNDLOCKTIMEOUT, 0, ref oldTimeout, 0);
+            W32.SystemParametersInfo(W32.SPI_SETFOREGROUNDLOCKTIMEOUT, 0, ref newTimeout, 0);
+            W32.LockSetForegroundWindow(W32.LSFW_UNLOCK);
+            W32.AllowSetForegroundWindow(W32.ASFW_ANY);
+
+            W32.SetForegroundWindow(window);
+            //W32.ShowWindow(window, (int)W32.ShowWindowCommands.Restore);
+
+            W32.SystemParametersInfo(W32.SPI_SETFOREGROUNDLOCKTIMEOUT, 0, ref oldTimeout, 0);
+
+            if (currentThread != activeThread)
+                W32.AttachThreadInput(currentThread, activeThread, false);
+            if (windowThread != currentThread)
+                W32.AttachThreadInput(windowThread, currentThread, false);
+        }
+
+        public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj != null)
+            {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+                {
+                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
+                    if (child != null && child is T)
+                    {
+                        yield return (T)child;
+                    }
+
+                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                    {
+                        yield return childOfChild;
+                    }
+                }
+            }
         }
     }
 }
