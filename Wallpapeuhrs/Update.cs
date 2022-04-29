@@ -77,7 +77,7 @@ namespace Wallpapeuhrs
             }
         }
 
-        static async Task<string> getServer()
+        public static async Task<string> getServer()
         {
             return await httpRequestGET("https://raw.githubusercontent.com/Shiyukine/Shiyukine/main/serv.txt");
         }

@@ -16,7 +16,7 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid x:Name="g_main" Background="#FF262626">
-        <Button x:Name="start" Content="Save and start" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="33" Width="128" Margin="0,0,10,10" Click="start_Click" Background="#FF4F4F4F" Foreground="Lime" BorderBrush="{x:Null}"/>
+        <Button x:Name="start" Content="Save and start" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="33" Width="128" Margin="0,0,10,10" Click="start_Click" Background="#FF4F4F4F" Foreground="White" BorderBrush="{x:Null}"/>
         <ScrollViewer Margin="10,10,10,56" VerticalScrollBarVisibility="Auto">
             <Border Background="#FF303030" CornerRadius="15,15,15,15" VerticalAlignment="Top">
                 <Grid Margin="15,15,15,15">
@@ -52,12 +52,12 @@
                             </Grid>
                         </StackPanel>
                     </Border>
-                    <Button x:Name="slide" Content="Slideshow" VerticalAlignment="Top" Margin="0,35,10,0" Height="25" Click="slide_Click" Background="#FF4F4F4F" Foreground="Lime" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90"/>
-                    <Button x:Name="vid" Content="Video or Image" VerticalAlignment="Top" Margin="0,35,105,0" Height="25" Click="vid_Click" Background="#FF4F4F4F" Foreground="Lime" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="120"/>
+                    <Button x:Name="slide" Content="Slideshow" VerticalAlignment="Top" Margin="0,35,10,0" Height="25" Click="slide_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90"/>
+                    <Button x:Name="vid" Content="Video or Image" VerticalAlignment="Top" Margin="0,35,105,0" Height="25" Click="vid_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="120"/>
                 </Grid>
             </Border>
         </ScrollViewer>
-        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="White" Margin="10,0,0,32">By Shiyukine - Aketsuky</TextBlock>
+        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="White" Margin="10,0,0,32"><Run Text="By Shiyukine - "></Run><Run x:Name="about_me" Foreground="#FF00C5FF" Text="Aketsuky" TextDecorations="Underline" Cursor="Hand" MouseUp="about_me_MouseUp"></Run></TextBlock>
         <TextBlock x:Name="vname" HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="White" Margin="10,0,0,10">v1.0</TextBlock>
         <Button x:Name="restart_dwm" Content="Restart DWM" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="33" Width="128" Margin="0,0,143,10" Click="restart_dwm_Click" Background="#FF4F4F4F" Foreground="Red" BorderBrush="{x:Null}" Visibility="Collapsed"/>
     </Grid>

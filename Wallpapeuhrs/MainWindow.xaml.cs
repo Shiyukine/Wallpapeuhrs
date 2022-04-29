@@ -631,5 +631,16 @@ namespace Wallpapeuhrs
                 }
             }
         }
+
+        private async void about_me_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            string link = await Update.getServer();
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = link,
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+        }
     }
 }
