@@ -18,6 +18,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Wallpapeuhrs.Utils;
 using Windows.ApplicationModel;
 using Windows.Management.Deployment;
 using Windows.Media;
@@ -50,6 +51,7 @@ namespace Wallpapeuhrs
             this.startAfter = startAfter;
             //
             InitializeComponent();
+            WindowStartupLocation = WindowStartupLocation.Manual;
             //
             if (isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni))
             {
@@ -57,14 +59,13 @@ namespace Wallpapeuhrs
                 dw.Show();
             }
             //
-            resizeApp();
-            //
             med.parent = this;
             //
             timer.Tick += Timer_Tick;
             timer.Interval = 1000;
             //
             Show();
+            resizeApp();
         }
 
         System.Drawing.Rectangle anSize = new System.Drawing.Rectangle();
@@ -75,19 +76,16 @@ namespace Wallpapeuhrs
             {
                 if (s.DeviceName == moni && anSize != s.Bounds)
                 {
-                    Width = s.Bounds.Width;
-                    Height = s.Bounds.Height;
                     //Code from TouchTransporter
-                    double top = 0;
-                    double left = 0;
+                    int top = 0;
+                    int left = 0;
                     foreach (System.Windows.Forms.Screen s2 in System.Windows.Forms.Screen.AllScreens)
                     {
                         if (s2.Bounds.Y < top && s2.Bounds.Y < 0) top = s2.Bounds.Y * -1;
                         if (s2.Bounds.X < left && s2.Bounds.X < 0) left = s2.Bounds.X * -1;
                     }
                     //
-                    Left = s.Bounds.X + left;
-                    Top = s.Bounds.Y + top;
+                    W32.SetWindowPos(new WindowInteropHelper(this).Handle, IntPtr.Zero, s.Bounds.X + left, s.Bounds.Y + top, s.Bounds.Width, s.Bounds.Height, W32.SetWindowPosFlags.NoZOrder | W32.SetWindowPosFlags.AsynWindowPos | W32.SetWindowPosFlags.NoRedraw);
                     anSize = s.Bounds;
                     return;
                 }
