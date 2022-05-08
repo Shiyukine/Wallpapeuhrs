@@ -584,7 +584,6 @@ namespace Wallpapeuhrs
 
         public void ForceWindowIntoForeground(IntPtr window)
         {
-            Show();
             uint currentThread = W32.GetCurrentThreadId();
 
             IntPtr activeWindow = W32.GetForegroundWindow();
@@ -605,6 +604,10 @@ namespace Wallpapeuhrs
             W32.LockSetForegroundWindow(W32.LSFW_UNLOCK);
             W32.AllowSetForegroundWindow(W32.ASFW_ANY);
 
+            Show();
+            Topmost = true;
+            Activate();
+            Topmost = false;
             W32.SetForegroundWindow(window);
             //W32.ShowWindow(window, (int)W32.ShowWindowCommands.Restore);
 

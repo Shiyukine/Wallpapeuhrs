@@ -1123,5 +1123,7 @@ namespace Wallpapeuhrs
             ForceMinimize = 11
         }
 
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr SetFocus(IntPtr hWnd);
     }
 }
