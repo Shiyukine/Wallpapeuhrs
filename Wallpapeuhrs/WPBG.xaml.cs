@@ -55,7 +55,7 @@ namespace Wallpapeuhrs
             //
             if (isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni))
             {
-                dw = new DebugWindow();
+                dw = new DebugWindow(moni);
                 dw.Show();
             }
             //
@@ -97,6 +97,7 @@ namespace Wallpapeuhrs
             Worker.Init();
             IntPtr p = new WindowInteropHelper(this).Handle;
             W32.SetParent(p, Worker.workerw);
+            log("curDisplay : " + moni);
             //
             await tcp.ConnectAsync("127.0.0.1", 30930);
             NetworkStream ns = tcp.GetStream();
@@ -110,6 +111,7 @@ namespace Wallpapeuhrs
                 {
                     int bytesRead = ns.EndRead(ar);
                     string stra = Encoding.Unicode.GetString(read, 0, bytesRead);
+                    log(stra);
                     if (stra == "") Dispatcher.Invoke(() => App.Current.Shutdown());
                     else
                     {

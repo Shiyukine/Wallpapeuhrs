@@ -327,6 +327,7 @@ namespace Wallpapeuhrs
 
         //for beginWP
         bool isAddingNewProcess = false;
+        bool alreadySendChange = false;
 
         private async void beginWP()
         {
@@ -334,6 +335,7 @@ namespace Wallpapeuhrs
             {
                 //NativeWallpaper.changeWallpaper("");
                 loaded = false;
+                alreadySendChange = false;
                 if (!alreadyRestarted && sf.getBoolSetting("RestartExplorer") && inbg) await stopExplorer();
                 if (!ok)
                 {
@@ -376,10 +378,10 @@ namespace Wallpapeuhrs
                             p.Start();
                             async void a()
                             {
+                                int index = startAfter;
                                 TcpClient PCtcp = await PStcp.AcceptTcpClientAsync();
                                 NetworkStream ns = PCtcp.GetStream();
                                 byte[] read = new byte[PCtcp.ReceiveBufferSize];
-                                int index = startAfter;
                                 //
                                 AsyncCallback asy = null;
                                 asy = (ar) =>
@@ -392,9 +394,11 @@ namespace Wallpapeuhrs
                                         {
                                             string moni = stra.Split(" ", StringSplitOptions.RemoveEmptyEntries)[1];
                                             processes.Add(moni, PCtcp);
-                                            //MessageBox.Show(processes.Count.ToString());
-                                            if(processes.Count == System.Windows.Forms.Screen.AllScreens.Count())
+                                            //Debug.WriteLine(System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
+                                            if(processes.Count == System.Windows.Forms.Screen.AllScreens.Count() && !alreadySendChange)
                                             {
+                                                alreadySendChange = true;
+                                                //Debug.WriteLine("launch " + System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
                                                 foreach (string monii in processes.Keys)
                                                 {
                                                     sendChange(monii, processes[monii]);
@@ -522,21 +526,21 @@ namespace Wallpapeuhrs
             }
         }
 
-        public static void sendData(TcpClient tcp, string text, string moni)
+        public static async void sendData(TcpClient tcp, string text, string moni)
         {
             try
             {
                 byte[] data2 = System.Text.Encoding.Unicode.GetBytes((moni != null ? moni + ": " : "") + text + "|");
-                /*NetworkStream nwStream = tcp.GetStream();
+                NetworkStream nwStream = tcp.GetStream();
                 await nwStream.WriteAsync(data2, 0, data2.Length);
-                nwStream.Flush();*/
-                SocketAsyncEventArgs sa = new SocketAsyncEventArgs();
+                //nwStream.Flush();
+                /*SocketAsyncEventArgs sa = new SocketAsyncEventArgs();
                 sa.Completed += (sendere, ee) =>
                 {
                     if (ee.SocketError != SocketError.Success) MessageBox.Show("Error tcp send data " + ee.SocketError);
                 };
                 sa.SetBuffer(data2, 0, data2.Length);
-                tcp.Client.SendAsync(sa);
+                tcp.Client.SendAsync(sa);*/
             }
             catch(Exception e)
             {

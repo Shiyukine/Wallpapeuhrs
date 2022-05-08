@@ -20,10 +20,13 @@ namespace Wallpapeuhrs
     public partial class DebugWindow : Window
     {
         int tick = System.Environment.TickCount;
+        string moni;
 
-        public DebugWindow()
+        public DebugWindow(string moni)
         {
+            this.moni = moni;
             InitializeComponent();
+            Title = "DebugWindow - " + moni;
         }
 
         public void log(string log)
