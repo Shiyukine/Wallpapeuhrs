@@ -526,21 +526,21 @@ namespace Wallpapeuhrs
             }
         }
 
-        public static async void sendData(TcpClient tcp, string text, string moni)
+        public static void sendData(TcpClient tcp, string text, string moni)
         {
             try
             {
                 byte[] data2 = System.Text.Encoding.Unicode.GetBytes((moni != null ? moni + ": " : "") + text + "|");
-                NetworkStream nwStream = tcp.GetStream();
-                await nwStream.WriteAsync(data2, 0, data2.Length);
+                /*NetworkStream nwStream = tcp.GetStream();
+                await nwStream.WriteAsync(data2, 0, data2.Length);*/
                 //nwStream.Flush();
-                /*SocketAsyncEventArgs sa = new SocketAsyncEventArgs();
+                SocketAsyncEventArgs sa = new SocketAsyncEventArgs();
                 sa.Completed += (sendere, ee) =>
                 {
                     if (ee.SocketError != SocketError.Success) MessageBox.Show("Error tcp send data " + ee.SocketError);
                 };
                 sa.SetBuffer(data2, 0, data2.Length);
-                tcp.Client.SendAsync(sa);*/
+                tcp.Client.SendAsync(sa);
             }
             catch(Exception e)
             {
