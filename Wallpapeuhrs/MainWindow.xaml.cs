@@ -56,6 +56,12 @@ namespace Wallpapeuhrs
             //curNativeWallpaper = NativeWallpaper.getCurrentDesktopWallpaper();
             this.inbg = inbg;
             //
+            var wih = new WindowInteropHelper(this);
+            var hwnd = wih.EnsureHandle();
+            _ScreenStateNotify = W32.RegisterPowerSettingNotification(hwnd, ref W32.GUID_CONSOLE_DISPLAY_STATE, W32.DEVICE_NOTIFY_WINDOW_HANDLE);
+            _HwndSource = HwndSource.FromHwnd(hwnd);
+            _HwndSource.AddHook(HwndHook);
+            //
             string newF = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\";
             if (!inbg) Show();
             if (!Directory.Exists(newF)) Directory.CreateDirectory(newF);
@@ -196,6 +202,49 @@ namespace Wallpapeuhrs
             // 
             if (urls.Text != "") beginWP();
         }
+
+        private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            // handler of console display state system event 
+            if (msg == W32.WM_POWERBROADCAST)
+            {
+                if (wParam.ToInt32() == W32.PBT_POWERSETTINGCHANGE)
+                {
+                    var s = (W32.POWERBROADCAST_SETTING)Marshal.PtrToStructure(lParam, typeof(W32.POWERBROADCAST_SETTING));
+                    if (s.PowerSetting == W32.GUID_CONSOLE_DISPLAY_STATE && loaded)
+                    {
+                        if(s.Data == 1)
+                        {
+                            //Debug.WriteLine("Not in sleep mode");
+                            foreach (string moni in processes.Keys)
+                            {
+                                sendData(processes[moni], "Play", moni);
+                            }
+                        }
+                        if(s.Data == 0)
+                        {
+                            //Debug.WriteLine("Sleep mode");
+                            foreach (string moni in processes.Keys)
+                            {
+                                sendData(processes[moni], "Pause", moni);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return IntPtr.Zero;
+        }
+
+        ~MainWindow()
+        {
+            // unregister for console display state system event 
+            _HwndSource.RemoveHook(HwndHook);
+            W32.UnregisterPowerSettingNotification(_ScreenStateNotify);
+        }
+
+        private HwndSource _HwndSource;
+        private readonly IntPtr _ScreenStateNotify;
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -649,5 +698,11 @@ namespace Wallpapeuhrs
             };
             Process.Start(psi);
         }
+
+        /* NE PAS TOUCHER
+         * [Windows.Foundation.Metadata.ContractVersion(typeof(Windows.Foundation.UniversalApiContract), 65536)]
+    [Windows.Foundation.Metadata.MarshalingBehavior(Windows.Foundation.Metadata.MarshalingType.None)]
+    [Windows.Foundation.Metadata.Threading(Windows.Foundation.Metadata.ThreadingModel.STA)]
+    [Windows.Foundation.Metadata.Activatable(65536, "Windows.Foundation.UniversalApiContract")]*/
     }
 }
