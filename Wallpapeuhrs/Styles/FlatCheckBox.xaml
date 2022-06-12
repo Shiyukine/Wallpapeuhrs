@@ -22,7 +22,7 @@
 
                         <Border Background="{Binding Background, RelativeSource={RelativeSource Mode=TemplatedParent}}"
                             BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource Mode=TemplatedParent}}" 
-                            BorderThickness="{Binding BorderBrush, RelativeSource={RelativeSource Mode=TemplatedParent}}" 
+                            BorderThickness="{Binding BorderThickness, RelativeSource={RelativeSource Mode=TemplatedParent}}" 
                             CornerRadius="5" Width="19" Height="19" VerticalAlignment="Center" x:Name="bordeuh" Cursor="Hand">
                             <Grid>
                                 <Path x:Name="CheckMark" Data="F1 M 9.97498,1.22334L 4.6983,9.09834L 4.52164,9.09834L 0,5.19331L 1.27664,3.52165L 4.255,
