@@ -66,8 +66,8 @@
                                 </Grid>
                             </Border>
                             <Grid x:Name="restartexplo_g" Margin="15,0" Visibility="Collapsed">
-                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" TextWrapping="WrapWithOverflow" Width="431"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is launched in background (requires Administrator authorization)"/><Run Text="&#xD;Please activate this setting only if you encounter memory leaks with dwm.exe&#xD;You can fix this problem by " FontSize="12"/><Run x:Name="intel_link" Text="downloading the Intel driver version 30.0.101.1191" FontSize="12" Foreground="#FF00C5FF" TextDecorations="Underline" MouseUp="intel_link_MouseUp" Cursor="Hand"></Run><Run FontSize="12" Text=" or more."/></TextBlock>
-                                <styles:FlatCheckBox x:Name="restartexplo" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="442,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
+                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" TextWrapping="WrapWithOverflow"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is launched in background (requires Administrator authorization)"/><Run Text="&#xD;Please activate this setting only if you encounter memory leaks with dwm.exe" FontSize="12"/></TextBlock>
+                                <styles:FlatCheckBox x:Name="restartexplo" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="439,0,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -92,6 +92,6 @@
         <Border Margin="104,0,0,16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF2F2F2F" CornerRadius="15,15,15,15" Padding="8,5,8,5">
             <TextBlock x:Name="vname" Foreground="White">v1.0</TextBlock>
         </Border>
-        <Button x:Name="restart_dwm" Content="Restart DWM" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="33" Width="128" Margin="0,0,143,10" Click="restart_dwm_Click" Background="#FF4F4F4F" Foreground="Red" BorderBrush="{x:Null}" Visibility="Collapsed"/>
+        <styles:NewButtons x:Name="restart_dwm" Content="Restart DWM" BorderRadius="16.5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="33" Width="128" Margin="0,0,150,10" Click="restart_dwm_Click" Background="#FF4F4F4F" Foreground="Red" BorderBrush="{x:Null}" Visibility="Collapsed"/>
     </Grid>
 </Window>
