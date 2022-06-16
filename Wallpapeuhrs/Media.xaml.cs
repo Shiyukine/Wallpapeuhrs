@@ -89,14 +89,9 @@ namespace Wallpapeuhrs
             {
                 try
                 {
-                    SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
                     //setDWM();
                     double v = volume;
                     //if (v == 100) v = 99.4;
-                    value.MediaPlayer.SystemMediaTransportControls.IsEnabled = false;
-                    value.MediaPlayer.CommandManager.IsEnabled = false;
-                    value.AreTransportControlsEnabled = false;
-                    value.TransportControls = null;
                     value.AutoPlay = true;
                     value.MediaPlayer.IsLoopingEnabled = true;
                     value.MediaPlayer.Volume = v / 100;
@@ -104,12 +99,6 @@ namespace Wallpapeuhrs
                     value.Stretch = Windows.UI.Xaml.Media.Stretch.UniformToFill;
                     value.MediaPlayer.MediaOpened += async (sender, eee) =>
                     {
-                        await main.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
-                        {
-                            SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
-                            value.MediaPlayer.SystemMediaTransportControls.IsEnabled = false;
-                            value.MediaPlayer.CommandManager.IsEnabled = false;
-                        });
                         remove(value);
                     };
                     _media = value;
@@ -173,6 +162,9 @@ namespace Wallpapeuhrs
                         Windows.UI.Xaml.Controls.MediaPlayerElement me = new Windows.UI.Xaml.Controls.MediaPlayerElement();
                         me.CacheMode = setCache(newUrl);
                         me.Source = MediaSource.CreateFromUri(new Uri(newUrl));
+                        me.MediaPlayer.SystemMediaTransportControls.IsEnabled = false;
+                        me.MediaPlayer.CommandManager.IsEnabled = false;
+                        me.AreTransportControlsEnabled = false;
                         curMedia = me;
                     }
                     if(ext == "Image files")
@@ -240,6 +232,15 @@ namespace Wallpapeuhrs
         {
             await main.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
+                if(value is Windows.UI.Xaml.Controls.MediaPlayerElement)
+                {                   
+                    (value as Windows.UI.Xaml.Controls.MediaPlayerElement).AreTransportControlsEnabled = false;
+                    (value as Windows.UI.Xaml.Controls.MediaPlayerElement).MediaPlayer.SystemMediaTransportControls.IsEnabled = false;
+                    (value as Windows.UI.Xaml.Controls.MediaPlayerElement).MediaPlayer.CommandManager.IsEnabled = false;
+                    //(value as Windows.UI.Xaml.Controls.MediaPlayerElement).TransportControls.IsEnabled = false;
+                    //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
+                    //SystemMediaTransportControls.GetForCurrentView().DisplayUpdater.Update();
+                }
                 for (int index = 0; index < main.Children.Count; index++)
                 {
                     if (index > 0 && main.Children[index].Opacity == 1)
