@@ -510,12 +510,18 @@ namespace Wallpapeuhrs
 
         private string GetCommandLine(Process process)
         {
-            using (ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT CommandLine FROM Win32_Process WHERE ProcessId = " + process.Id))
-            using (ManagementObjectCollection objects = searcher.Get())
+            try
             {
-                return objects.Cast<ManagementBaseObject>().SingleOrDefault()?["CommandLine"]?.ToString();
+                using (ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT CommandLine FROM Win32_Process WHERE ProcessId = " + process.Id))
+                using (ManagementObjectCollection objects = searcher.Get())
+                {
+                    return objects.Cast<ManagementBaseObject>().SingleOrDefault()?["CommandLine"]?.ToString();
+                }
             }
-
+            catch
+            {
+                return "";
+            }
         }
 
         private void sendChange(string moni, TcpClient PCtcp)

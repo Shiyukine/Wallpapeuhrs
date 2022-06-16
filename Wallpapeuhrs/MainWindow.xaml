@@ -17,7 +17,7 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid x:Name="g_main" Background="#FF262626">
-        <styles:NewButtons x:Name="start" Content="Save and start" BorderRadius="16.5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="36" Width="135" Margin="0,0,10,10" Click="start_Click" Background="#FF3E3E3E" Foreground="White" BorderBrush="{x:Null}" BackgroundHover="#FF5B5B5B"/>
+        <styles:NewButtons x:Name="start" Content="Save and start" BorderRadius="18,18,18,18" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="36" Width="135" Margin="0,0,10,10" Click="start_Click" Background="#FF3E3E3E" Foreground="White" BorderBrush="{x:Null}" BackgroundHover="#FF5B5B5B"/>
         <ScrollViewer Margin="10,18,10,60" VerticalScrollBarVisibility="Visible" FocusVisualStyle="{x:Null}">
             <Border Background="#FF303030" CornerRadius="15,15,15,15" VerticalAlignment="Top" Margin="18,0,0,0">
                 <Grid Margin="15,15,15,15">
@@ -92,6 +92,6 @@
         </styles:NewButtons>
         <styles:NewButtons x:Name="vname" Margin="104,0,0,16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF383838" BorderRadius="15,15,15,15" Padding="8,5,8,5" Foreground="White" BackgroundHover="#FF5B5B5B" Click="vname_Click" ToolTip="View GitHub project">v1.0
         </styles:NewButtons>
-        <styles:NewButtons x:Name="restart_dwm" Content="Restart DWM" BorderRadius="16.5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="33" Width="128" Margin="0,0,150,10" Click="restart_dwm_Click" Background="#FF4F4F4F" Foreground="Red" BorderBrush="{x:Null}" Visibility="Collapsed"/>
+        <styles:NewButtons x:Name="restart_dwm" Content="Restart DWM" BorderRadius="18,18,18,18" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="36" Width="128" Margin="0,0,150,10" Click="restart_dwm_Click" Background="#FF3E3E3E" Foreground="Red" BorderBrush="{x:Null}" Visibility="Collapsed" BackgroundHover="#FF5B5B5B"/>
     </Grid>
 </Window>
