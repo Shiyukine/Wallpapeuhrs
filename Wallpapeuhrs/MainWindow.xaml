@@ -17,7 +17,7 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid x:Name="g_main" Background="#FF262626">
-        <styles:NewButtons x:Name="start" Content="Save and start" BorderRadius="16.5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="36" Width="135" Margin="0,0,10,10" Click="start_Click" Background="#FF4F4F4F" Foreground="White" BorderBrush="{x:Null}"/>
+        <styles:NewButtons x:Name="start" Content="Save and start" BorderRadius="16.5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="36" Width="135" Margin="0,0,10,10" Click="start_Click" Background="#FF3E3E3E" Foreground="White" BorderBrush="{x:Null}" BackgroundHover="#FF5B5B5B"/>
         <ScrollViewer Margin="10,18,10,60" VerticalScrollBarVisibility="Visible" FocusVisualStyle="{x:Null}">
             <Border Background="#FF303030" CornerRadius="15,15,15,15" VerticalAlignment="Top" Margin="18,0,0,0">
                 <Grid Margin="15,15,15,15">
@@ -47,7 +47,7 @@
                                 <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Stop animation when you're not on the Desktop"/></TextBlock>
                                 <styles:FlatCheckBox x:Name="stopan" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="371,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
                             </Grid>
-                            <Border x:Name="show_more" Margin="15,5" Background="#FF4C4C4C" CornerRadius="14,14,14,14" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="7,4,12,4" MouseEnter="show_more_MouseEnter" MouseLeave="show_more_MouseLeave" MouseLeftButtonUp="show_more_MouseLeftButtonUp" Cursor="Hand">
+                            <styles:NewButtons x:Name="show_more" Margin="15,5" Background="#FF4C4C4C" BorderRadius="14" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="7,4,12,4" Cursor="Hand" Click="show_more_Click" BackgroundHover="#FF5B5B5B">
                                 <Grid>
                                     <Viewbox Width="19" Height="19" HorizontalAlignment="Left" VerticalAlignment="Center" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
                                         <Viewbox.RenderTransform>
@@ -64,34 +64,34 @@
                                     </Viewbox>
                                     <TextBlock Foreground="White" HorizontalAlignment="Left" Margin="24,0,0,0" VerticalAlignment="Center" TextWrapping="WrapWithOverflow"><Run Text="Show more"/></TextBlock>
                                 </Grid>
-                            </Border>
-                            <Grid x:Name="restartexplo_g" Margin="15,0,15,5" Visibility="Collapsed">
-                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" Width="396" Background="#00000000"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is launched in background (requires Administrator authorization)"/><Run Text="&#xD;Please activate this setting only if you encounter memory leaks with dwm.exe" FontSize="12"/></TextBlock>
-                                <styles:FlatCheckBox x:Name="restartexplo" VerticalAlignment="Center" Margin="406,0,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747" HorizontalAlignment="Left" Width="19"/>
+                            </styles:NewButtons>
+                            <Grid x:Name="show_more_expend" Margin="15,0,15,5" Visibility="Visible">
+                                <Grid x:Name="restartexplo_g">
+                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" Width="396" Background="#00000000"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is launched in background (requires Administrator authorization)"/><Run Text="&#xD;Please activate this setting only if you encounter memory leaks with dwm.exe" FontSize="12"/></TextBlock>
+                                    <styles:FlatCheckBox x:Name="restartexplo" VerticalAlignment="Center" Margin="406,0,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747" HorizontalAlignment="Left" Width="19"/>
+                                </Grid>
                             </Grid>
                         </StackPanel>
                     </Border>
-                    <styles:NewButtons x:Name="slide" BorderRadius="12.5" Content="Slideshow" VerticalAlignment="Top" Margin="0,35,10,0" Height="25" Click="slide_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90"/>
-                    <styles:NewButtons x:Name="vid" BorderRadius="12.5" Content="Video or Image" VerticalAlignment="Top" Margin="0,35,105,0" Height="25" Click="vid_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="120"/>
+                    <styles:NewButtons x:Name="slide" BorderRadius="12.5" Content="Slideshow" VerticalAlignment="Top" Margin="0,35,10,0" Height="25" Click="slide_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90" BackgroundHover="#FF717171"/>
+                    <styles:NewButtons x:Name="vid" BorderRadius="12.5" Content="Video or Image" VerticalAlignment="Top" Margin="0,35,105,0" Height="25" Click="vid_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="120" BackgroundHover="#FF717171"/>
                 </Grid>
             </Border>
         </ScrollViewer>
-        <Border x:Name="more_info" Margin="10,0,0,10" MouseEnter="new_button_MouseEnter" MouseLeave="new_button_MouseLeave" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF3E3E3E" CornerRadius="21,21,21,21" Width="42" Padding="3,3,3,3" MouseLeftButtonUp="more_info_MouseLeftButtonUp" Cursor="Hand">
+        <styles:NewButtons x:Name="more_info" Margin="10,0,0,10" ToolTip="Get help" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF3E3E3E" BorderRadius="21" Width="42" Padding="3,3,3,3" Cursor="Hand" Click="more_info_Click" BackgroundHover="#FF5B5B5B">
             <Grid>
                 <Viewbox HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Canvas Width="24" Height="24" Background="#00000000">
                         <Path Fill="White" Data="M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z" />
                     </Canvas>
                 </Viewbox>
-                <Border ToolTip="Get help" CornerRadius="21,21,21,21" Background="#00000000"></Border>
             </Grid>
-        </Border>
-        <Border x:Name="about_us" Margin="57,0,0,10" MouseEnter="new_button_MouseEnter" MouseLeave="new_button_MouseLeave" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF3E3E3E" CornerRadius="21,21,21,21" Width="42" Padding="3,3,3,3" MouseLeftButtonUp="about_us_MouseLeftButtonUp" Cursor="Hand">
-            <Image Source="/Wallpapeuhrs;component/Resources/AyIconv2 round.png" HorizontalAlignment="Center" VerticalAlignment="Center" Height="36" ToolTip="By Shiyukine - Aketsuky"/>
-        </Border>
-        <Border Margin="104,0,0,16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF2F2F2F" CornerRadius="15,15,15,15" Padding="8,5,8,5">
-            <TextBlock x:Name="vname" Foreground="White">v1.0</TextBlock>
-        </Border>
+        </styles:NewButtons>
+        <styles:NewButtons x:Name="about_us" Margin="57,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" ToolTip="By Shiyukine - Aketsuky" Background="#FF3E3E3E" BorderRadius="21" Width="42" Padding="3,3,3,3" Cursor="Hand" Click="about_us_Click" BackgroundHover="#FF5B5B5B">
+            <Image Source="/Wallpapeuhrs;component/Resources/AyIconv2 round.png" HorizontalAlignment="Center" VerticalAlignment="Center" Height="36"/>
+        </styles:NewButtons>
+        <styles:NewButtons x:Name="vname" Margin="104,0,0,16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF383838" BorderRadius="15,15,15,15" Padding="8,5,8,5" Foreground="White" BackgroundHover="#FF5B5B5B" Click="vname_Click" ToolTip="View GitHub project">v1.0
+        </styles:NewButtons>
         <styles:NewButtons x:Name="restart_dwm" Content="Restart DWM" BorderRadius="16.5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="33" Width="128" Margin="0,0,150,10" Click="restart_dwm_Click" Background="#FF4F4F4F" Foreground="Red" BorderBrush="{x:Null}" Visibility="Collapsed"/>
     </Grid>
 </Window>

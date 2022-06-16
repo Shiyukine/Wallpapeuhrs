@@ -48,10 +48,12 @@ namespace Wallpapeuhrs
 
         public MainWindow(bool inbg)
         {
+            NameScope.SetNameScope(this, new NameScope());
             App.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
             App.Current.MainWindow = this;
             InitializeComponent();
-            vname.Text = Update.getVersionName();
+            RegisterName("MyAnimatedTransform", show_more_r);
+            vname.Content = Update.getVersionName();
             Update.searchUpdates();
             //curNativeWallpaper = NativeWallpaper.getCurrentDesktopWallpaper();
             this.inbg = inbg;
@@ -249,6 +251,9 @@ namespace Wallpapeuhrs
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             inbg = false;
+            maxHeightExpand = show_more_expend.ActualHeight;
+            show_more_expend.Height = 0;
+            show_more_expend.Visibility = Visibility.Collapsed;
         }
 
         private async void connectLocalTCP()
@@ -688,57 +693,89 @@ namespace Wallpapeuhrs
             }
         }
 
-        private void show_more_MouseEnter(object sender, MouseEventArgs e)
-        {
-            show_more.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 91, 91, 91));
-        }
-
-        private void show_more_MouseLeave(object sender, MouseEventArgs e)
-        {
-            show_more.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 76, 76, 76));
-        }
-
-        private void show_more_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if(show_more_r.Angle == 0)
-            {
-                restartexplo_g.Visibility = Visibility.Visible;
-                show_more_r.Angle = 90;
-            }
-            else
-            {
-                restartexplo_g.Visibility = Visibility.Collapsed;
-                show_more_r.Angle = 0;
-            }
-        }
-
-        private void new_button_MouseEnter(object sender, MouseEventArgs e)
-        {
-            (sender as Border).Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 91, 91, 91));
-        }
-
-        private void new_button_MouseLeave(object sender, MouseEventArgs e)
-        {
-            (sender as Border).Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 62, 62, 62));
-        }
-
-        private async void more_info_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            string link = await Update.getServer();
-            ProcessStartInfo psi = new ProcessStartInfo
-            {
-                FileName = link + "/news/wallpapeuhrs.php",
-                UseShellExecute = true
-            };
-            Process.Start(psi);
-        }
-
-        private async void about_us_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private async void about_us_Click(object sender, RoutedEventArgs e)
         {
             string link = await Update.getServer();
             ProcessStartInfo psi = new ProcessStartInfo
             {
                 FileName = link,
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+        }
+
+        private async void more_info_Click(object sender, RoutedEventArgs e)
+        {
+            string link = await Update.getServer();
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = link + "news/wallpapeuhrs.php",
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+        }
+
+        double maxHeightExpand = 0;
+
+        private void show_more_Click(object sender, RoutedEventArgs e)
+        {
+            if (show_more_expend.Visibility == Visibility.Visible)
+            {
+                Storyboard sb = new Storyboard();
+                sb.Children.Add(addDoubleAnimation("MyAnimatedTransform", TimeSpan.FromMilliseconds(200), 90, 0, new PropertyPath(RotateTransform.AngleProperty)));
+                sb.Children.Add(addDoubleAnimation(show_more_expend, TimeSpan.FromMilliseconds(200), maxHeightExpand, 0, new PropertyPath(Grid.HeightProperty)));
+                sb.Completed += (sender, e) =>
+                {
+                    show_more_expend.Visibility = Visibility.Collapsed;
+                };
+                sb.Begin(this);
+            }
+            else
+            {
+                show_more_expend.Visibility = Visibility.Visible;
+                Storyboard sb = new Storyboard();
+                sb.Children.Add(addDoubleAnimation("MyAnimatedTransform", TimeSpan.FromMilliseconds(200), 0, 90, new PropertyPath(RotateTransform.AngleProperty)));
+                sb.Children.Add(addDoubleAnimation(show_more_expend, TimeSpan.FromMilliseconds(200), 0, maxHeightExpand, new PropertyPath(Grid.HeightProperty)));
+                sb.Begin(this);
+            }
+        }
+
+        public DoubleAnimation addDoubleAnimation(DependencyObject el, TimeSpan time, double? from, double? to, PropertyPath property)
+        {
+            DoubleAnimation da = new DoubleAnimation();
+            if(from != null) da.From = from;
+            if (to != null) da.To = to;
+            da.Duration = new Duration(time);
+            Storyboard.SetTarget(da, el);
+            Storyboard.SetTargetProperty(da, property);
+            return da;
+        }
+
+        /// <summary>
+        /// sb.Begin(this); is required to work
+        /// </summary>
+        /// <param name="el"></param>
+        /// <param name="time"></param>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        public DoubleAnimation addDoubleAnimation(string el, TimeSpan time, double? from, double? to, PropertyPath property)
+        {
+            DoubleAnimation da = new DoubleAnimation();
+            if (from != null) da.From = from;
+            if (to != null) da.To = to;
+            da.Duration = new Duration(time);
+            Storyboard.SetTargetName(da, el);
+            Storyboard.SetTargetProperty(da, property);
+            return da;
+        }
+
+        private void vname_Click(object sender, RoutedEventArgs e)
+        {
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "https://github.com/Shiyukine/Wallpapeuhrs",
                 UseShellExecute = true
             };
             Process.Start(psi);

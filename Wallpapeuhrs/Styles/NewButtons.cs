@@ -10,12 +10,21 @@ namespace Wallpapeuhrs.Styles
     public partial class NewButtons : Button
     {
         public static readonly DependencyProperty BorderRadiusProperty =
-            DependencyProperty.Register("BorderRadius", typeof(double), typeof(NewButtons));
+            DependencyProperty.Register("BorderRadius", typeof(CornerRadius), typeof(NewButtons));
 
-        public double BorderRadius
+        public CornerRadius BorderRadius
         {
-            get { return (double)GetValue(BorderRadiusProperty); }
+            get { return (CornerRadius)GetValue(BorderRadiusProperty); }
             set { SetValue(BorderRadiusProperty, value); }
+        }
+
+        public static readonly DependencyProperty BackgroundHoverProperty =
+            DependencyProperty.Register("BackgroundHover", typeof(System.Windows.Media.Brush), typeof(NewButtons));
+
+        public System.Windows.Media.Brush BackgroundHover
+        {
+            get { return (System.Windows.Media.Brush)GetValue(BackgroundHoverProperty); }
+            set { SetValue(BackgroundHoverProperty, value); }
         }
     }
 }
