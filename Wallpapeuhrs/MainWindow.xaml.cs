@@ -688,7 +688,52 @@ namespace Wallpapeuhrs
             }
         }
 
-        private async void about_me_MouseUp(object sender, MouseButtonEventArgs e)
+        private void show_more_MouseEnter(object sender, MouseEventArgs e)
+        {
+            show_more.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 91, 91, 91));
+        }
+
+        private void show_more_MouseLeave(object sender, MouseEventArgs e)
+        {
+            show_more.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 76, 76, 76));
+        }
+
+        private void show_more_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if(show_more_r.Angle == 0)
+            {
+                restartexplo_g.Visibility = Visibility.Visible;
+                show_more_r.Angle = 90;
+            }
+            else
+            {
+                restartexplo_g.Visibility = Visibility.Collapsed;
+                show_more_r.Angle = 0;
+            }
+        }
+
+        private void new_button_MouseEnter(object sender, MouseEventArgs e)
+        {
+            (sender as Border).Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 91, 91, 91));
+        }
+
+        private void new_button_MouseLeave(object sender, MouseEventArgs e)
+        {
+            (sender as Border).Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 62, 62, 62));
+        }
+
+        private async void more_info_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            string link = await Update.getServer();
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = link + "/news/wallpapeuhrs.php",
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+        }
+
+        private async void about_us_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             string link = await Update.getServer();
             ProcessStartInfo psi = new ProcessStartInfo

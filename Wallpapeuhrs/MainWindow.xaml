@@ -12,16 +12,17 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Wallpapeuhrs;component/Styles/FlatCheckBox.xaml"/>
                 <ResourceDictionary Source="/Wallpapeuhrs;component/Styles/ScrollBars.xaml"/>
+                <ResourceDictionary Source="/Wallpapeuhrs;component/Styles/NewButtons.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
     <Grid x:Name="g_main" Background="#FF262626">
-        <Button x:Name="start" Content="Save and start" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="33" Width="128" Margin="0,0,10,10" Click="start_Click" Background="#FF4F4F4F" Foreground="White" BorderBrush="{x:Null}"/>
-        <ScrollViewer Margin="10,10,10,56" VerticalScrollBarVisibility="Auto">
+        <styles:NewButtons x:Name="start" Content="Save and start" BorderRadius="16.5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="33" Width="135" Margin="0,0,10,10" Click="start_Click" Background="#FF4F4F4F" Foreground="White" BorderBrush="{x:Null}"/>
+        <ScrollViewer Margin="10,18,10,60" VerticalScrollBarVisibility="Visible" FocusVisualStyle="{x:Null}" Padding="18,0,0,0">
             <Border Background="#FF303030" CornerRadius="15,15,15,15" VerticalAlignment="Top">
                 <Grid Margin="15,15,15,15">
                     <TextBlock Foreground="Gainsboro" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5,0,0">Path</TextBlock>
-                    <Border Margin="48,0,0,0" VerticalAlignment="Top" Background="#FF3C3C3C" CornerRadius="12.5" Height="30">
+                    <Border Margin="48,0,0,0" VerticalAlignment="Top" Background="#FF3C3C3C" CornerRadius="15,15,15,15" Height="30">
                         <TextBox x:Name="urls" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" Text="" VerticalContentAlignment="Center" Margin="10,0"></TextBox>
                     </Border>
                     <Border Background="#FF3A3A3A" Margin="0,74,0,0" CornerRadius="15">
@@ -29,36 +30,68 @@
                             <Grid Margin="15,5">
                                 <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">Interval (in seconds)</TextBlock>
                                 <Border Margin="167,0,0,0" VerticalAlignment="Center" Width="64" HorizontalAlignment="Left" Background="#FF474747" BorderThickness="0" CornerRadius="12">
-                                    <TextBox x:Name="interval" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" HorizontalContentAlignment="Center" CaretBrush="White" BorderThickness="0" Text="60" Margin="0,2"></TextBox>
+                                    <TextBox x:Name="interval" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" HorizontalContentAlignment="Center" CaretBrush="White" BorderThickness="0" Margin="0,2"/>
                                 </Border>
                             </Grid>
                             <Grid Margin="15,5">
                                 <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Volume (between 0 and 100)"/></TextBlock>
                                 <Border Margin="229,0,0,0" VerticalAlignment="Center" Width="64" HorizontalAlignment="Left" Background="#FF474747" BorderThickness="0" CornerRadius="12">
-                                    <TextBox x:Name="vol" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" Text="0" HorizontalContentAlignment="Center" Margin="0,2"/>
+                                    <TextBox x:Name="vol" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" HorizontalContentAlignment="Center" Margin="0,2"/>
                                 </Border>
                             </Grid>
                             <Grid Margin="15,5">
                                 <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Start automatically when your PC is starting"/></TextBlock>
-                                <styles:FlatCheckBox x:Name="startwithw" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="344,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747" IsChecked="True"/>
+                                <styles:FlatCheckBox x:Name="startwithw" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="344,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
                             </Grid>
                             <Grid Margin="15,5">
                                 <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Stop animation when you're not on the Desktop"/></TextBlock>
-                                <styles:FlatCheckBox x:Name="stopan" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="371,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747" IsChecked="True"/>
+                                <styles:FlatCheckBox x:Name="stopan" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="371,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
                             </Grid>
-                            <Grid Margin="15,5">
-                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" TextWrapping="WrapWithOverflow" Width="431"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is in background (requires Administrator authorization)"/><Run Text="&#xD;Please activate this setting only if you encounter memory leaks with dwm.exe&#xD;You can fix this problem by " FontSize="12"/><Run x:Name="intel_link" Text="downloading the Intel driver version 30.0.101.1191" FontSize="12" Foreground="#FF00C5FF" TextDecorations="Underline" MouseUp="intel_link_MouseUp" Cursor="Hand"></Run><Run FontSize="12" Text=" or more."/></TextBlock>
-                                <styles:FlatCheckBox x:Name="restartexplo" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="442,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747" IsChecked="True"/>
+                            <Border x:Name="show_more" Margin="15,5" Background="#FF4C4C4C" CornerRadius="14,14,14,14" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="7,4,12,4" MouseEnter="show_more_MouseEnter" MouseLeave="show_more_MouseLeave" MouseLeftButtonUp="show_more_MouseLeftButtonUp" Cursor="Hand">
+                                <Grid>
+                                    <Viewbox Width="19" Height="19" HorizontalAlignment="Left" VerticalAlignment="Center" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
+                                        <Viewbox.RenderTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform/>
+                                                <SkewTransform/>
+                                                <RotateTransform x:Name="show_more_r" Angle="00"/>
+                                                <TranslateTransform/>
+                                            </TransformGroup>
+                                        </Viewbox.RenderTransform>
+                                        <Canvas Width="24" Height="24">
+                                            <Path Fill="White" Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
+                                        </Canvas>
+                                    </Viewbox>
+                                    <TextBlock Foreground="White" HorizontalAlignment="Left" Margin="24,0,0,0" VerticalAlignment="Center" TextWrapping="WrapWithOverflow"><Run Text="Show more"/></TextBlock>
+                                </Grid>
+                            </Border>
+                            <Grid x:Name="restartexplo_g" Margin="15,0" Visibility="Collapsed">
+                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" TextWrapping="WrapWithOverflow" Width="431"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is launched in background (requires Administrator authorization)"/><Run Text="&#xD;Please activate this setting only if you encounter memory leaks with dwm.exe&#xD;You can fix this problem by " FontSize="12"/><Run x:Name="intel_link" Text="downloading the Intel driver version 30.0.101.1191" FontSize="12" Foreground="#FF00C5FF" TextDecorations="Underline" MouseUp="intel_link_MouseUp" Cursor="Hand"></Run><Run FontSize="12" Text=" or more."/></TextBlock>
+                                <styles:FlatCheckBox x:Name="restartexplo" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="442,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
                             </Grid>
                         </StackPanel>
                     </Border>
-                    <Button x:Name="slide" Content="Slideshow" VerticalAlignment="Top" Margin="0,35,10,0" Height="25" Click="slide_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90"/>
-                    <Button x:Name="vid" Content="Video or Image" VerticalAlignment="Top" Margin="0,35,105,0" Height="25" Click="vid_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="120"/>
+                    <styles:NewButtons x:Name="slide" BorderRadius="12.5" Content="Slideshow" VerticalAlignment="Top" Margin="0,35,10,0" Height="25" Click="slide_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90"/>
+                    <styles:NewButtons x:Name="vid" BorderRadius="12.5" Content="Video or Image" VerticalAlignment="Top" Margin="0,35,105,0" Height="25" Click="vid_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="120"/>
                 </Grid>
             </Border>
         </ScrollViewer>
-        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="White" Margin="10,0,0,32"><Run Text="By Shiyukine - "></Run><Run x:Name="about_me" Foreground="#FF00C5FF" Text="Aketsuky" TextDecorations="Underline" Cursor="Hand" MouseUp="about_me_MouseUp"></Run></TextBlock>
-        <TextBlock x:Name="vname" HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="White" Margin="10,0,0,10">v1.0</TextBlock>
+        <Border x:Name="more_info" Margin="10,0,0,10" MouseEnter="new_button_MouseEnter" MouseLeave="new_button_MouseLeave" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF3E3E3E" CornerRadius="21,21,21,21" Width="42" Padding="3,3,3,3" MouseLeftButtonUp="more_info_MouseLeftButtonUp" Cursor="Hand">
+            <Grid>
+                <Viewbox HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Canvas Width="24" Height="24" Background="#00000000">
+                        <Path Fill="White" Data="M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z" />
+                    </Canvas>
+                </Viewbox>
+                <Border ToolTip="Get help" CornerRadius="21,21,21,21" Background="#00000000"></Border>
+            </Grid>
+        </Border>
+        <Border x:Name="about_us" Margin="57,0,0,10" MouseEnter="new_button_MouseEnter" MouseLeave="new_button_MouseLeave" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF3E3E3E" CornerRadius="21,21,21,21" Width="42" Padding="3,3,3,3" MouseLeftButtonUp="about_us_MouseLeftButtonUp" Cursor="Hand">
+            <Image Source="/Wallpapeuhrs;component/Resources/AyIconv2 round.png" HorizontalAlignment="Center" VerticalAlignment="Center" Height="36" ToolTip="Made by Aketsuky"/>
+        </Border>
+        <Border Margin="104,0,0,16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF2F2F2F" CornerRadius="15,15,15,15" Padding="8,5,8,5">
+            <TextBlock x:Name="vname" Foreground="White">v1.0</TextBlock>
+        </Border>
         <Button x:Name="restart_dwm" Content="Restart DWM" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="33" Width="128" Margin="0,0,143,10" Click="restart_dwm_Click" Background="#FF4F4F4F" Foreground="Red" BorderBrush="{x:Null}" Visibility="Collapsed"/>
     </Grid>
 </Window>

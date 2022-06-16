@@ -92,7 +92,7 @@ namespace Wallpapeuhrs
                     SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
                     //setDWM();
                     double v = volume;
-                    if (v == 100) v = 99.4;
+                    //if (v == 100) v = 99.4;
                     value.MediaPlayer.SystemMediaTransportControls.IsEnabled = false;
                     value.MediaPlayer.CommandManager.IsEnabled = false;
                     value.AreTransportControlsEnabled = false;
@@ -102,8 +102,14 @@ namespace Wallpapeuhrs
                     value.MediaPlayer.Volume = v / 100;
                     main.Children.Insert(0, value);
                     value.Stretch = Windows.UI.Xaml.Media.Stretch.UniformToFill;
-                    value.MediaPlayer.MediaOpened += (sender, eee) =>
+                    value.MediaPlayer.MediaOpened += async (sender, eee) =>
                     {
+                        await main.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
+                        {
+                            SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
+                            value.MediaPlayer.SystemMediaTransportControls.IsEnabled = false;
+                            value.MediaPlayer.CommandManager.IsEnabled = false;
+                        });
                         remove(value);
                     };
                     _media = value;

@@ -30,7 +30,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="play2.png" />
     <None Remove="Properties\quicksand-variablefont_wght.ttf" />
+    <None Remove="Resources\AyIconv2 round.png" />
     <None Remove="Resources\Icon.ico" />
   </ItemGroup>
 
@@ -39,6 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\AyIconv2 round.png" />
     <Resource Include="Resources\quicksand-variablefont_wght.ttf" />
   </ItemGroup>
 
