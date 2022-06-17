@@ -73,12 +73,12 @@
                             </Grid>
                         </StackPanel>
                     </Border>
-                    <styles:NewButtons x:Name="slide" BorderRadius="12.5" Content="Slideshow" VerticalAlignment="Top" Margin="0,35,10,0" Height="25" Click="slide_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90" BackgroundHover="#FF717171"/>
-                    <styles:NewButtons x:Name="vid" BorderRadius="12.5" Content="Video or Image" VerticalAlignment="Top" Margin="0,35,105,0" Height="25" Click="vid_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="120" BackgroundHover="#FF717171"/>
+                    <styles:NewButtons x:Name="slide" BorderRadius="15,15,15,15" Content="Slideshow" VerticalAlignment="Top" Margin="0,35,0,0" Height="30" Click="slide_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90" BackgroundHover="#FF717171"/>
+                    <styles:NewButtons x:Name="vid" BorderRadius="15,15,15,15" Content="Video or Image" VerticalAlignment="Top" Margin="0,35,95,0" Height="30" Click="vid_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="120" BackgroundHover="#FF717171"/>
                 </Grid>
             </Border>
         </ScrollViewer>
-        <styles:NewButtons x:Name="more_info" Margin="10,0,0,10" ToolTip="Get help" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF3E3E3E" BorderRadius="21" Width="42" Padding="3,3,3,3" Cursor="Hand" Click="more_info_Click" BackgroundHover="#FF5B5B5B">
+        <styles:NewButtons x:Name="more_info" Margin="57,0,0,13" ToolTip="Get help" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF3E3E3E" BorderRadius="21" Width="36" Padding="3,3,3,3" Cursor="Hand" Click="more_info_Click" BackgroundHover="#FF5B5B5B" Height="36">
             <Grid>
                 <Viewbox HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Canvas Width="24" Height="24" Background="#00000000">
@@ -87,10 +87,10 @@
                 </Viewbox>
             </Grid>
         </styles:NewButtons>
-        <styles:NewButtons x:Name="about_us" Margin="57,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" ToolTip="By Shiyukine - Aketsuky" Background="#FF3E3E3E" BorderRadius="21" Width="42" Padding="3,3,3,3" Cursor="Hand" Click="about_us_Click" BackgroundHover="#FF5B5B5B">
+        <styles:NewButtons x:Name="about_us" Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" ToolTip="By Shiyukine - Aketsuky" Background="#FF3E3E3E" BorderRadius="21" Width="42" Padding="3,3,3,3" Cursor="Hand" Click="about_us_Click" BackgroundHover="#FF5B5B5B" Height="42">
             <Image Source="/Wallpapeuhrs;component/Resources/AyIconv2 round.png" HorizontalAlignment="Center" VerticalAlignment="Center" Height="36"/>
         </styles:NewButtons>
-        <styles:NewButtons x:Name="vname" Margin="104,0,0,16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF383838" BorderRadius="15,15,15,15" Padding="8,5,8,5" Foreground="White" BackgroundHover="#FF5B5B5B" Click="vname_Click" ToolTip="View the project on GitHub">v1.0
+        <styles:NewButtons x:Name="vname" Margin="98,0,0,16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF202020" BorderRadius="15,15,15,15" Padding="8,5,8,5" Foreground="White" BackgroundHover="#FF5B5B5B" Click="vname_Click" ToolTip="View the project on GitHub">v1.0
         </styles:NewButtons>
         <styles:NewButtons x:Name="restart_dwm" Content="Restart DWM" BorderRadius="18,18,18,18" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="36" Width="128" Margin="0,0,150,10" Click="restart_dwm_Click" Background="#FF3E3E3E" Foreground="Red" BorderBrush="{x:Null}" Visibility="Collapsed" BackgroundHover="#FF5B5B5B"/>
     </Grid>
