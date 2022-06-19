@@ -73,8 +73,8 @@
                             </Grid>
                         </StackPanel>
                     </Border>
-                    <styles:NewButtons x:Name="slide" BorderRadius="15,15,15,15" Content="Slideshow" VerticalAlignment="Top" Margin="0,35,0,0" Height="30" Click="slide_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90" BackgroundHover="#FF717171"/>
-                    <styles:NewButtons x:Name="vid" BorderRadius="15,15,15,15" Content="Video or Image" VerticalAlignment="Top" Margin="0,35,95,0" Height="30" Click="vid_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="120" BackgroundHover="#FF717171"/>
+                    <styles:NewButtons x:Name="slide" BorderRadius="14,14,14,14" Content="Slideshow" VerticalAlignment="Top" Margin="0,35,0,0" Height="28" Click="slide_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90" BackgroundHover="#FF717171"/>
+                    <styles:NewButtons x:Name="vid" BorderRadius="14,14,14,14" Content="Video or Image" VerticalAlignment="Top" Margin="0,35,95,0" Height="28" Click="vid_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="120" BackgroundHover="#FF717171"/>
                 </Grid>
             </Border>
         </ScrollViewer>

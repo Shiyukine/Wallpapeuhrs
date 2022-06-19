@@ -425,11 +425,6 @@ namespace Wallpapeuhrs
                         if (!pe.Contains(mon.DeviceName) && !processes.ContainsKey(mon.DeviceName))
                         {
                             isAddingNewProcess = true;
-                            Process p = new Process();
-                            p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + Process.GetCurrentProcess().ProcessName + ".exe";
-                            p.StartInfo.Arguments = "--wp /startAfter " + startAfter + " /moni \"" + mon.DeviceName + "\"";
-                            p.StartInfo.UseShellExecute = true;
-                            p.Start();
                             async void a()
                             {
                                 int index = startAfter;
@@ -449,9 +444,9 @@ namespace Wallpapeuhrs
                                             string moni = stra.Split(" ", StringSplitOptions.RemoveEmptyEntries)[1];
                                             processes.Add(moni, PCtcp);
                                             //Debug.WriteLine(System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
-                                            if(processes.Count == System.Windows.Forms.Screen.AllScreens.Count() && !alreadySendChange)
+                                            if (processes.Count == System.Windows.Forms.Screen.AllScreens.Count() /*&& !alreadySendChange*/)
                                             {
-                                                alreadySendChange = true;
+                                                //alreadySendChange = true;
                                                 //Debug.WriteLine("launch " + System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
                                                 foreach (string monii in processes.Keys)
                                                 {
@@ -467,16 +462,26 @@ namespace Wallpapeuhrs
                                         {
                                             if (!stopping)
                                             {
-                                                foreach (string moni in processes.Keys)
+                                                //unknown error here : System.ArgumentNullException: Value cannot be null. (Parameter 'key')
+                                                try
                                                 {
-                                                    var tcp = processes[moni];
-                                                    if (tcp == PCtcp)
+                                                    foreach (string moni in processes.Keys)
                                                     {
-                                                        processes.Remove(moni);
-                                                        isAddingNewProcess = true;
-                                                        beginWP();
-                                                        return;
+                                                        var tcp = processes[moni];
+                                                        if (tcp == PCtcp)
+                                                        {
+                                                            processes.Remove(moni);
+                                                            isAddingNewProcess = true;
+                                                            beginWP();
+                                                            return;
+                                                        }
                                                     }
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    isAddingNewProcess = true;
+                                                    beginWP();
+                                                    MessageBox.Show("ID 01-489\n" + ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                                                 }
                                             }
                                         });
@@ -485,6 +490,11 @@ namespace Wallpapeuhrs
                                 ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
                             }
                             a();
+                            Process p = new Process();
+                            p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + Process.GetCurrentProcess().ProcessName + ".exe";
+                            p.StartInfo.Arguments = "--wp /startAfter " + startAfter + " /moni \"" + mon.DeviceName + "\"";
+                            p.StartInfo.UseShellExecute = true;
+                            p.Start();
                         }
                         else
                         {
