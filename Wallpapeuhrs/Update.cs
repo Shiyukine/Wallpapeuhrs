@@ -64,8 +64,7 @@ namespace Wallpapeuhrs
                             DialogResult dr = MessageBox.Show("A new version of Wallpapeuhrs is out !\nDo you want to download this update and install it now ?\n\nChangelogs : " + infos[1], "Wallpapeuhrs - Update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
                             if (dr == DialogResult.Yes)
                             {
-                                downloadExe(serv + "/dl/Wallpapeuhrs/download.php");
-                                MessageBox.Show("Downloading...\nWallpapeuhrs will restart in a short time.", "Wallpapeuhrs - Update available");
+                                installUpdate();
                             }
                         }
                     }
@@ -77,9 +76,55 @@ namespace Wallpapeuhrs
             }
         }
 
+        public static bool haveUpdate = false;
+
+        public static async Task searchUpdatesSilent()
+        {
+            try
+            {
+                string serv = await getServer();
+                if (serv != null)
+                {
+                    string str = await httpRequestGET(serv + "/dl/Wallpapeuhrs/update.php");
+                    if (str != null)
+                    {
+                        string[] infos = str.Split(new string[] { " [|] " }, StringSplitOptions.None);
+                        int ver = int.Parse(infos[0]);
+                        if (ver > versionNumber)
+                        {
+                            haveUpdate = true;
+                            return;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Can't search for updates. Error :\n" + ex, "Wallpapeurhs - Update failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            haveUpdate = false;
+            return;
+        }
+
+        public static async void installUpdate()
+        {
+            var serv = await getServer();
+            if (serv != null)
+            {
+                downloadExe(serv + "/dl/Wallpapeuhrs/download.php");
+                MessageBox.Show("Downloading...\nWallpapeuhrs will restart in a short time.", "Wallpapeuhrs - Update available");
+            }
+        }
+
         public static async Task<string> getServer()
         {
-            return await httpRequestGET("https://raw.githubusercontent.com/Shiyukine/Shiyukine/main/serv.txt");
+            var result = await httpRequestGET("https://raw.githubusercontent.com/Shiyukine/Shiyukine/main/serv.txt");
+            //var result = "http://192.168.0.33/";
+            if(result != null)
+            {
+                return result.Replace("\n", "").Replace("\r", "");
+            }
+            return null;
         }
 
         static void downloadExe(string url)

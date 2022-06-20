@@ -248,12 +248,20 @@ namespace Wallpapeuhrs
         private HwndSource _HwndSource;
         private readonly IntPtr _ScreenStateNotify;
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             inbg = false;
             maxHeightExpand = show_more_expend.ActualHeight;
             show_more_expend.Height = 0;
             show_more_expend.Visibility = Visibility.Collapsed;
+            await Update.searchUpdatesSilent();
+            if (Update.haveUpdate)
+            {
+                vname.BackgroundHover = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFFFF500"));
+                vname.Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFE0D700"));
+                vname.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0,0,0));
+                vname.ToolTip = "Update available - Click to install";
+            }
         }
 
         private async void connectLocalTCP()
@@ -789,12 +797,16 @@ namespace Wallpapeuhrs
 
         private void vname_Click(object sender, RoutedEventArgs e)
         {
-            ProcessStartInfo psi = new ProcessStartInfo
+            if (!Update.haveUpdate)
             {
-                FileName = "https://github.com/Shiyukine/Wallpapeuhrs",
-                UseShellExecute = true
-            };
-            Process.Start(psi);
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = "https://github.com/Shiyukine/Wallpapeuhrs",
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+            }
+            else Update.installUpdate();
         }
 
         /* NE PAS TOUCHER
