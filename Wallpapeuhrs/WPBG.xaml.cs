@@ -171,30 +171,12 @@ namespace Wallpapeuhrs
         }
 
         float timePaused = 0;
-        List<int> win = new List<int>();
-        int anWin = -1;
+        
 
         private void Timer_Tick(object sender, EventArgs ee)
         {
             try
             {
-                if (autostop)
-                {
-                    int window = W32.GetForegroundWindow().ToInt32();
-                    //log("play " + ", contains " + !win.Contains(window) + ", diff win " + (anWin != window));
-                    if (anWin != window)
-                    {
-                        if (!win.Contains(window))
-                        {
-                            changePlayerState(false);
-                        }
-                        else
-                        {
-                            changePlayerState(true);
-                        }
-                    }
-                    anWin = window;
-                }
                 if(!curPlay) med.nextChange += 1 * 1000;
                 if (curUrl != "" && isDir && med.nextChange <= System.Environment.TickCount)
                 {
@@ -330,43 +312,8 @@ namespace Wallpapeuhrs
 
         public void changePlayerState(bool play)
         {
-            IntPtr pp = IntPtr.Zero;
-            string[] wins = new string[] { "Task View", "Start", "Search" };
-            int anLength = win.Count;
-            foreach (string w in wins)
-            {
-                if (!win.Contains(W32.FindWindow("Windows.UI.Core.CoreWindow", w).ToInt32()))
-                    win.Add(W32.FindWindow("Windows.UI.Core.CoreWindow", w).ToInt32());
-            }
-            W32.EnumWindows(new W32.EnumWindowsProc((tophandle, topparamhandle) =>
-            {
-                IntPtr p = W32.FindWindowEx(tophandle,
-                                            IntPtr.Zero,
-                                            "SHELLDLL_DefView",
-                                            IntPtr.Zero);
-                StringBuilder cn = new StringBuilder(256);
-                if (p != IntPtr.Zero)
-                {
-                    pp = tophandle;
-                    if (!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
-                }
-                int cls = W32.GetClassName(tophandle, cn, cn.Capacity);
-                if (cls != 0)
-                {
-                    if (cn.ToString().EndsWith("TrayWnd") && cn.ToString().StartsWith("Shell_"))
-                    {
-                        if (!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
-                    }
-                }
-                return true;
-            }), IntPtr.Zero);
-            if (autostop && anLength != win.Count) play = true;
-            if (play || !autostop || anLength == win.Count)
-            {
-                //log("changePlayerState " + play);
-                curPlay = play;
-                med.changePlayerState(play);
-            }
+            curPlay = play;
+            med.changePlayerState(play);
         }
 
         private void main_KeyDown(object sender, KeyEventArgs e)

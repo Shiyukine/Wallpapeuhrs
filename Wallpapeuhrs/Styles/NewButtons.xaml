@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:Wallpapeuhrs.Styles" xmlns:utils="clr-namespace:Wallpapeuhrs.Utils">
+                    xmlns:local="clr-namespace:Wallpapeuhrs.Styles"
+                    xmlns:utils="clr-namespace:Wallpapeuhrs.Utils">
     <SolidColorBrush x:Key="bgH" Color="#FFF" />
 
     <Style TargetType="{x:Type local:NewButtons}">

@@ -88,19 +88,13 @@ namespace Wallpapeuhrs
             var mi1 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Play", ForeColor = System.Drawing.Color.White };
             mi1.Click += (s, ev) =>
             {
-                foreach (string moni in processes.Keys)
-                {
-                    sendData(processes[moni], "Play", moni);
-                }
+                changePlayerState(true);
             };
             cm.Items.Add(mi1);
             var mi2 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Pause", ForeColor = System.Drawing.Color.White };
             mi2.Click += (s, ev) =>
             {
-                foreach (string moni in processes.Keys)
-                {
-                    sendData(processes[moni], "Pause", moni);
-                }
+                changePlayerState(false);
             };
             cm.Items.Add(mi2);
             var mi0 = new System.Windows.Forms.ToolStripMenuItem() { Text = "Change wallpaper", ForeColor = System.Drawing.Color.White };
@@ -155,10 +149,10 @@ namespace Wallpapeuhrs
             //
             System.Windows.Forms.Timer t = new System.Windows.Forms.Timer();
             Dictionary<string, System.Drawing.Rectangle> monis = new Dictionary<string, System.Drawing.Rectangle>();
-            t.Interval = 200;
+            t.Interval = 1000;
             t.Tick += (sender, e) =>
             {
-                if (processes.Count > 0 && loaded)
+                if (loaded)
                 {
                     List<string> queredScreen = new List<string>();
                     foreach (System.Windows.Forms.Screen s in System.Windows.Forms.Screen.AllScreens)
@@ -199,11 +193,31 @@ namespace Wallpapeuhrs
                         }
                     }
                 }
+                if ((bool)stopan.IsChecked)
+                {
+                    int window = W32.GetForegroundWindow().ToInt32();
+                    //log("play " + ", contains " + !win.Contains(window) + ", diff win " + (anWin != window));
+                    if (anWin != window)
+                    {
+                        if (!win.Contains(window))
+                        {
+                            changePlayerState(false);
+                        }
+                        else
+                        {
+                            changePlayerState(true);
+                        }
+                    }
+                    anWin = window;
+                }
             };
             t.Start();
             // 
             if (urls.Text != "") beginWP();
         }
+
+        List<int> win = new List<int>();
+        int anWin = -1;
 
         private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
@@ -218,17 +232,14 @@ namespace Wallpapeuhrs
                         if(s.Data == 1)
                         {
                             //Debug.WriteLine("Not in sleep mode");
-                            foreach (string moni in processes.Keys)
-                            {
-                                sendData(processes[moni], "Play", moni);
-                            }
+                            changePlayerState(true);
                         }
                         if(s.Data == 0)
                         {
                             //Debug.WriteLine("Sleep mode");
                             foreach (string moni in processes.Keys)
                             {
-                                sendData(processes[moni], "Pause", moni);
+                                changePlayerState(false);
                             }
                         }
                     }
@@ -562,6 +573,52 @@ namespace Wallpapeuhrs
             try { key.DeleteValue("Wallpapeuhrs"); } catch { }
             if ((bool)startwithw.IsChecked) key.SetValue("Wallpapeuhrs", "\"" + str + "\" --background");
             beginWP();
+        }
+
+        bool curPlay = true;
+
+        public void changePlayerState(bool play)
+        {
+            IntPtr pp = IntPtr.Zero;
+            string[] wins = new string[] { "Task View", "Start", "Search" };
+            int anLength = win.Count;
+            foreach (string w in wins)
+            {
+                if (!win.Contains(W32.FindWindow("Windows.UI.Core.CoreWindow", w).ToInt32()))
+                    win.Add(W32.FindWindow("Windows.UI.Core.CoreWindow", w).ToInt32());
+            }
+            W32.EnumWindows(new W32.EnumWindowsProc((tophandle, topparamhandle) =>
+            {
+                IntPtr p = W32.FindWindowEx(tophandle,
+                                            IntPtr.Zero,
+                                            "SHELLDLL_DefView",
+                                            IntPtr.Zero);
+                StringBuilder cn = new StringBuilder(256);
+                if (p != IntPtr.Zero)
+                {
+                    pp = tophandle;
+                    if (!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
+                }
+                int cls = W32.GetClassName(tophandle, cn, cn.Capacity);
+                if (cls != 0)
+                {
+                    if (cn.ToString().EndsWith("TrayWnd") && cn.ToString().StartsWith("Shell_"))
+                    {
+                        if (!win.Contains(tophandle.ToInt32())) win.Add(tophandle.ToInt32());
+                    }
+                }
+                return true;
+            }), IntPtr.Zero);
+            if ((bool)stopan.IsChecked && anLength != win.Count) play = true;
+            if (play || !(bool)stopan.IsChecked || anLength == win.Count)
+            {
+                //log("changePlayerState " + play);
+                curPlay = play;
+                foreach (string moni in processes.Keys)
+                {
+                    sendData(processes[moni], play ? "Play" : "Pause", moni);
+                }
+            }
         }
 
         private void vid_Click(object sender, RoutedEventArgs e)
