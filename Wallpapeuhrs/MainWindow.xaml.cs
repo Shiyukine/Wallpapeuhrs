@@ -148,47 +148,63 @@ namespace Wallpapeuhrs
             connectLocalTCP();
             //
             System.Windows.Forms.Timer t = new System.Windows.Forms.Timer();
-            Dictionary<string, System.Drawing.Rectangle> monis = new Dictionary<string, System.Drawing.Rectangle>();
             t.Interval = 1000;
             t.Tick += (sender, e) =>
             {
                 if (loaded)
                 {
-                    List<string> queredScreen = new List<string>();
-                    foreach (System.Windows.Forms.Screen s in System.Windows.Forms.Screen.AllScreens)
+                    Process[] pl = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
+                    if (pl.Length - 1 > System.Windows.Forms.Screen.AllScreens.Count())
                     {
-                        queredScreen.Add(s.DeviceName);
-                        if (!monis.ContainsKey(s.DeviceName))
+                        List<Process> pRem = new List<Process>();
+                        foreach(Process p in pl)
                         {
-                            monis.Add(s.DeviceName, s.Bounds);
-                            if(!processes.ContainsKey(s.DeviceName))
+                            if (p.MainWindowHandle != Process.GetCurrentProcess().MainWindowHandle)
+                                pRem.Add(p);
+                        }
+                        List<System.Windows.Forms.Screen> sRem = new List<System.Windows.Forms.Screen>(System.Windows.Forms.Screen.AllScreens);
+                        foreach (System.Windows.Forms.Screen s in System.Windows.Forms.Screen.AllScreens)
+                        {
+                            Process process = null;
+                            foreach (Process p in pl)
                             {
-                                beginWP();
+                                if (GetCommandLine(p).Contains("/moni \"" + s.DeviceName + "\""))
+                                {
+                                    process = p;
+                                }
+                            }
+                            if (process != null)
+                            {
+                                pRem.Remove(process);
+                                sRem.Remove(s);
                             }
                         }
-                        else
+                        foreach(Process p in pRem)
                         {
-                            if(s.Bounds != monis[s.DeviceName])
+                            p.Kill();
+                        }
+                        foreach(System.Windows.Forms.Screen s in sRem)
+                        {
+                            processes.Remove(s.DeviceName);
+                            monis.Remove(s.DeviceName);
+                        }
+                        foreach (string monii in processes.Keys)
+                        {
+                            sendChange(monii, processes[monii]);
+                        }
+                    }
+                    else if (pl.Length - 1 < System.Windows.Forms.Screen.AllScreens.Count())
+                    {
+                        beginWP();
+                    }
+                    else
+                    {
+                        foreach (System.Windows.Forms.Screen s in System.Windows.Forms.Screen.AllScreens)
+                        {
+                            if(monis.ContainsKey(s.DeviceName) && monis[s.DeviceName] != s.Bounds)
                             {
                                 beginWP();
                                 monis[s.DeviceName] = s.Bounds;
-                            }
-                        }
-                    }
-                    for(int i = 0; i < processes.Count; i++)
-                    {
-                        string s = processes.Keys.ToList()[i];
-                        if(!queredScreen.Contains(s))
-                        {
-                            Process[] pl = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
-                            foreach (Process p in pl)
-                            {
-                                if (GetCommandLine(p).Contains("/moni \"" + s + "\""))
-                                {
-                                    p.Kill();
-                                    processes.Remove(s);
-                                    monis.Remove(s);
-                                }
                             }
                         }
                     }
@@ -218,6 +234,7 @@ namespace Wallpapeuhrs
 
         List<int> win = new List<int>();
         int anWin = -1;
+        Dictionary<string, System.Drawing.Rectangle> monis = new Dictionary<string, System.Drawing.Rectangle>();
 
         private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
@@ -426,8 +443,12 @@ namespace Wallpapeuhrs
                     {
                         foreach (Process p in pl)
                         {
-                            var cmdL = GetCommandLine(p);
-                            if (cmdL != null && cmdL.Contains("/moni \"" + mon.DeviceName + "\"")) pe.Add(mon.DeviceName);
+                            try
+                            { 
+                                var cmdL = GetCommandLine(p);
+                                if (cmdL != "" && cmdL.Contains("/moni \"" + mon.DeviceName + "\"")) pe.Add(mon.DeviceName);
+                            }
+                            catch { }
                         }
                     }
                     foreach (System.Windows.Forms.Screen mon in System.Windows.Forms.Screen.AllScreens)
@@ -443,6 +464,7 @@ namespace Wallpapeuhrs
                         }*/
                         if (!pe.Contains(mon.DeviceName) && !processes.ContainsKey(mon.DeviceName))
                         {
+                            if (!monis.ContainsKey(mon.DeviceName)) monis.Add(mon.DeviceName, mon.Bounds);
                             isAddingNewProcess = true;
                             async void a()
                             {
@@ -490,16 +512,16 @@ namespace Wallpapeuhrs
                                                         if (tcp == PCtcp)
                                                         {
                                                             processes.Remove(moni);
-                                                            isAddingNewProcess = true;
-                                                            beginWP();
+                                                            //isAddingNewProcess = true;
+                                                            //beginWP();
                                                             return;
                                                         }
                                                     }
                                                 }
                                                 catch (Exception ex)
                                                 {
-                                                    isAddingNewProcess = true;
-                                                    beginWP();
+                                                    //isAddingNewProcess = true;
+                                                    //beginWP();
                                                     MessageBox.Show("ID 01-489\n" + ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                                                 }
                                             }
