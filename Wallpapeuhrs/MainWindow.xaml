@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Wallpapeuhrs" xmlns:styles="clr-namespace:Wallpapeuhrs.Styles"
+        xmlns:local="clr-namespace:Wallpapeuhrs" xmlns:styles="clr-namespace:Wallpapeuhrs.Styles" xmlns:utils="clr-namespace:Wallpapeuhrs.Utils"
         mc:Ignorable="d"
         Title="Wallpapeuhrs" Height="475" Width="575" Loaded="Window_Loaded" Closing="Window_Closing" FontFamily="/Wallpapeuhrs;component/Resources/#Quicksand" FontSize="16" Icon="/Wallpapeuhrs;component/Resources/Icon.ico" FontWeight="Medium">
 
@@ -18,65 +18,67 @@
     </Window.Resources>
     <Grid x:Name="g_main" Background="#FF262626">
         <styles:NewButtons x:Name="start" Content="Save and start" BorderRadius="18,18,18,18" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="36" Width="135" Margin="0,0,10,10" Click="start_Click" Background="#FF3E3E3E" Foreground="White" BorderBrush="{x:Null}" BackgroundHover="#FF5B5B5B"/>
-        <ScrollViewer Margin="10,18,10,60" VerticalScrollBarVisibility="Visible" FocusVisualStyle="{x:Null}">
-            <Border Background="#FF303030" CornerRadius="15,15,15,15" VerticalAlignment="Top" Margin="18,0,0,0">
-                <Grid Margin="15,15,15,15">
-                    <TextBlock Foreground="Gainsboro" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5,0,0">Path</TextBlock>
-                    <Border Margin="48,0,0,0" VerticalAlignment="Top" Background="#FF3C3C3C" CornerRadius="15,15,15,15" Height="30">
-                        <TextBox x:Name="urls" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" Text="" VerticalContentAlignment="Center" Margin="10,0"></TextBox>
-                    </Border>
-                    <Border Background="#FF3A3A3A" Margin="0,74,0,0" CornerRadius="15">
-                        <StackPanel Margin="0,5">
-                            <Grid Margin="15,5">
-                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">Interval (in seconds)</TextBlock>
-                                <Border Margin="167,0,0,0" VerticalAlignment="Center" Width="64" HorizontalAlignment="Left" Background="#FF474747" BorderThickness="0" CornerRadius="12">
-                                    <TextBox x:Name="interval" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" HorizontalContentAlignment="Center" CaretBrush="White" BorderThickness="0" Margin="0,2"/>
-                                </Border>
-                            </Grid>
-                            <Grid Margin="15,5">
-                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Volume (between 0 and 100)"/></TextBlock>
-                                <Border Margin="229,0,0,0" VerticalAlignment="Center" Width="64" HorizontalAlignment="Left" Background="#FF474747" BorderThickness="0" CornerRadius="12">
-                                    <TextBox x:Name="vol" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" HorizontalContentAlignment="Center" Margin="0,2"/>
-                                </Border>
-                            </Grid>
-                            <Grid Margin="15,5">
-                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Start automatically when your PC is starting"/></TextBlock>
-                                <styles:FlatCheckBox x:Name="startwithw" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="344,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
-                            </Grid>
-                            <Grid Margin="15,5">
-                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Stop animation when you're not on the Desktop"/></TextBlock>
-                                <styles:FlatCheckBox x:Name="stopan" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="371,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
-                            </Grid>
-                            <styles:NewButtons x:Name="show_more" Margin="15,5" Background="#FF4C4C4C" BorderRadius="14" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="7,4,12,4" Cursor="Hand" Click="show_more_Click" BackgroundHover="#FF5B5B5B">
-                                <Grid>
-                                    <Viewbox Width="19" Height="19" HorizontalAlignment="Left" VerticalAlignment="Center" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
-                                        <Viewbox.RenderTransform>
-                                            <TransformGroup>
-                                                <ScaleTransform/>
-                                                <SkewTransform/>
-                                                <RotateTransform x:Name="show_more_r" Angle="00"/>
-                                                <TranslateTransform/>
-                                            </TransformGroup>
-                                        </Viewbox.RenderTransform>
-                                        <Canvas Width="24" Height="24">
-                                            <Path Fill="White" Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
-                                        </Canvas>
-                                    </Viewbox>
-                                    <TextBlock Foreground="White" HorizontalAlignment="Left" Margin="24,0,0,0" VerticalAlignment="Center" TextWrapping="WrapWithOverflow"><Run Text="Show more"/></TextBlock>
+        <ScrollViewer Margin="10,61,10,60" VerticalScrollBarVisibility="Visible" FocusVisualStyle="{x:Null}">
+            <Grid x:Name="multiscreen_g">
+                <Border x:Name="screen_all_g" Background="#FF303030" CornerRadius="15,15,15,15" VerticalAlignment="Top" Margin="18,0,0,0">
+                    <Grid Margin="15,15,15,15">
+                        <TextBlock Foreground="Gainsboro" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5,0,0">Path</TextBlock>
+                        <Border Margin="48,0,0,0" VerticalAlignment="Top" Background="#FF3C3C3C" CornerRadius="15,15,15,15" Height="30">
+                            <TextBox x:Name="urls" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" Text="" VerticalContentAlignment="Center" Margin="10,0"></TextBox>
+                        </Border>
+                        <Border Background="#FF3A3A3A" Margin="0,74,0,0" CornerRadius="15">
+                            <StackPanel Margin="0,5">
+                                <Grid Margin="15,5">
+                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">Interval (in seconds)</TextBlock>
+                                    <Border Margin="167,0,0,0" VerticalAlignment="Center" Width="64" HorizontalAlignment="Left" Background="#FF474747" BorderThickness="0" CornerRadius="12">
+                                        <TextBox x:Name="interval" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" HorizontalContentAlignment="Center" CaretBrush="White" BorderThickness="0" Margin="0,2"/>
+                                    </Border>
                                 </Grid>
-                            </styles:NewButtons>
-                            <Grid x:Name="show_more_expend" Margin="15,0,15,5" Visibility="Visible">
-                                <Grid x:Name="restartexplo_g">
-                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" Width="396" Background="#00000000"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is launched in background (requires Administrator authorization)"/><Run Text="&#xD;Please activate this setting only if you encounter memory leaks with dwm.exe" FontSize="12"/></TextBlock>
-                                    <styles:FlatCheckBox x:Name="restartexplo" VerticalAlignment="Center" Margin="406,0,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747" HorizontalAlignment="Left" Width="19"/>
+                                <Grid Margin="15,5">
+                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Volume (between 0 and 100)"/></TextBlock>
+                                    <Border Margin="229,0,0,0" VerticalAlignment="Center" Width="64" HorizontalAlignment="Left" Background="#FF474747" BorderThickness="0" CornerRadius="12">
+                                        <TextBox x:Name="vol" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" HorizontalContentAlignment="Center" Margin="0,2"/>
+                                    </Border>
                                 </Grid>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-                    <styles:NewButtons x:Name="slide" BorderRadius="14,14,14,14" Content="Slideshow" VerticalAlignment="Top" Margin="0,35,0,0" Height="28" Click="slide_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90" BackgroundHover="#FF717171"/>
-                    <styles:NewButtons x:Name="vid" BorderRadius="14,14,14,14" Content="Video or Image" VerticalAlignment="Top" Margin="0,35,95,0" Height="28" Click="vid_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="120" BackgroundHover="#FF717171"/>
-                </Grid>
-            </Border>
+                                <Grid Margin="15,5">
+                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Start automatically when your PC is starting"/></TextBlock>
+                                    <styles:FlatCheckBox x:Name="startwithw" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="344,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
+                                </Grid>
+                                <Grid Margin="15,5">
+                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Stop animation when you're not on the Desktop"/></TextBlock>
+                                    <styles:FlatCheckBox x:Name="stopan" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="371,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
+                                </Grid>
+                                <styles:NewButtons x:Name="show_more" Margin="15,5" Background="#FF4C4C4C" BorderRadius="14" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="7,4,12,4" Cursor="Hand" Click="show_more_Click" BackgroundHover="#FF5B5B5B">
+                                    <Grid>
+                                        <Viewbox Width="19" Height="19" HorizontalAlignment="Left" VerticalAlignment="Center" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
+                                            <Viewbox.RenderTransform>
+                                                <TransformGroup>
+                                                    <ScaleTransform/>
+                                                    <SkewTransform/>
+                                                    <RotateTransform x:Name="show_more_r" Angle="00"/>
+                                                    <TranslateTransform/>
+                                                </TransformGroup>
+                                            </Viewbox.RenderTransform>
+                                            <Canvas Width="24" Height="24">
+                                                <Path Fill="White" Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
+                                            </Canvas>
+                                        </Viewbox>
+                                        <TextBlock Foreground="White" HorizontalAlignment="Left" Margin="24,0,0,0" VerticalAlignment="Center" TextWrapping="WrapWithOverflow"><Run Text="Show more"/></TextBlock>
+                                    </Grid>
+                                </styles:NewButtons>
+                                <Grid x:Name="show_more_expend" Margin="15,0,15,5" Visibility="Visible">
+                                    <Grid x:Name="restartexplo_g">
+                                        <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" Width="396" Background="#00000000"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is launched in background (requires Administrator authorization)"/><Run Text="&#xD;Please activate this setting only if you encounter memory leaks with dwm.exe" FontSize="12"/></TextBlock>
+                                        <styles:FlatCheckBox x:Name="restartexplo" VerticalAlignment="Center" Margin="406,0,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747" HorizontalAlignment="Left" Width="19"/>
+                                    </Grid>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        <styles:NewButtons x:Name="slide" BorderRadius="14,14,14,14" Content="Slideshow" VerticalAlignment="Top" Margin="0,35,0,0" Height="28" Click="slide_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90" BackgroundHover="#FF717171"/>
+                        <styles:NewButtons x:Name="vid" BorderRadius="14,14,14,14" Content="Video or Image" VerticalAlignment="Top" Margin="0,35,95,0" Height="28" Click="vid_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="120" BackgroundHover="#FF717171"/>
+                    </Grid>
+                </Border>
+            </Grid>
         </ScrollViewer>
         <styles:NewButtons x:Name="more_info" Margin="57,0,0,13" ToolTip="Get help" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF3E3E3E" BorderRadius="21" Width="36" Padding="3,3,3,3" Cursor="Hand" Click="more_info_Click" BackgroundHover="#FF5B5B5B" Height="36">
             <Grid>
@@ -93,5 +95,25 @@
         <styles:NewButtons x:Name="vname" Margin="98,0,0,16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF202020" BorderRadius="15,15,15,15" Padding="8,5,8,5" Foreground="White" BackgroundHover="#FF5B5B5B" Click="vname_Click" ToolTip="View the project on GitHub">v1.0
         </styles:NewButtons>
         <styles:NewButtons x:Name="restart_dwm" Content="Restart DWM" BorderRadius="18,18,18,18" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="36" Width="128" Margin="0,0,150,10" Click="restart_dwm_Click" Background="#FF3E3E3E" Foreground="Red" BorderBrush="{x:Null}" Visibility="Collapsed" BackgroundHover="#FF5B5B5B"/>
+        <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="28,14,28,0" Background="#FF353535" CornerRadius="19,19,19,19" Padding="0,3,0,3">
+            <Border.Resources>
+                <utils:BorderClipConverter x:Key="BorderClipConverter" />
+            </Border.Resources>
+            <Border.Clip>
+                <MultiBinding Converter="{StaticResource BorderClipConverter}">
+                    <Binding Path="ActualWidth"
+                        RelativeSource="{RelativeSource Self}"/>
+                    <Binding Path="ActualHeight"
+                        RelativeSource="{RelativeSource Self}"/>
+                    <Binding Path="CornerRadius"
+                        RelativeSource="{RelativeSource Self}"/>
+                </MultiBinding>
+            </Border.Clip>
+            <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" MouseWheel="ScrollViewer_MouseWheel" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+                <StackPanel x:Name="multiscreen" Orientation="Horizontal" Margin="1,0,4,0">
+                    <styles:NewButtons x:Name="screen_all" BorderRadius="15,15,15,15" Content="All screens" Height="30" Click="change_screen_Click" Background="#FF4F4F4F" Foreground="White" BorderBrush="{x:Null}" BackgroundHover="#FF717171" Margin="3,1,0,1" Padding="8,1,8,1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
     </Grid>
 </Window>

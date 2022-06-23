@@ -203,7 +203,7 @@ namespace Wallpapeuhrs
             isOk = true;
             if (timer.Enabled) timer.Stop();
             string newUrl = getNewMedia();
-            med.volume = System.Windows.Forms.Screen.PrimaryScreen.DeviceName != moni ? 0 : volume;
+            med.volume = volume;
             med.repeat = repeat;
             try
             {

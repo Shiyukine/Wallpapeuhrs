@@ -54,6 +54,7 @@ namespace Wallpapeuhrs
             InitializeComponent();
             RegisterName("MyAnimatedTransform", show_more_r);
             vname.Content = Update.getVersionName();
+            changeScreenConfig(0);
             Update.searchUpdates();
             //curNativeWallpaper = NativeWallpaper.getCurrentDesktopWallpaper();
             this.inbg = inbg;
@@ -192,6 +193,7 @@ namespace Wallpapeuhrs
                         {
                             sendChange(monii, processes[monii]);
                         }
+                        refreshScreensConfig();
                     }
                     else if (pl.Length - 1 < System.Windows.Forms.Screen.AllScreens.Count())
                     {
@@ -385,9 +387,21 @@ namespace Wallpapeuhrs
                 sf.setSetting("Start", (bool)startwithw.IsChecked, null);
                 sf.setSetting("Stop", (bool)stopan.IsChecked, null);
                 sf.setSetting("RestartExplorer", (bool)restartexplo.IsChecked, null);
+                foreach(FrameworkElement el in multiscreen_g.Children)
+                {
+                    if(el is ScreenConfig)
+                    {
+                        ScreenConfig config = (ScreenConfig)el;
+                        sf.setSetting("Screen_" + config.screenName + "_url", config.urls.Text, null);
+                        if(config.interval.Text != "") sf.setSetting("Screen_" + config.screenName + "_interval", Convert.ToInt32(config.interval.Text), null);
+                        else sf.setSetting("Screen_" + config.screenName + "_interval", "", null);
+                        if (config.vol.Text != "") sf.setSetting("Screen_" + config.screenName + "_vol", Convert.ToInt32(config.vol.Text), null);
+                        else sf.setSetting("Screen_" + config.screenName + "_vol", "", null);
+                    }
+                }
                 restart_dwm.Visibility = sf.getBoolSetting("RestartExplorer") ? Visibility.Visible : Visibility.Collapsed;
             }
-            catch
+            catch 
             {
                 MessageBox.Show("A parameter does not correspond to what is requested. Please check all settings before saving.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -426,6 +440,7 @@ namespace Wallpapeuhrs
                 //NativeWallpaper.changeWallpaper("");
                 loaded = false;
                 alreadySendChange = false;
+                refreshScreensConfig();
                 if (!alreadyRestarted && sf.getBoolSetting("RestartExplorer") && inbg) await stopExplorer();
                 if (!ok)
                 {
@@ -577,14 +592,27 @@ namespace Wallpapeuhrs
 
         private void sendChange(string moni, TcpClient PCtcp)
         {
-            sendData(PCtcp, "Liste", moni);
-            Dispatcher.Invoke(() => sendData(PCtcp, urls.Text, moni));
-            sendData(PCtcp, "Endliste", moni);
-            //
-            sendData(PCtcp, "Volume=" + sf.getIntSetting("Vol"), moni);
-            sendData(PCtcp, "Interval=" + sf.getIntSetting("Interval"), moni);
-            sendData(PCtcp, "Repeat=" + sf.getBoolSetting("Repeat"), moni);
-            sendData(PCtcp, "Autostop=" + sf.getBoolSetting("Stop"), moni);
+            Dispatcher.Invoke(() =>
+            {
+                foreach (FrameworkElement el in multiscreen_g.Children)
+                {
+                    if (el is ScreenConfig)
+                    {
+                        ScreenConfig screenConfig = (ScreenConfig)el;
+                        if (moni == screenConfig.screenName)
+                        {
+                            sendData(PCtcp, "Liste", moni);
+                            sendData(PCtcp, screenConfig.urls.Text == "" ? urls.Text : screenConfig.urls.Text, moni);
+                            sendData(PCtcp, "Endliste", moni);
+                            //
+                            sendData(PCtcp, "Volume=" + (screenConfig.vol.Text == "" ? sf.getIntSetting("Vol") : Convert.ToInt32(screenConfig.vol.Text)), moni);
+                            sendData(PCtcp, "Interval=" + (screenConfig.interval.Text == "" ? sf.getIntSetting("Interval") : Convert.ToInt32(screenConfig.interval.Text)), moni);
+                            sendData(PCtcp, "Repeat=" + sf.getBoolSetting("Repeat"), moni);
+                            sendData(PCtcp, "Autostop=" + sf.getBoolSetting("Stop"), moni);
+                        }
+                    }
+                }
+            });
         }
 
         private void start_Click(object sender, RoutedEventArgs e)
@@ -594,7 +622,9 @@ namespace Wallpapeuhrs
             string str = Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe");
             try { key.DeleteValue("Wallpapeuhrs"); } catch { }
             if ((bool)startwithw.IsChecked) key.SetValue("Wallpapeuhrs", "\"" + str + "\" --background");
+            int curConfIndex = curIndexConfig;
             beginWP();
+            changeScreenConfig(curConfIndex);
         }
 
         bool curPlay = true;
@@ -645,10 +675,15 @@ namespace Wallpapeuhrs
 
         private void vid_Click(object sender, RoutedEventArgs e)
         {
+            vidClick(urls);
+        }
+
+        public static void vidClick(TextBox tb)
+        {
             System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            openFileDialog.InitialDirectory = System.IO.Path.GetFullPath(urls.Text != "" ? urls.Text : "c:\\");
+            openFileDialog.InitialDirectory = System.IO.Path.GetFullPath(tb.Text != "" ? tb.Text : "c:\\");
             string filter = "";
-            foreach(string type in App.types.Keys)
+            foreach (string type in App.types.Keys)
             {
                 filter += type + "|";
                 int i = 0;
@@ -666,20 +701,26 @@ namespace Wallpapeuhrs
             openFileDialog.Multiselect = false;
             if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                urls.Text = openFileDialog.FileName;
+                tb.Text = openFileDialog.FileName;
             }
         }
 
         private void slide_Click(object sender, RoutedEventArgs e)
         {
+            slideClick(urls);
+        }
+
+        public static void slideClick(TextBox tb)
+        {
             var dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = System.IO.Path.GetFullPath(urls.Text != "" ? urls.Text : "c:\\");
+            dialog.InitialDirectory = System.IO.Path.GetFullPath(tb.Text != "" ? tb.Text : "c:\\");
             dialog.AllowNonFileSystemItems = true;
             dialog.Multiselect = false;
             dialog.IsFolderPicker = true;
+            dialog.RestoreDirectory = true;
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                urls.Text = dialog.FileName;
+                tb.Text = dialog.FileName;
             }
         }
 
@@ -886,6 +927,84 @@ namespace Wallpapeuhrs
                 Process.Start(psi);
             }
             else Update.installUpdate();
+        }
+
+        private void ScrollViewer_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            ScrollViewer sv = (ScrollViewer)sender;
+            sv.ScrollToHorizontalOffset(e.Delta);
+        }
+
+        private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            ScrollViewer sv = (ScrollViewer)sender;
+            sv.ScrollToHorizontalOffset(sv.HorizontalOffset + e.Delta * -1);
+        }
+
+        FrameworkElement anBorder = null;
+        NewButtons anButton = null;
+
+        private void change_screen_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = (Button)sender;
+            changeScreenConfig(multiscreen.Children.IndexOf(button));
+        }
+
+        int curIndexConfig = -1;
+        private void changeScreenConfig(int index)
+        {
+            NewButtons nButton = (NewButtons)multiscreen.Children[index];
+            FrameworkElement nBorder = (FrameworkElement)multiscreen_g.Children[index];
+            if (anBorder != null && anButton != null)
+            {
+                anButton.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0, 79, 79, 79));
+                anBorder.Visibility = Visibility.Collapsed;
+                nButton.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 79, 79, 79));
+                nBorder.Visibility = Visibility.Visible;
+            }
+            anButton = nButton;
+            anBorder = nBorder;
+            curIndexConfig = index;
+        }
+
+        private void refreshScreensConfig()
+        {
+            changeScreenConfig(0);
+            multiscreen.Children.RemoveRange(1, multiscreen.Children.Count - 1);
+            multiscreen_g.Children.RemoveRange(1, multiscreen_g.Children.Count - 1);
+            int i = 1;
+            foreach(System.Windows.Forms.Screen s in System.Windows.Forms.Screen.AllScreens)
+            {
+                string index = s.DeviceName;
+                NewButtons bu = new NewButtons();
+                bu.Content = "Screen " + i;
+                bu.BorderRadius = screen_all.BorderRadius;
+                bu.Height = screen_all.Height;
+                bu.Width = screen_all.Width;
+                bu.Click += change_screen_Click;
+                bu.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0, 79, 79, 79));
+                bu.Foreground = screen_all.Foreground;
+                bu.FontSize = screen_all.FontSize;
+                bu.BorderBrush = screen_all.BorderBrush;
+                bu.Margin = screen_all.Margin;
+                bu.Padding = screen_all.Padding;
+                bu.HorizontalAlignment = screen_all.HorizontalAlignment;
+                bu.VerticalAlignment = screen_all.VerticalAlignment;
+                bu.BackgroundHover = screen_all.BackgroundHover;
+                bu.Name = "";
+                multiscreen.Children.Add(bu);
+                ScreenConfig b = new ScreenConfig();
+                b.Visibility = Visibility.Collapsed;
+                if (!sf.settingExists("Screen_" + index + "_url")) sf.setSetting("Screen_" + index + "_url", "", null);
+                if (!sf.settingExists("Screen_" + index + "_interval")) sf.setSetting("Screen_" + index + "_interval", "", null);
+                if (!sf.settingExists("Screen_" + index + "_vol")) sf.setSetting("Screen_" + index + "_vol", "", null);
+                b.urls.Text = sf.getStringSetting("Screen_" + index + "_url");
+                b.interval.Text = sf.getStringSetting("Screen_" + index + "_interval");
+                b.vol.Text = sf.getStringSetting("Screen_" + index + "_vol");
+                b.screenName = s.DeviceName;
+                multiscreen_g.Children.Add(b);
+                i++;
+            }
         }
 
         /* NE PAS TOUCHER
