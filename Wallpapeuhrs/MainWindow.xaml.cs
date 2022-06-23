@@ -549,7 +549,7 @@ namespace Wallpapeuhrs
                             Process p = new Process();
                             p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + Process.GetCurrentProcess().ProcessName + ".exe";
                             p.StartInfo.Arguments = "--wp /startAfter " + startAfter + " /moni \"" + mon.DeviceName + "\"";
-                            p.StartInfo.UseShellExecute = true;
+                            //p.StartInfo.UseShellExecute = true;
                             p.Start();
                         }
                         else

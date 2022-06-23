@@ -136,7 +136,12 @@ namespace Wallpapeuhrs
                 wc.DownloadFileCompleted += (sendere, ee) =>
                 {
                     MainWindow.isclos = true;
-                    Process.Start(AppDomain.CurrentDomain.BaseDirectory + "\\WallpapeuhrsInstall.exe");
+                    Process p = new Process();
+                    p.StartInfo = new ProcessStartInfo();
+                    p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "\\WallpapeuhrsInstall.exe";
+                    p.StartInfo.Arguments = "/VERYSILENT";
+                    p.Start();
+                    //p.StartInfo.UseShellExecute = true;
                     //App.Current.Shutdown();
                     Process.GetCurrentProcess().Kill();
                 };
