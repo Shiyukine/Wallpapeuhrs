@@ -1115,7 +1115,7 @@ namespace Wallpapeuhrs
                     }
                     else
                     {
-                        if (!sf.settingExists("Theme_" + slider.Tag))
+                        if (sf.settingExists("Screen_" + moni + "_Theme_" + slider.Tag))
                             sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + slider.Value, moni);
                         else
                             sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + sf.getDoubleSetting("Theme_" + slider.Tag), moni);
