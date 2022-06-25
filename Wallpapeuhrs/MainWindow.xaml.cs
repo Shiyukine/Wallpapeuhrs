@@ -199,6 +199,7 @@ namespace Wallpapeuhrs
                                 processes.Remove(s.DeviceName);
                                 monis.Remove(s.DeviceName);
                             }
+                            vidReady = 0;
                             foreach (string monii in processes.Keys)
                             {
                                 sendChange(monii, processes[monii]);
@@ -554,7 +555,7 @@ namespace Wallpapeuhrs
                                                 Debug.WriteLine("a " + oneIsDir);
                                                 if (!oneIsDir)
                                                 {
-                                                    Debug.WriteLine("aaaaaa " + moni);
+                                                    Debug.WriteLine("aaaaaa " + moni + " " + vidReady + " " + System.Windows.Forms.Screen.AllScreens.Count());
                                                     if (vidReady == System.Windows.Forms.Screen.AllScreens.Count() /*&& !alreadySendChange*/)
                                                     {
                                                         foreach (string monii in processes.Keys)

@@ -6,10 +6,10 @@
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf" xmlns:XamlHost="clr-namespace:Microsoft.Toolkit.Wpf.UI.XamlHost;assembly=Microsoft.Toolkit.Wpf.UI.XamlHost"
     x:Class="Wallpapeuhrs.MediaVW" 
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800" Background="Black">
 
     <Grid>
-        <wpf:WebView2 x:Name="webview"></wpf:WebView2>
-        <XamlHost:WindowsXamlHost x:Name="myHostControl" SnapsToDevicePixels="True" ClipToBounds="True" IsManipulationEnabled="True"/>
+        <XamlHost:WindowsXamlHost x:Name="myHostControl" SnapsToDevicePixels="True" ClipToBounds="True" IsManipulationEnabled="True" Visibility="Collapsed"/>
+        <wpf:WebView2 x:Name="webview" Visibility="Collapsed"></wpf:WebView2>
     </Grid>
 </UserControl>

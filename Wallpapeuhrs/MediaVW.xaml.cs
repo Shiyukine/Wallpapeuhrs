@@ -53,11 +53,12 @@ namespace Wallpapeuhrs
                 {
                     //if (System.Windows.Forms.Screen.PrimaryScreen.DeviceName == parent.moni) webview.CoreWebView2.OpenDevToolsWindow();
                     string result = reader.ReadToEnd();
-                    CoreWebView2WebResourceRequest r = webview.CoreWebView2.Environment.CreateWebResourceRequest("file:///C:/", "GET", stream, "");
+                    CoreWebView2WebResourceRequest r = webview.CoreWebView2.Environment.CreateWebResourceRequest("file:///C:/", "GET", null, "");
                     webview.NavigationStarting += async (s, e) =>
                     {
                         await webview.CoreWebView2.ExecuteScriptAsync("document.write(`" + result + "`)");
                         MainWindow.sendData(parent.tcp, "READY " + parent.moni + " ", null);
+                        webview.Visibility = Visibility.Visible;
                         SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
                         setDWM(new WindowInteropHelper(parent).Handle);
                     };
