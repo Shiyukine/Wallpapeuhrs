@@ -9,6 +9,13 @@
     <script>
         var _isVideo = false;
         const bo = chrome.webview.hostObjects.boundobject;
+        const initialFilters = {
+            brightness: 100,
+            saturate: 100,
+            grayscale: 0,
+            contrast: 100,
+            "hue-rotate": 0
+        }
         var filters = {}
 
         function changeFilter(filter, value) {
@@ -20,9 +27,9 @@
                 if (txt === "hue-rotate") {
                     unit = "deg"
                 }
-                nFilter += txt + "(" + filters[f] + unit + ") "
+                if (filters[f] != initialFilters[f]) nFilter += txt + "(" + filters[f] + unit + ") "
             }
-            console.log(nFilter)
+            //console.log(nFilter)
             document.body.style.filter = nFilter
         }
 

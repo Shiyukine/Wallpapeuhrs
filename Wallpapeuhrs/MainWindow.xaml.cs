@@ -1174,14 +1174,10 @@ namespace Wallpapeuhrs
                         if(!sf.settingExists("Screen_" + monii + "_Theme_" + tag))
                             sendData(processes[monii], "ChangeTheme=" + tag + "=" + value, monii);
                     }
-                    sf.setSetting("Theme_" + tag, value, null);
+                    sf.removeSetting("Theme_" + tag);
                 }
                 else
                 {
-                    /*if (!sf.settingExists("Theme_" + slider.Tag))
-                        sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + slider.Value, moni);
-                    else
-                        sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + sf.getIntSetting("Theme_" + slider.Tag), moni);*/
                     if (!sf.settingExists("Theme_" + slider.Tag))
                         sendData(processes[moni], "ChangeTheme=" + tag + "=" + value, moni);
                     else
@@ -1196,5 +1192,5 @@ namespace Wallpapeuhrs
     [Windows.Foundation.Metadata.MarshalingBehavior(Windows.Foundation.Metadata.MarshalingType.None)]
     [Windows.Foundation.Metadata.Threading(Windows.Foundation.Metadata.ThreadingModel.STA)]
     [Windows.Foundation.Metadata.Activatable(65536, "Windows.Foundation.UniversalApiContract")]*/
-                }
-            }
+    }
+}
