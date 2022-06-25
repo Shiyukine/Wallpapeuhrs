@@ -70,8 +70,8 @@
 
         function remove() {
             for (var index in document.body.children) {
-                if (index > 0) {
-                    var el = document.body.children[index]
+                let el = document.body.children[index]
+                if (index > 0 && !el.style.opacity) {
                     el.ontransitionend = () => {
                         document.body.removeChild(el)
                     };
