@@ -53,8 +53,8 @@ namespace ShiyukiUtils.Settings
                 settings.Clear();
                 foreach (string str in File.ReadLines(file))
                 {
-                    string[] lines = str.Split(new string[] { " = " }, StringSplitOptions.RemoveEmptyEntries);
-                    if (!str.StartsWith("#") && !settings.ContainsKey(lines[0]) && lines.Length > 1)
+                    string[] lines = str.Split(new string[] { " = " }, StringSplitOptions.None);
+                    if (!str.StartsWith("#") && !settings.ContainsKey(lines[0]))
                     {
                         settings.Add(lines[0], lines[1]);
                     }

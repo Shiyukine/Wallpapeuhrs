@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WPBG</title>
+    <script>
+        var _isVideo = false;
+        const bo = chrome.webview.hostObjects.boundobject;
+        var filters = {}
+
+        function changeFilter(filter, value) {
+            filters[filter] = value
+            var nFilter = "";
+            for (var f in filters) {
+                var txt = f
+                var unit = "%"
+                if (txt === "hue-rotate") {
+                    unit = "deg"
+                }
+                nFilter += txt + "(" + filters[f] + unit + ") "
+            }
+            console.log(nFilter)
+            document.body.style.filter = nFilter
+        }
+
+        function changeUrl(newUrl, isVideo, volume, isDir) {
+            if (isVideo) {
+                var video = document.createElement("video")
+                //loadeddata canplaythrough
+                video.addEventListener("loadeddata", function () {
+                    remove()
+                    bo.videoLoaded()
+                }, false);
+                video.src = newUrl
+                video.volume = volume / 100
+                video.controls = false
+                video.loop = true
+                /*video.addEventListener("ended", () => {
+                    video.currentTime = 0
+                })*/
+                document.body.insertBefore(video, document.body.firstChild)
+            }
+            else {
+                var div = document.createElement("div")
+                var img = document.createElement("img")
+                var cnv = document.createElement("canvas")
+                img.addEventListener("load", function () {
+                    remove()
+                    bo.videoLoaded()
+                }, false);
+                img.src = newUrl
+                div.appendChild(img)
+                div.appendChild(cnv)
+                cnv.style.visibility = "hidden"
+                document.body.insertBefore(div, document.body.firstChild)
+            }
+            _isVideo = isVideo
+            return true
+        }
+
+        function remove() {
+            for (var index in document.body.children) {
+                if (index > 0) {
+                    var el = document.body.children[index]
+                    el.ontransitionend = () => {
+                        document.body.removeChild(el)
+                    };
+                    el.style.opacity = "0"
+                }
+            }
+        }
+
+        function changePlayerState(play) {
+            if (document.body.firstChild) {
+                if (_isVideo) {
+                    if (play) document.body.firstChild.play()
+                    else document.body.firstChild.pause()
+                }
+                else {
+                    var img = document.body.firstChild.firstChild
+                    var cnv = document.body.firstChild.lastChild
+                    if (!play) {
+                        let i = img
+                        var ctx = cnv.getContext('2d')
+                        cnv.height = i.height
+                        cnv.width = i.width
+                        ctx.drawImage(i, 0, 0, i.width, i.height)
+                    }
+                    img.style.visibility = play ? "visible" : "hidden"
+                    cnv.style.visibility = play ? "hidden" : "visible"
+                }
+            }
+        }
+
+        function resetVideoTime() {
+            if (_isVideo && document.body.firstChild) {
+                document.body.firstChild.currentTime = 0
+            }
+        }
+    </script>
+    <style>
+        html {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+
+        body>*,
+        body>*>* {
+            transition: opacity 1s;
+            position: absolute;
+            object-fit: cover;
+            transition-timing-function: linear;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <!--<p>dfsghjfdsugjfsdfjhgdfshjkgfdshijufdsqikhgfdsqihkg</p>-->
+</body>
+
+</html>

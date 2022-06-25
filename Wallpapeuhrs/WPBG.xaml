@@ -15,7 +15,4 @@
             x:Name="winchrome" UseAeroCaptionButtons="False" GlassFrameThickness="0" />
     </WindowChrome.WindowChrome>
 
-
-    <local:Media x:Name="med"></local:Media>
-
 </Window>

@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -36,14 +37,14 @@ namespace Wallpapeuhrs
     /// </summary>
     public partial class MainWindow : Window
     {
-        Dictionary<string, TcpClient> processes = new Dictionary<string, TcpClient>();
+        static Dictionary<string, TcpClient> processes = new Dictionary<string, TcpClient>();
         TcpListener PStcp = null;
-        SettingsManager sf = null;
+        static SettingsManager sf = null;
         bool ok = false;
         public static bool isclos = false;
         bool inbg = false;
         System.Windows.Forms.NotifyIcon ni = new System.Windows.Forms.NotifyIcon();
-        bool loaded = false;
+        static bool loaded = false;
         //string curNativeWallpaper = "";
 
         public MainWindow(bool inbg)
@@ -154,61 +155,75 @@ namespace Wallpapeuhrs
             {
                 if (loaded)
                 {
-                    Process[] pl = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
-                    if (pl.Length - 1 > System.Windows.Forms.Screen.AllScreens.Count())
+                    try
                     {
-                        List<Process> pRem = new List<Process>();
-                        foreach(Process p in pl)
+                        Process[] pl = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
+                        if (pl.Length - 1 > System.Windows.Forms.Screen.AllScreens.Count())
                         {
-                            if (p.MainWindowHandle != Process.GetCurrentProcess().MainWindowHandle)
-                                pRem.Add(p);
-                        }
-                        List<System.Windows.Forms.Screen> sRem = new List<System.Windows.Forms.Screen>(System.Windows.Forms.Screen.AllScreens);
-                        foreach (System.Windows.Forms.Screen s in System.Windows.Forms.Screen.AllScreens)
-                        {
-                            Process process = null;
+                            List<Process> pRem = new List<Process>();
                             foreach (Process p in pl)
                             {
-                                if (GetCommandLine(p).Contains("/moni \"" + s.DeviceName + "\""))
+                                if (p.MainWindowHandle != Process.GetCurrentProcess().MainWindowHandle)
+                                    pRem.Add(p);
+                            }
+                            List<System.Windows.Forms.Screen> sRem = new List<System.Windows.Forms.Screen>(System.Windows.Forms.Screen.AllScreens);
+                            foreach (System.Windows.Forms.Screen s in System.Windows.Forms.Screen.AllScreens)
+                            {
+                                Process process = null;
+                                foreach (Process p in pl)
                                 {
-                                    process = p;
+                                    try
+                                    {
+                                        if (GetCommandLine(p).Contains("/moni \"" + s.DeviceName + "\""))
+                                        {
+                                            process = p;
+                                        }
+                                    }
+                                    catch
+                                    {
+
+                                    }
+                                }
+                                if (process != null)
+                                {
+                                    pRem.Remove(process);
+                                    sRem.Remove(s);
                                 }
                             }
-                            if (process != null)
+                            foreach (Process p in pRem)
                             {
-                                pRem.Remove(process);
-                                sRem.Remove(s);
+                                p.Kill();
+                            }
+                            foreach (System.Windows.Forms.Screen s in sRem)
+                            {
+                                processes.Remove(s.DeviceName);
+                                monis.Remove(s.DeviceName);
+                            }
+                            foreach (string monii in processes.Keys)
+                            {
+                                sendChange(monii, processes[monii]);
+                            }
+                            refreshScreensConfig();
+                        }
+                        else if (pl.Length - 1 < System.Windows.Forms.Screen.AllScreens.Count())
+                        {
+                            beginWP();
+                        }
+                        else
+                        {
+                            foreach (System.Windows.Forms.Screen s in System.Windows.Forms.Screen.AllScreens)
+                            {
+                                if (monis.ContainsKey(s.DeviceName) && monis[s.DeviceName] != s.Bounds)
+                                {
+                                    beginWP();
+                                    monis[s.DeviceName] = s.Bounds;
+                                }
                             }
                         }
-                        foreach(Process p in pRem)
-                        {
-                            p.Kill();
-                        }
-                        foreach(System.Windows.Forms.Screen s in sRem)
-                        {
-                            processes.Remove(s.DeviceName);
-                            monis.Remove(s.DeviceName);
-                        }
-                        foreach (string monii in processes.Keys)
-                        {
-                            sendChange(monii, processes[monii]);
-                        }
-                        refreshScreensConfig();
                     }
-                    else if (pl.Length - 1 < System.Windows.Forms.Screen.AllScreens.Count())
+                    catch
                     {
-                        beginWP();
-                    }
-                    else
-                    {
-                        foreach (System.Windows.Forms.Screen s in System.Windows.Forms.Screen.AllScreens)
-                        {
-                            if(monis.ContainsKey(s.DeviceName) && monis[s.DeviceName] != s.Bounds)
-                            {
-                                beginWP();
-                                monis[s.DeviceName] = s.Bounds;
-                            }
-                        }
+
                     }
                 }
                 if ((bool)stopan.IsChecked)
@@ -387,6 +402,7 @@ namespace Wallpapeuhrs
                 sf.setSetting("Start", (bool)startwithw.IsChecked, null);
                 sf.setSetting("Stop", (bool)stopan.IsChecked, null);
                 sf.setSetting("RestartExplorer", (bool)restartexplo.IsChecked, null);
+                sf.setSetting("Edge_Engine", engine.SelectedIndex, null);
                 foreach(FrameworkElement el in multiscreen_g.Children)
                 {
                     if(el is ScreenConfig)
@@ -400,6 +416,7 @@ namespace Wallpapeuhrs
                     }
                 }
                 restart_dwm.Visibility = sf.getBoolSetting("RestartExplorer") ? Visibility.Visible : Visibility.Collapsed;
+                filters.Visibility = sf.getIntSetting("Edge_Engine") == 0 ? Visibility.Visible : Visibility.Collapsed;
             }
             catch 
             {
@@ -416,6 +433,7 @@ namespace Wallpapeuhrs
             if (!sf.settingExists("Repeat")) sf.setSetting("Repeat", true, null);
             if (!sf.settingExists("Stop")) sf.setSetting("Stop", false, null);
             if (!sf.settingExists("RestartExplorer")) sf.setSetting("RestartExplorer", false, null);
+            if (!sf.settingExists("Edge_Engine")) sf.setSetting("Edge_Engine", 0, null);
             //
             urls.Text = sf.getStringSetting("Path");
             vol.Text = sf.getStringSetting("Vol");
@@ -423,7 +441,15 @@ namespace Wallpapeuhrs
             startwithw.IsChecked = sf.getBoolSetting("Start");
             stopan.IsChecked = sf.getBoolSetting("Stop");
             restartexplo.IsChecked = sf.getBoolSetting("RestartExplorer");
+            engine.SelectedIndex = sf.getIntSetting("Edge_Engine");
             restart_dwm.Visibility = sf.getBoolSetting("RestartExplorer") ? Visibility.Visible : Visibility.Collapsed;
+            filters.Visibility = sf.getIntSetting("Edge_Engine") == 0 ? Visibility.Visible : Visibility.Collapsed;
+            //
+            foreach (Grid g in filters.Children)
+            {
+                var slider = g.Children[1] as Slider;
+                if (sf.settingExists("Theme_" + slider.Tag)) slider.Value = sf.getDoubleSetting("Theme_" + slider.Tag);
+            }
         }
 
         //for explorer.exe
@@ -431,7 +457,8 @@ namespace Wallpapeuhrs
 
         //for beginWP
         bool isAddingNewProcess = false;
-        bool alreadySendChange = false;
+        int vidReady = 0;
+        bool oneIsDir = false;
 
         private async void beginWP()
         {
@@ -439,7 +466,8 @@ namespace Wallpapeuhrs
             {
                 //NativeWallpaper.changeWallpaper("");
                 loaded = false;
-                alreadySendChange = false;
+                vidReady = 0;
+                oneIsDir = false;
                 refreshScreensConfig();
                 if (!alreadyRestarted && sf.getBoolSetting("RestartExplorer") && inbg) await stopExplorer();
                 if (!ok)
@@ -448,6 +476,7 @@ namespace Wallpapeuhrs
                     PStcp.Start();
                     ok = true;
                 }
+                filters.Visibility = sf.getIntSetting("Edge_Engine") == 0 ? Visibility.Visible : Visibility.Collapsed;
                 if (urls.Text != "")
                 {
                     //Dictionary<string, string> monis = W32.getMoniGPU();
@@ -456,6 +485,11 @@ namespace Wallpapeuhrs
                     Process[] pl = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
                     foreach (System.Windows.Forms.Screen mon in System.Windows.Forms.Screen.AllScreens)
                     {
+                        ScreenConfig sc = multiscreen_g.Children.OfType<ScreenConfig>().Where(x => x.screenName == mon.DeviceName).FirstOrDefault();
+                        string url = sc.urls.Text;
+                        if (url == "") url = urls.Text;
+                        Debug.WriteLine("dsqdsqdqsdqs " + url);
+                        if(url != "" && !File.Exists(url)) oneIsDir = true;
                         foreach (Process p in pl)
                         {
                             try
@@ -510,6 +544,32 @@ namespace Wallpapeuhrs
                                                 }
                                             }
                                         }
+                                        if (stra.StartsWith("VIDREADY "))
+                                        {
+                                            string moni = stra.Split(" ", StringSplitOptions.RemoveEmptyEntries)[1];
+                                            vidReady++;
+                                            //Debug.WriteLine(System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
+                                            Dispatcher.Invoke(() =>
+                                            {
+                                                Debug.WriteLine("a " + oneIsDir);
+                                                if (!oneIsDir)
+                                                {
+                                                    Debug.WriteLine("aaaaaa " + moni);
+                                                    if (vidReady == System.Windows.Forms.Screen.AllScreens.Count() /*&& !alreadySendChange*/)
+                                                    {
+                                                        foreach (string monii in processes.Keys)
+                                                        {
+                                                            sendData(processes[monii], "VPlay", monii);
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Debug.WriteLine("aaaaab " + moni);
+                                                    sendData(processes[moni], "VPlay", moni);
+                                                }
+                                            });
+                                        }
                                         ns.BeginRead(read, 0, PCtcp.ReceiveBufferSize, asy, null);
                                     }
                                     catch
@@ -548,7 +608,7 @@ namespace Wallpapeuhrs
                             a();
                             Process p = new Process();
                             p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + Process.GetCurrentProcess().ProcessName + ".exe";
-                            p.StartInfo.Arguments = "--wp /startAfter " + startAfter + " /moni \"" + mon.DeviceName + "\"";
+                            p.StartInfo.Arguments = "--wp /startAfter " + startAfter + " /moni \"" + mon.DeviceName + "\" /engine " + engine.SelectedIndex + "";
                             //p.StartInfo.UseShellExecute = true;
                             p.Start();
                         }
@@ -609,6 +669,19 @@ namespace Wallpapeuhrs
                             sendData(PCtcp, "Interval=" + (screenConfig.interval.Text == "" ? sf.getIntSetting("Interval") : Convert.ToInt32(screenConfig.interval.Text)), moni);
                             sendData(PCtcp, "Repeat=" + sf.getBoolSetting("Repeat"), moni);
                             sendData(PCtcp, "Autostop=" + sf.getBoolSetting("Stop"), moni);
+                            int i = 0;
+                            foreach(Grid g in filters.Children)
+                            {
+                                var slider = g.Children[1] as Slider;
+                                if (!sf.settingExists("Screen_" + screenConfig.screenName + "_Theme_" + slider.Tag))
+                                    sendData(PCtcp, "ChangeTheme=" + slider.Tag + "=" + slider.Value, moni);
+                                else
+                                {
+                                    var sli = (screenConfig.filters.Children[i] as Grid).Children[1] as Slider;
+                                    sendData(PCtcp, "ChangeTheme=" + sli.Tag + "=" + sli.Value, moni);
+                                }
+                                i++;
+                            }
                         }
                     }
                 }
@@ -1001,9 +1074,120 @@ namespace Wallpapeuhrs
                 b.urls.Text = sf.getStringSetting("Screen_" + index + "_url");
                 b.interval.Text = sf.getStringSetting("Screen_" + index + "_interval");
                 b.vol.Text = sf.getStringSetting("Screen_" + index + "_vol");
+                if (sf.settingExists("Edge_Engine") && sf.getIntSetting("Edge_Engine") == 0)
+                {
+                    foreach (Grid g in b.filters.Children)
+                    {
+                        var slider = g.Children[1] as Slider;
+                        if (sf.settingExists("Screen_" + index + "_Theme_" + slider.Tag)) slider.Value = sf.getDoubleSetting("Screen_" + index + "_Theme_" + slider.Tag);
+                    }
+                }
+                else
+                {
+                    b.filters.Visibility = Visibility.Collapsed;
+                }
                 b.screenName = s.DeviceName;
                 multiscreen_g.Children.Add(b);
                 i++;
+            }
+        }
+
+        private void th_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            changeThemeValue(sender, null);
+        }
+
+        public static void changeThemeValue(object sender, string moni)
+        {
+            try
+            {
+                var slider = sender as Slider;
+                if (loaded)
+                {
+                    if (moni == null)
+                    {
+                        foreach (string monii in processes.Keys)
+                        {
+                            if (!sf.settingExists("Screen_" + monii + "_Theme_" + (string)slider.Tag))
+                                sendData(processes[monii], "ChangeTheme=" + (string)slider.Tag + "=" + slider.Value, monii);
+                        }
+                        sf.setSetting("Theme_" + slider.Tag, slider.Value, null);
+                    }
+                    else
+                    {
+                        if (!sf.settingExists("Theme_" + slider.Tag))
+                            sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + slider.Value, moni);
+                        else
+                            sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + sf.getDoubleSetting("Theme_" + slider.Tag), moni);
+                        sf.setSetting("Screen_" + moni + "_Theme_" + slider.Tag, slider.Value, null);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        private void th_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            /*Slider slider = (Slider)sender;
+            foreach (string monii in processes.Keys)
+            {
+                sendData(processes[monii], "ChangeTheme=" + (string)slider.Tag + "=" + slider.Value, monii);
+            }*/
+        }
+
+        private void engine_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (loaded)
+            {
+                foreach (string monii in processes.Keys)
+                {
+                    TcpClient tcpClient = processes[monii];
+                    tcpClient.Close();
+                    processes.Remove(monii);
+                }
+                sf.setSetting("Edge_Engine", engine.SelectedIndex, null);
+                beginWP();
+            }
+        }
+
+        private void th_reset(object sender, RoutedEventArgs e)
+        {
+            resetThemeValue(sender, null);
+        }
+
+        public static void resetThemeValue(object sender, string moni)
+        {
+            var btn = sender as NewButtons;
+            var slider = (btn.Parent as Grid).Children[1] as Slider;
+            string tag = (btn.Tag as string).Split(' ')[0];
+            int value = Convert.ToInt32((btn.Tag as string).Split(' ')[1]);
+            slider.Value = value;
+            if (loaded)
+            {
+                if (moni == null)
+                {
+                    foreach (string monii in processes.Keys)
+                    {
+                        if(!sf.settingExists("Screen_" + monii + "_Theme_" + tag))
+                            sendData(processes[monii], "ChangeTheme=" + tag + "=" + value, monii);
+                    }
+                    sf.setSetting("Theme_" + tag, value, null);
+                }
+                else
+                {
+                    /*if (!sf.settingExists("Theme_" + slider.Tag))
+                        sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + slider.Value, moni);
+                    else
+                        sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + sf.getIntSetting("Theme_" + slider.Tag), moni);*/
+                    if (!sf.settingExists("Theme_" + slider.Tag))
+                        sendData(processes[moni], "ChangeTheme=" + tag + "=" + value, moni);
+                    else
+                        sendData(processes[moni], "ChangeTheme=" + tag + "=" + sf.getDoubleSetting("Theme_" + tag), moni);
+                    sf.removeSetting("Screen_" + moni + "_Theme_" + tag);
+                }
             }
         }
 
@@ -1012,5 +1196,5 @@ namespace Wallpapeuhrs
     [Windows.Foundation.Metadata.MarshalingBehavior(Windows.Foundation.Metadata.MarshalingType.None)]
     [Windows.Foundation.Metadata.Threading(Windows.Foundation.Metadata.ThreadingModel.STA)]
     [Windows.Foundation.Metadata.Activatable(65536, "Windows.Foundation.UniversalApiContract")]*/
-    }
-}
+                }
+            }

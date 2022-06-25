@@ -34,23 +34,37 @@ namespace Wallpapeuhrs
         public System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
         int interval = 60 * 1000;
         string curUrl = "";
-        bool isDir = false;
+        public bool isDir = false;
         bool autostop = true;
         bool repeat = true;
         public int startAfter = 0;
         public string moni = "";
         double volume = 0;
-        TcpClient tcp = new TcpClient();
+        public TcpClient tcp = new TcpClient();
         bool isDebug = false;
         bool allClients = false;
+        bool isEdgeEngine = true;
         DebugWindow dw;
+        UserControl med;
 
-        public WPBG(string moni, int startAfter)
+        public WPBG(string moni, int startAfter, int engine)
         {
             this.moni = moni;
             this.startAfter = startAfter;
+            this.isEdgeEngine = engine == 0;
             //
+            if(isEdgeEngine)
+            {
+                med = new MediaVW();
+                ((MediaVW)med).parent = this;
+            }
+            else
+            {
+                med = new Media();
+                ((Media)med).parent = this;
+            }
             InitializeComponent();
+            AddChild(med);
             WindowStartupLocation = WindowStartupLocation.Manual;
             //
             if (isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni))
@@ -58,8 +72,6 @@ namespace Wallpapeuhrs
                 dw = new DebugWindow(moni);
                 dw.Show();
             }
-            //
-            med.parent = this;
             //
             timer.Tick += Timer_Tick;
             timer.Interval = 1000;
@@ -96,7 +108,11 @@ namespace Wallpapeuhrs
         {
             Worker.Init();
             IntPtr p = new WindowInteropHelper(this).Handle;
-            W32.SetParent(p, Worker.workerw);
+            if (W32.SetParent(p, Worker.workerw) == IntPtr.Zero)
+            {
+                MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Close();
+            }
             log("curDisplay : " + moni);
             //
             await tcp.ConnectAsync("127.0.0.1", 30930);
@@ -143,13 +159,25 @@ namespace Wallpapeuhrs
                                     {
                                         changePlayerState(true);
                                         timer.Start();
-                                        med.nextChange = System.Environment.TickCount + timePaused;
+                                        if(isEdgeEngine) (med as MediaVW).nextChange = System.Environment.TickCount + timePaused;
+                                        else (med as Media).nextChange = System.Environment.TickCount + timePaused;
+                                    }
+                                    if (str.StartsWith("VPlay"))
+                                    {
+                                        changePlayerState(true);
                                     }
                                     if (str.StartsWith("Pause"))
                                     {
                                         changePlayerState(false);
                                         timer.Stop();
-                                        timePaused = med.nextChange - System.Environment.TickCount;
+                                        if(isEdgeEngine) timePaused = (med as MediaVW).nextChange - System.Environment.TickCount;
+                                        else timePaused = (med as Media).nextChange - System.Environment.TickCount;
+                                    }
+                                    if (str.StartsWith("ChangeTheme"))
+                                    {
+                                        string theme = s.Split('=')[1];
+                                        double value = Convert.ToDouble(s.Split('=')[2]);
+                                        if(isEdgeEngine) (med as MediaVW).changeFilter(theme, value);
                                     }
                                 });
                             }
@@ -167,28 +195,42 @@ namespace Wallpapeuhrs
                 }
             };
             ns.BeginRead(read, 0, tcp.ReceiveBufferSize, asy, null);
-            MainWindow.sendData(tcp, "READY " + moni + " ", null);
+            if(!isEdgeEngine) MainWindow.sendData(tcp, "READY " + moni + " ", null);
         }
 
         float timePaused = 0;
-        
 
         private void Timer_Tick(object sender, EventArgs ee)
         {
             try
             {
-                if(!curPlay) med.nextChange += 1 * 1000;
-                if (curUrl != "" && isDir && med.nextChange <= System.Environment.TickCount)
+                if (!curPlay)
                 {
-                    try
+                    if (isEdgeEngine) (med as MediaVW).nextChange += 1 * 1000;
+                    else (med as Media).nextChange += 1 * 1000;
+                }
+                try
+                {
+                    if (isEdgeEngine)
                     {
-                        med.nextChange = System.Environment.TickCount + interval * 1000;
-                        med.changeUrl(getNewMedia());
+                        if (curUrl != "" && isDir && (med as MediaVW).nextChange <= System.Environment.TickCount)
+                        {
+                            (med as MediaVW).nextChange = System.Environment.TickCount + interval * 1000;
+                            (med as MediaVW).changeUrl(getNewMedia());
+                        }
                     }
-                    catch (Exception e)
+                    else
                     {
-                        MessageBox.Show("Unable to load the new media : " + e.Message + "\n" + e.StackTrace, "Error");
+                        if (curUrl != "" && isDir && (med as Media).nextChange <= System.Environment.TickCount)
+                        {
+                            (med as Media).nextChange = System.Environment.TickCount + interval * 1000;
+                            (med as Media).changeUrl(getNewMedia());
+                        }
                     }
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("Unable to load the new media : " + e.Message + "\n" + e.StackTrace, "Error");
                 }
             }
             catch (Exception e)
@@ -203,18 +245,22 @@ namespace Wallpapeuhrs
             isOk = true;
             if (timer.Enabled) timer.Stop();
             string newUrl = getNewMedia();
-            med.volume = volume;
-            med.repeat = repeat;
+            if(isEdgeEngine) (med as MediaVW).volume = volume;
+            else (med as Media).volume = volume;
+            if(isEdgeEngine) (med as MediaVW).repeat = repeat;
+            else (med as Media).repeat = repeat;
             try
             {
                 curPlay = true;
-                med.changeUrl(newUrl);
+                if (isEdgeEngine) (med as MediaVW).changeUrl(newUrl);
+                else (med as Media).changeUrl(newUrl);
             }
             catch (Exception e)
             {
                 MessageBox.Show("Unable to load the new media (" + newUrl + ") : " + e.Message + "\n" + e.StackTrace, "Error");
             }
-            med.nextChange = System.Environment.TickCount + (interval + interval / 4 * startAfter) * 1000;
+            if (isEdgeEngine) (med as MediaVW).nextChange = System.Environment.TickCount + (interval + interval / 4 * startAfter) * 1000;
+            else (med as Media).nextChange = System.Environment.TickCount + (interval + interval / 4 * startAfter) * 1000;
             timer.Start();
         }
 
@@ -294,7 +340,8 @@ namespace Wallpapeuhrs
         {
             if(isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)) Dispatcher.Invoke(() => dw.Close());
             //W32.SetParent(new WindowInteropHelper(this).Handle, IntPtr.Zero);
-            med.myHostControl.Dispose();
+            if(isEdgeEngine) (med as MediaVW).webview.Dispose();
+            else (med as Media).myHostControl.Dispose();
             W32.SetParent(Worker.workerw, IntPtr.Zero);
         }
 
@@ -313,7 +360,8 @@ namespace Wallpapeuhrs
         public void changePlayerState(bool play)
         {
             curPlay = play;
-            med.changePlayerState(play);
+            if(isEdgeEngine) (med as MediaVW).changePlayerState(play);
+            else (med as Media).changePlayerState(play);
         }
 
         private void main_KeyDown(object sender, KeyEventArgs e)

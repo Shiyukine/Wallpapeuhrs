@@ -5,14 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Wallpapeuhrs" xmlns:styles="clr-namespace:Wallpapeuhrs.Styles" xmlns:utils="clr-namespace:Wallpapeuhrs.Utils"
         mc:Ignorable="d"
-        Title="Wallpapeuhrs" Height="475" Width="575" Loaded="Window_Loaded" Closing="Window_Closing" FontFamily="/Wallpapeuhrs;component/Resources/#Quicksand" FontSize="16" Icon="/Wallpapeuhrs;component/Resources/Icon.ico" FontWeight="Medium">
+        Title="Wallpapeuhrs" Height="525" Width="600" Loaded="Window_Loaded" Closing="Window_Closing" FontFamily="/Wallpapeuhrs;component/Resources/#Quicksand" FontSize="16" Icon="/Wallpapeuhrs;component/Resources/Icon.ico" FontWeight="Medium">
 
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Wallpapeuhrs;component/Styles/FlatCheckBox.xaml"/>
+                <ResourceDictionary Source="/Wallpapeuhrs;component/Styles/ComboBoxs.xaml"/>
                 <ResourceDictionary Source="/Wallpapeuhrs;component/Styles/ScrollBars.xaml"/>
                 <ResourceDictionary Source="/Wallpapeuhrs;component/Styles/NewButtons.xaml"/>
+                <ResourceDictionary Source="/Wallpapeuhrs;component/Styles/Sliders.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
@@ -48,6 +50,33 @@
                                     <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Stop animation when you're not on the Desktop"/></TextBlock>
                                     <styles:FlatCheckBox x:Name="stopan" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="371,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
                                 </Grid>
+                                <StackPanel x:Name="filters">
+                                    <Grid Margin="15,5">
+                                        <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Brightness"/></TextBlock>
+                                        <Slider x:Name="th_bri" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="89,0,0,0" Foreground="White" Width="165" Maximum="200" Value="100" IsMoveToPointEnabled="True" ValueChanged="th_ValueChanged" Thumb.DragDelta="th_DragDelta" Tag="brightness" Style="{DynamicResource Horizontal_FocusSlider}" Background="DarkGray"/>
+                                        <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="259,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="th_reset" Tag="brightness 100"/>
+                                    </Grid>
+                                    <Grid Margin="15,5">
+                                        <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Saturation"/></TextBlock>
+                                        <Slider x:Name="th_sat" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="88,0,0,0" Foreground="White" Width="165" IsMoveToPointEnabled="True" ValueChanged="th_ValueChanged" Thumb.DragDelta="th_DragDelta" Tag="saturate" Maximum="200" Value="100" Style="{DynamicResource Horizontal_FocusSlider}" Background="DarkGray"/>
+                                        <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="258,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="th_reset" Tag="saturate 100"/>
+                                    </Grid>
+                                    <Grid Margin="15,5">
+                                        <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Grayscale"/></TextBlock>
+                                        <Slider x:Name="th_gray" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="84,0,0,0" Foreground="White" Width="165" Maximum="100" IsMoveToPointEnabled="True" ValueChanged="th_ValueChanged" Thumb.DragDelta="th_DragDelta" Tag="grayscale" Style="{DynamicResource Horizontal_FocusSlider}" Background="DarkGray"/>
+                                        <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="254,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="th_reset" Tag="grayscale 0"/>
+                                    </Grid>
+                                    <Grid Margin="15,5">
+                                        <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Contrast"/></TextBlock>
+                                        <Slider x:Name="th_con" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="74,0,0,0" Foreground="White" Width="165" Maximum="200" Value="100" IsMoveToPointEnabled="True" ValueChanged="th_ValueChanged" Thumb.DragDelta="th_DragDelta" Tag="contrast" Style="{DynamicResource Horizontal_FocusSlider}" Background="DarkGray"/>
+                                        <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="244,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="th_reset" Tag="contrast 100"/>
+                                    </Grid>
+                                    <Grid Margin="15,5">
+                                        <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Hue"/></TextBlock>
+                                        <Slider x:Name="th_hue" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="40,0,0,0" Foreground="White" Width="165" Maximum="360" Tag="hue-rotate" IsMoveToPointEnabled="True" ValueChanged="th_ValueChanged" Thumb.DragDelta="th_DragDelta" Style="{DynamicResource Horizontal_FocusSlider}" Background="DarkGray"/>
+                                        <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="210,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="th_reset" Tag="hue-rotate 0"/>
+                                    </Grid>
+                                </StackPanel>
                                 <styles:NewButtons x:Name="show_more" Margin="15,5" Background="#FF4C4C4C" BorderRadius="14" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="7,4,12,4" Cursor="Hand" Click="show_more_Click" BackgroundHover="#FF5B5B5B">
                                     <Grid>
                                         <Viewbox Width="19" Height="19" HorizontalAlignment="Left" VerticalAlignment="Center" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
@@ -66,12 +95,45 @@
                                         <TextBlock Foreground="White" HorizontalAlignment="Left" Margin="24,0,0,0" VerticalAlignment="Center" TextWrapping="WrapWithOverflow"><Run Text="Show more"/></TextBlock>
                                     </Grid>
                                 </styles:NewButtons>
-                                <Grid x:Name="show_more_expend" Margin="15,0,15,5" Visibility="Visible">
-                                    <Grid x:Name="restartexplo_g">
+                                <StackPanel x:Name="show_more_expend" Margin="15,0,15,5" Visibility="Visible">
+                                    <Grid Margin="0,0,0,5">
+                                        <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center"><Run Text="Render engine"/></TextBlock>
+                                        <ComboBox x:Name="engine" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="119,0,0,0" Foreground="White" Background="#FF4C4C4C" Style="{DynamicResource ComboBoxFlatStyle}" Width="233" SelectedIndex="1" Cursor="Hand" SelectionChanged="engine_SelectionChanged">
+                                            <ComboBoxItem Content="Edge WebView"/>
+                                            <ComboBoxItem Content="UWP MediaPlayerElement"/>
+                                            <ComboBox.Resources>
+                                                <ResourceDictionary>
+                                                    <utils:MathConverter x:Key="MathConverter" />
+                                                </ResourceDictionary>
+                                            </ComboBox.Resources>
+                                            <ComboBox.ItemContainerStyle>
+                                                <Style TargetType="ComboBoxItem">
+                                                    <Setter Property="BorderThickness" Value="0"></Setter>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="ComboBoxItem">
+                                                                <Border Name="uwu" CornerRadius="{Binding ElementName=uwu, Path=ActualHeight,
+                 Converter={StaticResource MathConverter},
+                 ConverterParameter=@VALUE/2}" Padding="10,5" Margin="2" Cursor="Hand">
+                                                                    <ContentPresenter/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter TargetName="uwu" Property="Background" Value="#FF545454"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </ComboBox.ItemContainerStyle>
+                                        </ComboBox>
+                                    </Grid>
+                                    <Grid x:Name="restartexplo_g" Margin="0,5,0,0">
                                         <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" Width="396" Background="#00000000"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is launched in background (requires Administrator authorization)"/><Run Text="&#xD;Please activate this setting only if you encounter memory leaks with dwm.exe" FontSize="12"/></TextBlock>
                                         <styles:FlatCheckBox x:Name="restartexplo" VerticalAlignment="Center" Margin="406,0,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747" HorizontalAlignment="Left" Width="19"/>
                                     </Grid>
-                                </Grid>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
                         <styles:NewButtons x:Name="slide" BorderRadius="14,14,14,14" Content="Slideshow" VerticalAlignment="Top" Margin="0,35,0,0" Height="28" Click="slide_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90" BackgroundHover="#FF717171"/>

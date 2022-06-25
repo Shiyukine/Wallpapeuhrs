@@ -46,10 +46,10 @@ namespace Wallpapeuhrs
             {
                 main = myHostControl.GetUwpInternalObject() as Windows.UI.Xaml.Controls.Grid;
                 SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
-                //setDWM();
+                setDWM(new WindowInteropHelper(parent).Handle);
             };
             SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
-            //setDWM();
+            setDWM(myHostControl.Handle);
             /*main = new Windows.UI.Xaml.Controls.Grid();
             main.CanBeScrollAnchor = false;
             main.ReleasePointerCaptures();
@@ -64,17 +64,17 @@ namespace Wallpapeuhrs
             main.ManipulationMode = Windows.UI.Xaml.Input.ManipulationModes.None;*/
         }
 
-        private void setDWM()
+        private void setDWM(IntPtr handle)
         {
             int a = 1;
             int b = 0;
-            W32.DwmSetWindowAttribute(myHostControl.Handle, W32.DWMWINDOWATTRIBUTE.DisallowPeek, ref a, Marshal.SizeOf(typeof(int)));
-            W32.DwmSetWindowAttribute(myHostControl.Handle, W32.DWMWINDOWATTRIBUTE.AllowNCPaint, ref b, Marshal.SizeOf(typeof(int)));
-            W32.DwmSetWindowAttribute(myHostControl.Handle, W32.DWMWINDOWATTRIBUTE.ExcludedFromPeek, ref a, Marshal.SizeOf(typeof(int)));
-            W32.DwmSetWindowAttribute(myHostControl.Handle, W32.DWMWINDOWATTRIBUTE.DWMWA_USE_HOSTBACKDROPBRUSH, ref b, Marshal.SizeOf(typeof(int)));
+            W32.DwmSetWindowAttribute(handle, W32.DWMWINDOWATTRIBUTE.DisallowPeek, ref a, Marshal.SizeOf(typeof(int)));
+            W32.DwmSetWindowAttribute(handle, W32.DWMWINDOWATTRIBUTE.AllowNCPaint, ref b, Marshal.SizeOf(typeof(int)));
+            W32.DwmSetWindowAttribute(handle, W32.DWMWINDOWATTRIBUTE.ExcludedFromPeek, ref a, Marshal.SizeOf(typeof(int)));
+            W32.DwmSetWindowAttribute(handle, W32.DWMWINDOWATTRIBUTE.DWMWA_USE_HOSTBACKDROPBRUSH, ref b, Marshal.SizeOf(typeof(int)));
             //W32.DwmSetWindowAttribute(myHostControl.Handle, W32.DWMWINDOWATTRIBUTE.Cloak, ref c, Marshal.SizeOf(typeof(int)));
-            IntPtr exStyle = W32.GetWindowLongPtr(myHostControl.Handle, W32.GWL_EXSTYLE);
-            W32.SetWindowLongPtr(myHostControl.Handle, W32.GWL_EXSTYLE, (IntPtr)(exStyle.ToInt64() | W32.WS_EX_LAYERED));
+            IntPtr exStyle = W32.GetWindowLongPtr(handle, W32.GWL_EXSTYLE);
+            W32.SetWindowLongPtr(handle, W32.GWL_EXSTYLE, (IntPtr)(exStyle.ToInt64() | W32.WS_EX_LAYERED));
             W32.DwmEnableComposition(W32.CompositionAction.DWM_EC_DISABLECOMPOSITION);
         }
 
@@ -97,7 +97,7 @@ namespace Wallpapeuhrs
                     value.MediaPlayer.Volume = v / 100;
                     main.Children.Insert(0, value);
                     value.Stretch = Windows.UI.Xaml.Media.Stretch.UniformToFill;
-                    value.MediaPlayer.MediaOpened += async (sender, eee) =>
+                    value.MediaPlayer.MediaOpened += (sender, eee) =>
                     {
                         remove(value);
                     };

@@ -34,6 +34,8 @@
     <None Remove="Properties\quicksand-variablefont_wght.ttf" />
     <None Remove="Resources\AyIconv2 round.png" />
     <None Remove="Resources\Icon.ico" />
+    <None Remove="Resources\web\index.html" />
+    <None Remove="Resources\web\index.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,10 +49,12 @@
 
   <ItemGroup>
     <Resource Include="Resources\Icon.ico" />
+    <EmbeddedResource Include="Resources\web\index.html" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Toolkit.Wpf.UI.XamlHost" Version="6.1.2" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1245.22" />
     <PackageReference Include="System.Management" Version="6.0.0" />
     <PackageReference Include="WinCopies.WindowsAPICodePack.Shell" Version="2.10.2" />
   </ItemGroup>
@@ -72,6 +76,12 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="MediaVW.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

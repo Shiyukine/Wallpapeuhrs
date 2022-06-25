@@ -12,6 +12,7 @@
                 <ResourceDictionary Source="/Wallpapeuhrs;component/Styles/FlatCheckBox.xaml"/>
                 <ResourceDictionary Source="/Wallpapeuhrs;component/Styles/ScrollBars.xaml"/>
                 <ResourceDictionary Source="/Wallpapeuhrs;component/Styles/NewButtons.xaml"/>
+                <ResourceDictionary Source="/Wallpapeuhrs;component/Styles/Sliders.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -36,6 +37,33 @@
                             <TextBox x:Name="vol" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" HorizontalContentAlignment="Center" Margin="0,2"/>
                         </Border>
                     </Grid>
+                    <StackPanel x:Name="filters">
+                        <Grid Margin="15,5">
+                            <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Brightness"/></TextBlock>
+                            <Slider x:Name="th_bri" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="89,0,0,0" Foreground="White" Width="165" Maximum="200" Value="100" IsMoveToPointEnabled="True" ValueChanged="th_ValueChanged" Thumb.DragDelta="th_DragDelta" Tag="brightness" Style="{DynamicResource Horizontal_FocusSlider}" Background="DarkGray"/>
+                            <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="259,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="th_reset" Tag="brightness 100"/>
+                        </Grid>
+                        <Grid Margin="15,5">
+                            <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Saturation"/></TextBlock>
+                            <Slider x:Name="th_sat" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="88,0,0,0" Foreground="White" Width="165" IsMoveToPointEnabled="True" ValueChanged="th_ValueChanged" Thumb.DragDelta="th_DragDelta" Tag="saturate" Maximum="200" Value="100" Style="{DynamicResource Horizontal_FocusSlider}" Background="DarkGray"/>
+                            <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="258,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="th_reset" Tag="saturate 100"/>
+                        </Grid>
+                        <Grid Margin="15,5">
+                            <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Grayscale"/></TextBlock>
+                            <Slider x:Name="th_gray" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="84,0,0,0" Foreground="White" Width="165" Maximum="100" IsMoveToPointEnabled="True" ValueChanged="th_ValueChanged" Thumb.DragDelta="th_DragDelta" Tag="grayscale" Style="{DynamicResource Horizontal_FocusSlider}" Background="DarkGray"/>
+                            <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="254,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="th_reset" Tag="grayscale 0"/>
+                        </Grid>
+                        <Grid Margin="15,5">
+                            <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Contrast"/></TextBlock>
+                            <Slider x:Name="th_con" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="74,0,0,0" Foreground="White" Width="165" Maximum="200" Value="100" IsMoveToPointEnabled="True" ValueChanged="th_ValueChanged" Thumb.DragDelta="th_DragDelta" Tag="contrast" Style="{DynamicResource Horizontal_FocusSlider}" Background="DarkGray"/>
+                            <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="244,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="th_reset" Tag="contrast 100"/>
+                        </Grid>
+                        <Grid Margin="15,5">
+                            <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Hue"/></TextBlock>
+                            <Slider x:Name="th_hue" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="40,0,0,0" Foreground="White" Width="165" Maximum="360" Tag="hue-rotate" IsMoveToPointEnabled="True" ValueChanged="th_ValueChanged" Thumb.DragDelta="th_DragDelta" Style="{DynamicResource Horizontal_FocusSlider}" Background="DarkGray"/>
+                            <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="210,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="th_reset" Tag="hue-rotate 0"/>
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
             </Border>
             <styles:NewButtons x:Name="slide" BorderRadius="14,14,14,14" Content="Slideshow" VerticalAlignment="Top" Margin="0,84,0,0" Height="28" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90" BackgroundHover="#FF717171" Click="slide_Click"/>
