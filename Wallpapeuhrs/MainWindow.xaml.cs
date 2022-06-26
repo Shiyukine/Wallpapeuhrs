@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAPICodePack;
+﻿using Microsoft.Web.WebView2.Core;
+using Microsoft.WindowsAPICodePack;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.WindowsAPICodePack.Shell;
 using ShiyukiUtils.Settings;
@@ -324,7 +325,7 @@ namespace Wallpapeuhrs
             catch
             {
                 MessageBox.Show("Unable to start Wallpapeuhrs. The TCP at port locahost:" + port + " is already used. Please kill all applications who use this port and then restart Wallpapeuhrs.",
-                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 App.Current.Shutdown();
             }
             NetworkStream ns = tcp.GetStream();
@@ -421,7 +422,7 @@ namespace Wallpapeuhrs
             }
             catch 
             {
-                MessageBox.Show("A parameter does not correspond to what is requested. Please check all settings before saving.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("A parameter does not correspond to what is requested. Please check all settings before saving.", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -467,6 +468,50 @@ namespace Wallpapeuhrs
             {
                 //NativeWallpaper.changeWallpaper("");
                 loaded = false;
+                if (sf.getIntSetting("Edge_Engine") == 0)
+                {
+                    try
+                    {
+                        CoreWebView2Environment.GetAvailableBrowserVersionString();
+                    }
+                    catch
+                    {
+                        MessageBoxResult r = MessageBox.Show(@"WebView2 Runtime is not installed.
+We need this application to show your wallpapers. Do you want to download and install WebView2?
+Yes = Download and install
+No = Change the render engine to UWP MediaPlayerElement
+Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCancel, MessageBoxImage.Error);
+                        if (r == MessageBoxResult.Yes)
+                        {
+                            WebClient wc = new WebClient();
+                            wc.Encoding = Encoding.UTF8;
+                            wc.DownloadFileCompleted += (sendere, ee) =>
+                            {
+                                Process p = new Process();
+                                p.StartInfo = new ProcessStartInfo();
+                                p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "\\WebView2Setup.exe";
+                                p.EnableRaisingEvents = true;
+                                p.Exited += (s, e) =>
+                                {
+                                    Debug.WriteLine("fdsdsq " + p.ExitCode);
+                                    Dispatcher.Invoke(() => beginWP());
+                                };
+                                //p.StartInfo.Arguments = "/VERYSILENT";
+                                p.Start();
+                                //p.StartInfo.UseShellExecute = true;
+                                //App.Current.Shutdown();
+                                //Process.GetCurrentProcess().Kill();
+                            };
+                            wc.DownloadFileAsync(new Uri("https://go.microsoft.com/fwlink/p/?LinkId=2124703"), AppDomain.CurrentDomain.BaseDirectory + "\\WebView2Setup.exe");
+                        }
+                        if (r == MessageBoxResult.No)
+                        {
+                            loaded = true;
+                            engine.SelectedIndex = 1;
+                        }
+                        return;
+                    }
+                }
                 vidReady = 0;
                 oneIsDir = false;
                 refreshScreensConfig();
@@ -598,7 +643,7 @@ namespace Wallpapeuhrs
                                                 {
                                                     //isAddingNewProcess = true;
                                                     //beginWP();
-                                                    MessageBox.Show("ID 01-489\n" + ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                                    MessageBox.Show("ID 01-489\n" + ex.ToString(), "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
                                                 }
                                             }
                                         });
@@ -623,7 +668,7 @@ namespace Wallpapeuhrs
                     ok = true;
                     loaded = true;
                 }
-                else MessageBox.Show("Please put the path of a media or a folder to continue.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                else MessageBox.Show("Please put the path of a media or a folder to continue.", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 isAddingNewProcess = false;
                 /*Microsoft.Win32.RegistryKey keyk = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\DirectX\\UserGpuPreferences", true);
                 string strk = Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe");
@@ -631,7 +676,7 @@ namespace Wallpapeuhrs
             }
             catch (Exception e)
             {
-                MessageBox.Show("beginWP\n" + e.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("beginWP\n" + e.ToString(), "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

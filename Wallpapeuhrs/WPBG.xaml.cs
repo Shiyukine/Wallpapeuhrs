@@ -1,28 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
-using System.Management;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Wallpapeuhrs.Utils;
-using Windows.ApplicationModel;
-using Windows.Management.Deployment;
-using Windows.Media;
-using Windows.Media.Core;
 
 namespace Wallpapeuhrs
 {
@@ -110,7 +96,7 @@ namespace Wallpapeuhrs
             IntPtr p = new WindowInteropHelper(this).Handle;
             if (W32.SetParent(p, Worker.workerw) == IntPtr.Zero)
             {
-                MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Close();
             }
             log("curDisplay : " + moni);
@@ -190,7 +176,7 @@ namespace Wallpapeuhrs
                     Dispatcher.Invoke(() =>
                     {
                         if (ee.GetType() == typeof(IOException)) Close();
-                        else MessageBox.Show(ee.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        else MessageBox.Show(ee.ToString(), "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     });
                 }
             };
@@ -230,12 +216,12 @@ namespace Wallpapeuhrs
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("Unable to load the new media : " + e.Message + "\n" + e.StackTrace, "Error");
+                    MessageBox.Show("Unable to load the new media : " + e.Message + "\n" + e.StackTrace, "Wallpapeuhrs - Error");
                 }
             }
             catch (Exception e)
             {
-                MessageBox.Show("" + e.Message + "\n" + e.StackTrace, "Error");
+                MessageBox.Show("" + e.Message + "\n" + e.StackTrace, "Wallpapeuhrs - Error");
             }
         }
 
@@ -257,7 +243,7 @@ namespace Wallpapeuhrs
             }
             catch (Exception e)
             {
-                MessageBox.Show("Unable to load the new media (" + newUrl + ") : " + e.Message + "\n" + e.StackTrace, "Error");
+                MessageBox.Show("Unable to load the new media (" + newUrl + ") : " + e.Message + "\n" + e.StackTrace, "Wallpapeuhrs - Error");
             }
             if (isEdgeEngine) (med as MediaVW).nextChange = System.Environment.TickCount + (interval + interval / 4 * startAfter) * 1000;
             else (med as Media).nextChange = System.Environment.TickCount + (interval + interval / 4 * startAfter) * 1000;
@@ -303,7 +289,7 @@ namespace Wallpapeuhrs
                 if (isOk)
                 {
                     isOk = false;
-                    MessageBox.Show("The file or folder : \"" + curUrl + "\" doesn't exist. Please verify the path entered or if the file or folder exists really.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("The file or folder : \"" + curUrl + "\" doesn't exist. Please verify the path entered or if the file or folder exists really.", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             /*async void verifyWebM()

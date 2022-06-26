@@ -110,7 +110,7 @@ namespace Wallpapeuhrs
                             {
                                 Uri source = (value.Source as MediaSource).Uri;
                                 string file = source.OriginalString != string.Empty ? source.OriginalString : source.AbsolutePath;
-                                MessageBox.Show("Unable to launch or read the media. Please verify the media's path and verify if it's an video.\nFile : " + file + "\n\nIntern error :\n" + e.Error.ToString() + "\n" + e.ExtendedErrorCode, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                MessageBox.Show("Unable to launch or read the media. Please verify the media's path and verify if it's an video.\nFile : " + file + "\n\nIntern error :\n" + e.Error.ToString() + "\n" + e.ExtendedErrorCode, "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
                             }
                         });
                     };
@@ -185,7 +185,7 @@ namespace Wallpapeuhrs
                             {
                                 Uri source = img.UriSource;
                                 string file = source.OriginalString != string.Empty ? source.OriginalString : source.AbsolutePath;
-                                MessageBox.Show("Unable to launch or read the image. Please verify the image's path and verify if it's an image.\nFile : " + file + "\n\nIntern error :\n" + e.ErrorMessage + "\n" + e.OriginalSource.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                MessageBox.Show("Unable to launch or read the image. Please verify the image's path and verify if it's an image.\nFile : " + file + "\n\nIntern error :\n" + e.ErrorMessage + "\n" + e.OriginalSource.ToString(), "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
                             });
                         };
                         img.AutoPlay = true;

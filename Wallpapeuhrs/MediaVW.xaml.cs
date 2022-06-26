@@ -1,29 +1,12 @@
 using Microsoft.Web.WebView2.Core;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Wallpapeuhrs.Utils;
-using Windows.Media;
-using Windows.Media.Core;
-using Windows.Media.Playback;
-using Windows.System.Display;
 
 namespace Wallpapeuhrs
 {
@@ -59,7 +42,7 @@ namespace Wallpapeuhrs
                         await webview.CoreWebView2.ExecuteScriptAsync("document.write(`" + result + "`)");
                         MainWindow.sendData(parent.tcp, "READY " + parent.moni + " ", null);
                         webview.Visibility = Visibility.Visible;
-                        SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
+                        //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
                         setDWM(new WindowInteropHelper(parent).Handle);
                     };
                     webview.CoreWebView2.NavigateWithWebResourceRequest(r);
@@ -70,10 +53,11 @@ namespace Wallpapeuhrs
             {
                 CoreWebView2EnvironmentOptions opt = new CoreWebView2EnvironmentOptions();
                 opt.AdditionalBrowserArguments = "--disable-features=HardwareMediaKeyHandling";
-                await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(options: opt));
+                string data = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\WebView2\\";
+                await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(options: opt, userDataFolder: data));
             }
             a();
-            SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
+            //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
             //  setDWM(myHostControl.Handle);
             /*main = new Windows.UI.Xaml.Controls.Grid();
             main.CanBeScrollAnchor = false;
@@ -101,17 +85,6 @@ namespace Wallpapeuhrs
             IntPtr exStyle = W32.GetWindowLongPtr(handle, W32.GWL_EXSTYLE);
             W32.SetWindowLongPtr(handle, W32.GWL_EXSTYLE, (IntPtr)(exStyle.ToInt64() | W32.WS_EX_LAYERED));
             W32.DwmEnableComposition(W32.CompositionAction.DWM_EC_DISABLECOMPOSITION);
-        }
-
-        public Windows.UI.Xaml.Media.Animation.DoubleAnimation addDoubleAnimation(Windows.UI.Xaml.UIElement el, TimeSpan time, double? from, double? to, string property)
-        {
-            Windows.UI.Xaml.Media.Animation.DoubleAnimation da = new Windows.UI.Xaml.Media.Animation.DoubleAnimation();
-            da.From = from;
-            da.To = to;
-            da.Duration = new Windows.UI.Xaml.Duration(time);
-            Windows.UI.Xaml.Media.Animation.Storyboard.SetTarget(da, el);
-            Windows.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(da, property);
-            return da;
         }
 
         string curUrl = "";
@@ -143,11 +116,6 @@ namespace Wallpapeuhrs
         {
             string np = play ? "true" : "false";
             if (coreinit) await webview.ExecuteScriptAsync(@"changePlayerState(" + np + ")");
-        }
-
-        public async void resetVideoTime()
-        {
-            if (coreinit) await webview.ExecuteScriptAsync(@"resetVideoTime()");
         }
 
         public async void changeFilter(string filter, double value)
