@@ -161,51 +161,50 @@ namespace Wallpapeuhrs
                         Process[] pl = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
                         if (pl.Length - 1 > System.Windows.Forms.Screen.AllScreens.Count())
                         {
-                            List<Process> pRem = new List<Process>();
+                            Dictionary<Process, string> list = new Dictionary<Process, string>();
                             foreach (Process p in pl)
                             {
-                                if (p.MainWindowHandle != Process.GetCurrentProcess().MainWindowHandle)
-                                    pRem.Add(p);
+                                try
+                                {
+                                    string cmd = GetCommandLine(p);
+                                    if(cmd.Contains("/moni")) list.Add(p, cmd);
+                                }
+                                catch
+                                {
+
+                                }
                             }
+                            List<Process> pRem = new List<Process>(list.Keys);
                             List<System.Windows.Forms.Screen> sRem = new List<System.Windows.Forms.Screen>(System.Windows.Forms.Screen.AllScreens);
                             foreach (System.Windows.Forms.Screen s in System.Windows.Forms.Screen.AllScreens)
                             {
-                                Process process = null;
-                                foreach (Process p in pl)
-                                {
-                                    try
-                                    {
-                                        if (GetCommandLine(p).Contains("/moni \"" + s.DeviceName + "\""))
-                                        {
-                                            process = p;
-                                        }
-                                    }
-                                    catch
-                                    {
-
-                                    }
-                                }
+                                Process process = list.Where((x) => x.Value.Contains("/moni \"" + s.DeviceName + "\"")).FirstOrDefault().Key;
                                 if (process != null)
                                 {
                                     pRem.Remove(process);
                                     sRem.Remove(s);
                                 }
                             }
+                            bool haveKilledApp = false;
                             foreach (Process p in pRem)
                             {
                                 p.Kill();
+                                haveKilledApp = true;
                             }
-                            foreach (System.Windows.Forms.Screen s in sRem)
+                            if (haveKilledApp)
                             {
-                                processes.Remove(s.DeviceName);
-                                monis.Remove(s.DeviceName);
+                                foreach (System.Windows.Forms.Screen s in sRem)
+                                {
+                                    processes.Remove(s.DeviceName);
+                                    monis.Remove(s.DeviceName);
+                                }
+                                vidReady = 0;
+                                foreach (string monii in processes.Keys)
+                                {
+                                    sendChange(monii, processes[monii]);
+                                }
+                                refreshScreensConfig();
                             }
-                            vidReady = 0;
-                            foreach (string monii in processes.Keys)
-                            {
-                                sendChange(monii, processes[monii]);
-                            }
-                            refreshScreensConfig();
                         }
                         else if (pl.Length - 1 < System.Windows.Forms.Screen.AllScreens.Count())
                         {

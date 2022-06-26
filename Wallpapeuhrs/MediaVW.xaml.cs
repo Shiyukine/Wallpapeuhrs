@@ -34,10 +34,10 @@ namespace Wallpapeuhrs
                 using (Stream stream = assembly.GetManifestResourceStream(resourceName))
                 using (StreamReader reader = new StreamReader(stream))
                 {
-                    //if (System.Windows.Forms.Screen.PrimaryScreen.DeviceName == parent.moni) webview.CoreWebView2.OpenDevToolsWindow();
+                    if (System.Windows.Forms.Screen.PrimaryScreen.DeviceName == parent.moni) webview.CoreWebView2.OpenDevToolsWindow();
                     string result = reader.ReadToEnd();
                     CoreWebView2WebResourceRequest r = webview.CoreWebView2.Environment.CreateWebResourceRequest("file:///C:/", "GET", null, "");
-                    webview.NavigationStarting += async (s, e) =>
+                    webview.NavigationCompleted += async (s, e) =>
                     {
                         await webview.CoreWebView2.ExecuteScriptAsync("document.write(`" + result + "`)");
                         MainWindow.sendData(parent.tcp, "READY " + parent.moni + " ", null);

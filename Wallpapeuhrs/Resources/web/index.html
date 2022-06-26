@@ -19,22 +19,27 @@
         var filters = {}
 
         function changeFilter(filter, value) {
-            filters[filter] = value
-            var nFilter = "";
-            for (var f in filters) {
-                var txt = f
-                var unit = "%"
-                if (txt === "hue-rotate") {
-                    unit = "deg"
+            /*console.log("dqsdqsdqs")
+            console.log(filter)
+            console.log(value)*/
+            if (filter != "") {
+                filters[filter] = value
+                var nFilter = "";
+                for (var f in filters) {
+                    var txt = f
+                    var unit = "%"
+                    if (txt === "hue-rotate") {
+                        unit = "deg"
+                    }
+                    if (filters[f] != initialFilters[f]) nFilter += txt + "(" + filters[f] + unit + ") "
                 }
-                if (filters[f] != initialFilters[f]) nFilter += txt + "(" + filters[f] + unit + ") "
+                //console.log(nFilter)
+                document.body.style.filter = nFilter
             }
-            //console.log(nFilter)
-            document.body.style.filter = nFilter
         }
 
         function changeUrl(newUrl, isVideo, volume) {
-            console.log("aaaa " + newUrl)
+            //console.log("aaaa " + newUrl)
             //console.log("aaa " + isVideo)
             //console.log("aa " + volume)
             if (isVideo) {
