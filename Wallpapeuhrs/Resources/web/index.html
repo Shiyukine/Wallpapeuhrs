@@ -33,7 +33,10 @@
             document.body.style.filter = nFilter
         }
 
-        function changeUrl(newUrl, isVideo, volume, isDir) {
+        function changeUrl(newUrl, isVideo, volume) {
+            console.log("aaaa " + newUrl)
+            //console.log("aaa " + isVideo)
+            //console.log("aa " + volume)
             if (isVideo) {
                 var video = document.createElement("video")
                 //loadeddata canplaythrough

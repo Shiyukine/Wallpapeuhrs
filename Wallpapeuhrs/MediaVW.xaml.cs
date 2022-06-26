@@ -101,11 +101,11 @@ namespace Wallpapeuhrs
                     parent.log("aaaaaaac " + ext);
                     if (ext == "Video files")
                     {
-                        if (coreinit) await webview.ExecuteScriptAsync(@"changeUrl('" + newUrl.Replace("\\", "\\\\") + "', true, " + volume + ")");
+                        if (coreinit) await webview.ExecuteScriptAsync(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', true, " + volume + ")");
                     }
                     if(ext == "Image files")
                     {
-                        if (coreinit) await webview.ExecuteScriptAsync(@"changeUrl('" + newUrl.Replace("\\", "\\\\") + "', false, " + volume + ")");
+                        if (coreinit) await webview.ExecuteScriptAsync(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', false, " + volume + ")");
                     }
                     return;
                 }
