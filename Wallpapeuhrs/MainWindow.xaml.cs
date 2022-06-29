@@ -1178,7 +1178,12 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                         if (sf.settingExists("Screen_" + moni + "_Theme_" + slider.Tag))
                             sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + slider.Value, moni);
                         else
-                            sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + sf.getDoubleSetting("Theme_" + slider.Tag), moni);
+                        {
+                            if(sf.settingExists("Theme_" + slider.Tag))
+                                sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + sf.getDoubleSetting("Theme_" + slider.Tag), moni);
+                            else
+                                sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + slider.Value, moni);
+                        }
                         sf.setSetting("Screen_" + moni + "_Theme_" + slider.Tag, slider.Value, null);
                     }
                 }
