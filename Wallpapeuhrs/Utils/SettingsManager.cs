@@ -138,7 +138,7 @@ namespace ShiyukiUtils.Settings
             bool hasValue = settings.TryGetValue(setting, out value);
             if (hasValue)
             {
-                return double.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+                return Convert.ToDouble(value, CultureInfo.InvariantCulture);
             }
             else
             {
@@ -214,7 +214,7 @@ namespace ShiyukiUtils.Settings
 
         public void setSetting(string setting, double value, string[] com)
         {
-            saveSetting(setting, value.ToString(), com);
+            saveSetting(setting, value.ToString().Replace(",", "."), com);
         }
 
         private void saveSetting(string setting, string value, string[] com)

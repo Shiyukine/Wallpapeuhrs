@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -133,7 +134,7 @@ namespace Wallpapeuhrs
                                     if (str.StartsWith("Liste")) isList = true;
                                     //
                                     str = str.Replace(",", ".");
-                                    if (str.StartsWith("Volume")) volume = Convert.ToDouble(str.Split('=')[1]);
+                                    if (str.StartsWith("Volume")) volume = Convert.ToDouble(str.Split('=')[1], CultureInfo.InvariantCulture);
                                     if (str.StartsWith("Interval")) interval = Convert.ToInt32(str.Split('=')[1]);
                                     if (str.StartsWith("Repeat")) repeat = Convert.ToBoolean(str.Split('=')[1]);
                                     if (str.StartsWith("Autostop"))
@@ -162,7 +163,7 @@ namespace Wallpapeuhrs
                                     if (str.StartsWith("ChangeTheme"))
                                     {
                                         string theme = s.Split('=')[1];
-                                        double value = Convert.ToDouble(s.Split('=')[2]);
+                                        double value = Convert.ToDouble(s.Split('=')[2], CultureInfo.InvariantCulture);
                                         if(isEdgeEngine) (med as MediaVW).changeFilter(theme, value);
                                     }
                                 });

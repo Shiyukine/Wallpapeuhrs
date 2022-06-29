@@ -268,14 +268,13 @@ namespace Wallpapeuhrs
                         {
                             //Debug.WriteLine("Not in sleep mode");
                             changePlayerState(true);
+                            loaded = true;
                         }
                         if(s.Data == 0)
                         {
                             //Debug.WriteLine("Sleep mode");
-                            foreach (string moni in processes.Keys)
-                            {
-                                changePlayerState(false);
-                            }
+                            changePlayerState(false);
+                            loaded = false;
                         }
                     }
                 }
@@ -784,9 +783,25 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
             {
                 //log("changePlayerState " + play);
                 curPlay = play;
-                foreach (string moni in processes.Keys)
+                try
                 {
-                    sendData(processes[moni], play ? "Play" : "Pause", moni);
+                    foreach (string moni in processes.Keys)
+                    {
+                        sendData(processes[moni], play ? "Play" : "Pause", moni);
+                    }
+                }
+                catch 
+                {
+                    if (play) beginWP();
+                    else
+                    {
+                        Process[] pl = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
+                        IntPtr handle = new WindowInteropHelper(this).Handle;
+                        foreach(Process p in pl)
+                        {
+                            if (p.MainWindowHandle != handle) p.Kill();
+                        }
+                    }
                 }
             }
         }
