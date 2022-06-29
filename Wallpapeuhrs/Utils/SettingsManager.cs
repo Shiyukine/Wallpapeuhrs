@@ -138,7 +138,7 @@ namespace ShiyukiUtils.Settings
             bool hasValue = settings.TryGetValue(setting, out value);
             if (hasValue)
             {
-                return Convert.ToDouble(value, CultureInfo.InvariantCulture);
+                return Convert.ToDouble(value.Replace(",", "."), CultureInfo.InvariantCulture);
             }
             else
             {
