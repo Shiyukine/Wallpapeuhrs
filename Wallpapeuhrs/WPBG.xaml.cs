@@ -162,8 +162,8 @@ namespace Wallpapeuhrs
                                     }
                                     if (str.StartsWith("ChangeTheme"))
                                     {
-                                        string theme = s.Split('=')[1];
-                                        double value = Convert.ToDouble(s.Split('=')[2], CultureInfo.InvariantCulture);
+                                        string theme = str.Split('=')[1];
+                                        double value = Convert.ToDouble(str.Split('=')[2], CultureInfo.InvariantCulture);
                                         if(isEdgeEngine) (med as MediaVW).changeFilter(theme, value);
                                     }
                                 });
