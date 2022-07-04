@@ -578,6 +578,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                                             string moni = stra.Split(" ", StringSplitOptions.RemoveEmptyEntries)[1];
                                             Dispatcher.Invoke(() =>
                                             {
+                                                processes.Add(moni, PCtcp);
                                                 //Debug.WriteLine(System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
                                                 if (processes.Count == System.Windows.Forms.Screen.AllScreens.Count() /*&& !alreadySendChange*/)
                                                 {
