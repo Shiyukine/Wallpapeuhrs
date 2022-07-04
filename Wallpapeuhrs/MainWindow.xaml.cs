@@ -576,17 +576,19 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                                         if (stra.StartsWith("READY "))
                                         {
                                             string moni = stra.Split(" ", StringSplitOptions.RemoveEmptyEntries)[1];
-                                            processes.Add(moni, PCtcp);
-                                            //Debug.WriteLine(System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
-                                            if (processes.Count == System.Windows.Forms.Screen.AllScreens.Count() /*&& !alreadySendChange*/)
+                                            Dispatcher.Invoke(() =>
                                             {
-                                                //alreadySendChange = true;
-                                                //Debug.WriteLine("launch " + System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
-                                                foreach (string monii in processes.Keys)
+                                                //Debug.WriteLine(System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
+                                                if (processes.Count == System.Windows.Forms.Screen.AllScreens.Count() /*&& !alreadySendChange*/)
                                                 {
-                                                    sendChange(monii, processes[monii]);
+                                                    //alreadySendChange = true;
+                                                    //Debug.WriteLine("launch " + System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
+                                                    foreach (string monii in processes.Keys)
+                                                    {
+                                                        sendChange(monii, processes[monii]);
+                                                    }
                                                 }
-                                            }
+                                            });
                                         }
                                         if (stra.StartsWith("VIDREADY "))
                                         {
@@ -674,7 +676,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
             }
             catch (Exception e)
             {
-                MessageBox.Show("beginWP\n" + e.ToString(), "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("ID 01-677\n" + e.ToString(), "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -785,10 +787,13 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 curPlay = play;
                 try
                 {
-                    foreach (string moni in processes.Keys)
+                    Dispatcher.Invoke(() =>
                     {
-                        sendData(processes[moni], play ? "Play" : "Pause", moni);
-                    }
+                        foreach (string moni in processes.Keys)
+                        {
+                            sendData(processes[moni], play ? "Play" : "Pause", moni);
+                        }
+                    });
                 }
                 catch 
                 {

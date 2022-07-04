@@ -36,17 +36,16 @@ namespace Wallpapeuhrs
                 {
                     //if (System.Windows.Forms.Screen.PrimaryScreen.DeviceName == parent.moni) webview.CoreWebView2.OpenDevToolsWindow();
                     string result = reader.ReadToEnd();
-                    CoreWebView2WebResourceRequest r = webview.CoreWebView2.Environment.CreateWebResourceRequest("file:///C:/", "GET", null, "");
                     webview.NavigationCompleted += async (s, e) =>
                     {
+                        webview.CoreWebView2.AddHostObjectToScript("boundobject", new ChromeBoundObject(parent));
                         await webview.CoreWebView2.ExecuteScriptAsync("document.write(`" + result + "`)");
                         MainWindow.sendData(parent.tcp, "READY " + parent.moni + " ", null);
                         webview.Visibility = Visibility.Visible;
                         //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
                         setDWM(new WindowInteropHelper(parent).Handle);
                     };
-                    webview.CoreWebView2.NavigateWithWebResourceRequest(r);
-                    webview.CoreWebView2.AddHostObjectToScript("boundobject", new ChromeBoundObject(parent));
+                    webview.Source = new Uri("file:///C:/");
                 }
             };
             async void a()
