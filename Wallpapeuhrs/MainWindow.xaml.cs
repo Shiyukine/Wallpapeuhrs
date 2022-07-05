@@ -1,4 +1,5 @@
 ﻿using Microsoft.Web.WebView2.Core;
+using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.WindowsAPICodePack.Shell;
@@ -66,6 +67,7 @@ namespace Wallpapeuhrs
             _ScreenStateNotify = W32.RegisterPowerSettingNotification(hwnd, ref W32.GUID_CONSOLE_DISPLAY_STATE, W32.DEVICE_NOTIFY_WINDOW_HANDLE);
             _HwndSource = HwndSource.FromHwnd(hwnd);
             _HwndSource.AddHook(HwndHook);
+            //SystemEvents.PowerModeChanged += OnPowerChange;
             //
             string newF = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\";
             if (!inbg) Show();
@@ -250,6 +252,22 @@ namespace Wallpapeuhrs
             if (urls.Text != "") beginWP();
         }
 
+        /*private void OnPowerChange(object sender, PowerModeChangedEventArgs e)
+        {
+            switch (e.Mode)
+            {
+                case PowerModes.Resume:
+                    Debug.WriteLine(System.Environment.TickCount + " - PowerModes -> " + "Resume");
+                    changePlayerState(true);
+                    loaded = true;
+                    break;
+
+                case PowerModes.Suspend:
+                    Debug.WriteLine(System.Environment.TickCount + " - PowerModes -> " + "Suspend");
+                    break;
+            }
+        }*/
+
         List<int> win = new List<int>();
         int anWin = -1;
         Dictionary<string, System.Drawing.Rectangle> monis = new Dictionary<string, System.Drawing.Rectangle>();
@@ -262,13 +280,17 @@ namespace Wallpapeuhrs
                 if (wParam.ToInt32() == W32.PBT_POWERSETTINGCHANGE)
                 {
                     var s = (W32.POWERBROADCAST_SETTING)Marshal.PtrToStructure(lParam, typeof(W32.POWERBROADCAST_SETTING));
-                    if (s.PowerSetting == W32.GUID_CONSOLE_DISPLAY_STATE && loaded)
+                    if (s.PowerSetting == W32.GUID_CONSOLE_DISPLAY_STATE && ok)
                     {
+                        Debug.WriteLine(System.Environment.TickCount + " - GUID_CONSOLE_DISPLAY_STATE -> " + s.Data);
                         if(s.Data == 1)
                         {
                             //Debug.WriteLine("Not in sleep mode");
-                            changePlayerState(true);
-                            loaded = true;
+                            if (!loaded)
+                            {
+                                changePlayerState(true);
+                                loaded = true;
+                            }
                         }
                         if(s.Data == 0)
                         {
@@ -579,11 +601,11 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                                             Dispatcher.Invoke(() =>
                                             {
                                                 processes.Add(moni, PCtcp);
-                                                //Debug.WriteLine(System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
+                                                Debug.WriteLine(System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
                                                 if (processes.Count == System.Windows.Forms.Screen.AllScreens.Count() /*&& !alreadySendChange*/)
                                                 {
                                                     //alreadySendChange = true;
-                                                    //Debug.WriteLine("launch " + System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
+                                                    Debug.WriteLine("launch " + System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
                                                     foreach (string monii in processes.Keys)
                                                     {
                                                         sendChange(monii, processes[monii]);
@@ -595,7 +617,6 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                                         {
                                             string moni = stra.Split(" ", StringSplitOptions.RemoveEmptyEntries)[1];
                                             vidReady++;
-                                            //Debug.WriteLine(System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
                                             Dispatcher.Invoke(() =>
                                             {
                                                 Debug.WriteLine("a " + oneIsDir);
