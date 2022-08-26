@@ -51,7 +51,16 @@ namespace Wallpapeuhrs
             async void a()
             {
                 CoreWebView2EnvironmentOptions opt = new CoreWebView2EnvironmentOptions();
-                opt.AdditionalBrowserArguments = "--disable-features=HardwareMediaKeyHandling";
+                opt.AdditionalBrowserArguments = "--disable-features=HardwareMediaKeyHandling " +
+                    "--disable-gpu-vsync " +
+                    //"--disable-direct-composition " +
+                    "--disable-renderer-accessibility " +
+                    //"--disable-gpu-compositing " +
+                    "--enable-media-stream " +
+                    //"--disable-gpu " +
+                    "--enable-begin-frame-scheduling " +
+                    //"--disable-frame-rate-limit " +
+                    "--max-gum-fps=\"60\"";
                 string data = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\WebView2\\";
                 await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(options: opt, userDataFolder: data));
             }
