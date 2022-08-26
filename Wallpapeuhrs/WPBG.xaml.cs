@@ -42,13 +42,11 @@ namespace Wallpapeuhrs
             //
             if(isEdgeEngine)
             {
-                med = new MediaVW();
-                ((MediaVW)med).parent = this;
+                med = new MediaVW(this);
             }
             else
             {
-                med = new Media();
-                ((Media)med).parent = this;
+                med = new Media(this);
             }
             InitializeComponent();
             AddChild(med);
