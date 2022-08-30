@@ -34,13 +34,12 @@ namespace Wallpapeuhrs
         public double volume;
         public bool repeat;
         public float nextChange = 0;
-        private WPBG parent;
+        public WPBG parent;
         Windows.UI.Xaml.Controls.Grid main;
         Dictionary<string, BitmapCache> caches = new Dictionary<string, BitmapCache>();
 
-        public Media(WPBG parent)
+        public Media()
         {
-            this.parent = parent;
             //Windows.UI.Xaml.Hosting.WindowsXamlManager.InitializeForCurrentThread();
             InitializeComponent();
             myHostControl.ChildChanged += (sender, e) =>
