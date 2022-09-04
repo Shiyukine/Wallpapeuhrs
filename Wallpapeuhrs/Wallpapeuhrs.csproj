@@ -18,7 +18,7 @@
     <Copyright>Aketsuky™</Copyright>
     <PackageProjectUrl>https://aketsuky.eu/</PackageProjectUrl>
 	  <SelfContained>true</SelfContained>
-	  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	  <RuntimeIdentifier>win-x86</RuntimeIdentifier>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -62,6 +62,13 @@ namespace Wallpapeuhrs
             //
             Show();
             resizeApp();
+            Worker.Init();
+            IntPtr p = this.Handle;
+            if (W32.SetParent(p, Worker.workerw) == IntPtr.Zero)
+            {
+                MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Wallpapeuhrs - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Close();
+            }
         }
 
         System.Drawing.Rectangle anSize = new System.Drawing.Rectangle();
@@ -90,13 +97,7 @@ namespace Wallpapeuhrs
 
         private async void Window_Loaded(object sender, EventArgs e)
         {
-            Worker.Init();
-            IntPtr p = this.Handle;
-            if (W32.SetParent(p, Worker.workerw) == IntPtr.Zero)
-            {
-                MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Wallpapeuhrs - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Close();
-            }
+            
             log("curDisplay winforms : " + moni);
             //
             await tcp.ConnectAsync("127.0.0.1", 30930);
@@ -112,7 +113,7 @@ namespace Wallpapeuhrs
                     int bytesRead = ns.EndRead(ar);
                     string stra = Encoding.Unicode.GetString(read, 0, bytesRead);
                     log(stra);
-                    if (stra == "") BeginInvoke(new Action(() => App.Current.Shutdown()));
+                    if (stra == "") BeginInvoke(new Action(() => Close()));
                     else
                     {
                         foreach (string s in stra.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries))
@@ -173,7 +174,7 @@ namespace Wallpapeuhrs
                 {
                     BeginInvoke(new Action(() =>
                     {
-                        if (ee.GetType() == typeof(IOException)) App.Current.Shutdown();
+                        if (ee.GetType() == typeof(IOException)) Close();
                         else MessageBox.Show(ee.ToString(), "Wallpapeuhrs - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }));
                 }
@@ -323,6 +324,7 @@ namespace Wallpapeuhrs
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)) BeginInvoke(new Action(() => dw.Close()));
+            Hide();
             W32.SetParent(this.Handle, IntPtr.Zero);
             if (isEdgeEngine)
             {
@@ -330,6 +332,7 @@ namespace Wallpapeuhrs
             }
             else (med as Media).myHostControl.Dispose();
             W32.SetParent(Worker.workerw, IntPtr.Zero);
+            App.Current.Shutdown();
         }
 
         private void Window_Activated(object sender, EventArgs e)
