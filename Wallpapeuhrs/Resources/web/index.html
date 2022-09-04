@@ -8,7 +8,12 @@
     <title>WPBG</title>
     <script>
         var _isVideo = false;
-        const bo = chrome.webview.hostObjects.boundobject;
+        var bo = null;
+        async function sync() {
+            await CefSharp.BindObjectAsync('boundobject');
+            bo = boundobject;
+        }
+        sync()
         const initialFilters = {
             brightness: 100,
             saturate: 100,
@@ -45,9 +50,9 @@
             if (isVideo) {
                 var video = document.createElement("video")
                 //loadeddata canplaythrough
-                video.addEventListener("loadeddata", function () {
+                video.addEventListener("loadeddata", async function () {
                     remove()
-                    bo.videoLoaded()
+                    await bo.videoLoaded()
                 }, false);
                 video.src = newUrl
                 video.volume = volume / 100
@@ -62,9 +67,9 @@
                 var div = document.createElement("div")
                 var img = document.createElement("img")
                 var cnv = document.createElement("canvas")
-                img.addEventListener("load", function () {
+                img.addEventListener("load", async function () {
                     remove()
-                    bo.videoLoaded()
+                    await bo.videoLoaded()
                 }, false);
                 img.src = newUrl
                 div.appendChild(img)

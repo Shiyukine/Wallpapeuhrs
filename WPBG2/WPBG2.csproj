@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+	  <PackageTargetFallback>net452</PackageTargetFallback>
+	  <SelfContained>true</SelfContained>
+	  <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CefSharp.H264.x64" Version="84.4.10" />
+    <PackageReference Include="CefSharp.H264.x86" Version="84.4.10" />
+    <PackageReference Include="CefSharp.WinForms" Version="84.4.10" />
+	  <Reference Update="CefSharp">
+		  <Private>true</Private>
+	  </Reference>
+	  <Reference Update="CefSharp.Core">
+		  <Private>true</Private>
+	  </Reference>
+	  <Reference Update="CefSharp.WinForms">
+		  <Private>true</Private>
+	  </Reference>
+  </ItemGroup>
+
+</Project>

@@ -7,7 +7,7 @@
 	  <AssetTargetFallback>uap10.0.19041</AssetTargetFallback>
     <!--<Nullable>enable</Nullable>-->
     <UseWPF>true</UseWPF>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>AnyCPU;x64;x86</Platforms>
     <StartupObject>Wallpapeuhrs.Program</StartupObject>
     <UseWindowsForms>True</UseWindowsForms>
     <ApplicationIcon>icon.ico</ApplicationIcon>
@@ -53,6 +53,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CefSharp.H264.x64" Version="84.4.10" />
+    <PackageReference Include="CefSharp.H264.x86" Version="84.4.10" />
+    <PackageReference Include="CefSharp.WinForms" Version="84.4.10" />
+	  <Reference Update="CefSharp">
+		  <Private>true</Private>
+	  </Reference>
+	  <Reference Update="CefSharp.Core">
+		  <Private>true</Private>
+	  </Reference>
+	  <Reference Update="CefSharp.WinForms">
+		  <Private>true</Private>
+	  </Reference>
     <PackageReference Include="Microsoft.Toolkit.Wpf.UI.XamlHost" Version="6.1.2" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1245.22" />
     <PackageReference Include="System.Management" Version="6.0.0" />

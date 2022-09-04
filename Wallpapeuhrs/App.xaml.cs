@@ -84,7 +84,10 @@ namespace Wallpapeuhrs
                 }
                 else
                 {
-                    new WPBG(nargs[4], Convert.ToInt32(nargs[2]), Convert.ToInt32(nargs[6]));
+                    if(Convert.ToInt32(nargs[6]) == 1)
+                        new WPBG(nargs[4], Convert.ToInt32(nargs[2]), Convert.ToInt32(nargs[6]));
+                    else
+                        new WPBGForm(nargs[4], Convert.ToInt32(nargs[2]), Convert.ToInt32(nargs[6]));
                 }
             }
             catch (Exception ee)

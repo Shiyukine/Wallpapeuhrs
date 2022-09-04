@@ -1,54 +1,89 @@
-using Microsoft.Web.WebView2.Core;
+﻿using CefSharp;
+using CefSharp.WinForms;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Interop;
+using System.Text;
+using System.Windows.Forms;
 using Wallpapeuhrs.Utils;
 
 namespace Wallpapeuhrs
 {
-    /// <summary>
-    /// Logique d'interaction pour Media.xaml
-    /// </summary>
-    public partial class MediaVW : UserControl
+    public partial class MediaVW2 : UserControl
     {
         public double volume;
         public bool repeat;
         public float nextChange = 0;
-        public WPBG parent;
+        public WPBGForm parent;
         bool coreinit = false;
 
-        public MediaVW()
+        public MediaVW2()
         {
             //Windows.UI.Xaml.Hosting.WindowsXamlManager.InitializeForCurrentThread();
+            var settings = new CefSettings();
+            settings.CachePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\CEF\\";
+            settings.PersistSessionCookies = true;
+            settings.PersistUserPreferences = true;
+            //settings.BrowserSubprocessPath = appFolder + "AyMusic.exe";
+            settings.LogSeverity = LogSeverity.Warning;
+            //settings.SetOffScreenRenderingBestPerformanceArgs();
+            settings.CefCommandLineArgs.Add("autoplay-policy", "no-user-gesture-required");
+            settings.CefCommandLineArgs.Add("enable-media-stream");
+            //settings.CefCommandLineArgs.Add("disable-direct-composition");
+            settings.CefCommandLineArgs.Add("disable-plugins-discovery");
+            settings.CefCommandLineArgs.Add("disable-pdf-extension");
+            settings.CefCommandLineArgs.Add("disable-extensions");
+            settings.CefCommandLineArgs.Add("disable-features", "HardwareMediaKeyHandling");
+            settings.CefCommandLineArgs.Add("use-angle", "d3d11");
+            //settings.CefCommandLineArgs.Add("disable-d3d11");
+            //settings.CefCommandLineArgs.Add("disable-gpu-vsync");
+            //if (!AppInfo.sf.settingExists("Use_Proxy_Server")) settings.CefCommandLineArgs.Add("no-proxy-server");
+            //settings.CefCommandLineArgs.Add("disable-gpu-vsync");
+            CefSharpSettings.ConcurrentTaskExecution = true;
+            //settings.CefCommandLineArgs.Add("disable-renderer-accessibility");
+            Cef.Initialize(settings, performDependencyCheck: true, browserProcessHandler: null);
             InitializeComponent();
-            webview.CoreWebView2InitializationCompleted += (s, e) =>
+            cwb.LoadingStateChanged += (s, e) =>
             {
-                coreinit = true;
-                var assembly = Assembly.GetExecutingAssembly();
-                var resourceName = "Wallpapeuhrs.Resources.web.index.html";
-
-                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-                using (StreamReader reader = new StreamReader(stream))
+                BeginInvoke(new Action(() =>
                 {
-                    //if (System.Windows.Forms.Screen.PrimaryScreen.DeviceName == parent.moni) webview.CoreWebView2.OpenDevToolsWindow();
-                    string result = reader.ReadToEnd();
-                    webview.NavigationCompleted += async (s, e) =>
+                    try
                     {
-                        webview.CoreWebView2.AddHostObjectToScript("boundobject", new ChromeBoundObject(parent));
-                        await webview.CoreWebView2.ExecuteScriptAsync("document.write(`" + result + "`)");
-                        MainWindow.sendData(parent.tcp, "READY " + parent.moni + " ", null);
-                        webview.Visibility = Visibility.Visible;
-                        //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
-                        setDWM(new WindowInteropHelper(parent).Handle);
-                    };
-                    webview.Source = new Uri("file:///C:/");
-                }
+                        if (!coreinit && !e.IsLoading && !cwb.IsLoading)
+                        {
+                            coreinit = true;
+                            var assembly = Assembly.GetExecutingAssembly();
+                            var resourceName = "Wallpapeuhrs.Resources.web.index.html";
+
+                            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+                            using (StreamReader reader = new StreamReader(stream))
+                            {
+                                //if (System.Windows.Forms.Screen.PrimaryScreen.DeviceName == parent.moni) cwb.ShowDevTools();
+                                string result = reader.ReadToEnd();
+                                CefSharpSettings.LegacyJavascriptBindingEnabled = true;
+                                CefSharpSettings.ConcurrentTaskExecution = true;
+                                cwb.JavascriptObjectRepository.Register("boundobject", new ChromeBoundObjectForms(parent), true, BindingOptions.DefaultBinder);
+                                cwb.GetMainFrame().ExecuteJavaScriptAsync("document.write(`" + result + "`)");
+                                MainWindow.sendData(parent.tcp, "READY " + parent.moni + " ", null);
+                                cwb.Visible = true;
+                                //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
+                                setDWM(this.Handle);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("a\n" + ex);
+                    }
+                }));
             };
-            async void a()
+            cwb.Load("file:///C:/");
+            /*async void a()
             {
                 CoreWebView2EnvironmentOptions opt = new CoreWebView2EnvironmentOptions();
                 /*opt.AdditionalBrowserArguments = "--disable-features=HardwareMediaKeyHandling " +
@@ -61,8 +96,8 @@ namespace Wallpapeuhrs
                     "--disallow-non-exact-resource-reuse " +
                     "--disable-d3d11 " +
                     "--disable-accelerated-2d-canvas " +
-                    "--max-gum-fps=\"60\"";*/
-                /*actual */
+                    "--max-gum-fps=\"60\"";
+                /*actual 
                 opt.AdditionalBrowserArguments = "--disable-features=HardwareMediaKeyHandling " +
                     "--use-angle=gl " +
                     "--disable-gpu-vsync " +
@@ -87,11 +122,11 @@ namespace Wallpapeuhrs
                     //"--disable-accelerated-video-encode " +
                     //"--disable-accelerated-video-decode " +
                     "--disable-accelerated-2d-canvas " +
-                    "--flag-switches-end";*/
+                    "--flag-switches-end";
                 string data = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\WebView2\\";
                 await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(options: opt, userDataFolder: data));
             }
-            a();
+            a();*/
             //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
             //  setDWM(myHostControl.Handle);
             /*main = new Windows.UI.Xaml.Controls.Grid();
@@ -118,13 +153,13 @@ namespace Wallpapeuhrs
             W32.DwmSetWindowAttribute(handle, W32.DWMWINDOWATTRIBUTE.DWMWA_USE_HOSTBACKDROPBRUSH, ref b, Marshal.SizeOf(typeof(int)));
             //W32.DwmSetWindowAttribute(myHostControl.Handle, W32.DWMWINDOWATTRIBUTE.Cloak, ref c, Marshal.SizeOf(typeof(int)));
             IntPtr exStyle = W32.GetWindowLongPtr(handle, W32.GWL_EXSTYLE);
-            W32.SetWindowLongPtr(handle, W32.GWL_EXSTYLE, (IntPtr)(exStyle.ToInt64() | W32.WS_EX_LAYERED));
+            //W32.SetWindowLongPtr(handle, W32.GWL_EXSTYLE, (IntPtr)(exStyle.ToInt64() | W32.WS_EX_LAYERED));
             W32.DwmEnableComposition(W32.CompositionAction.DWM_EC_DISABLECOMPOSITION);
         }
 
         string curUrl = "";
 
-        public async void changeUrl(string newUrl)
+        public void changeUrl(string newUrl)
         {
             curUrl = newUrl;
             parent.log("aaaaaaaa " + newUrl + " " + System.IO.Path.GetExtension(newUrl));
@@ -136,26 +171,26 @@ namespace Wallpapeuhrs
                     parent.log("aaaaaaac " + ext);
                     if (ext == "Video files")
                     {
-                        if (coreinit) await webview.ExecuteScriptAsync(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', true, " + volume + ")");
+                        if (coreinit) cwb.ExecuteScriptAsync(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', true, " + volume + ")");
                     }
-                    if(ext == "Image files")
+                    if (ext == "Image files")
                     {
-                        if (coreinit) await webview.ExecuteScriptAsync(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', false, " + volume + ")");
+                        if (coreinit) cwb.ExecuteScriptAsync(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', false, " + volume + ")");
                     }
                     return;
                 }
             }
         }
 
-        public async void changePlayerState(bool play)
+        public void changePlayerState(bool play)
         {
             string np = play ? "true" : "false";
-            if (coreinit) await webview.ExecuteScriptAsync(@"changePlayerState(" + np + ")");
+            if (coreinit) cwb.ExecuteScriptAsync(@"changePlayerState(" + np + ")");
         }
 
-        public async void changeFilter(string filter, double value)
+        public void changeFilter(string filter, double value)
         {
-            if(coreinit) await webview.ExecuteScriptAsync(@"changeFilter('" + filter + "', " + value + ")");
+            if (coreinit) cwb.ExecuteScriptAsync(@"changeFilter('" + filter + "', " + value + ")");
         }
     }
 }
