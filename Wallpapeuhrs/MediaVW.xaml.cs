@@ -52,15 +52,39 @@ namespace Wallpapeuhrs
             {
                 CoreWebView2EnvironmentOptions opt = new CoreWebView2EnvironmentOptions();
                 opt.AdditionalBrowserArguments = "--disable-features=HardwareMediaKeyHandling " +
+                    "--use-angle=d3d11on12 " +
                     "--disable-gpu-vsync " +
-                    //"--disable-direct-composition " +
                     "--disable-renderer-accessibility " +
-                    //"--disable-gpu-compositing " +
                     "--enable-media-stream " +
-                    //"--disable-gpu " +
                     "--enable-begin-frame-scheduling " +
-                    //"--disable-frame-rate-limit " +
+                    "--enable-gpu-rasterization " +
+                    "--disallow-non-exact-resource-reuse " +
+                    "--disable-d3d11 " +
+                    "--disable-accelerated-2d-canvas " +
                     "--max-gum-fps=\"60\"";
+                /*actual 
+                 * opt.AdditionalBrowserArguments = "--disable-features=HardwareMediaKeyHandling " +
+                    "--use-angle=gl " +
+                    "--disable-gpu-vsync " +
+                    "--disable-renderer-accessibility " +
+                    "--enable-media-stream " +
+                    "--enable-begin-frame-scheduling " +
+                    "--enable-gpu-rasterization " +
+                    "--disallow-non-exact-resource-reuse " +
+                    "--disable-d3d11 " +
+                    "--max-gum-fps=\"60\"";
+                /* avant
+                opt.AdditionalBrowserArguments = "--flag-switches-begin " +
+                    "--disable-features=HardwareMediaKeyHandling " +
+                    //"--use-angle=gl " +
+                    "--use-angle=d3d11on12 " +
+                    //"--ignore-gpu-blocklist " +
+                    //"--disable-zero-copy " +
+                    "--disable-gpu-rasterization " +
+                    //"--disable-accelerated-video-encode " +
+                    //"--disable-accelerated-video-decode " +
+                    "--disable-accelerated-2d-canvas " +
+                    "--flag-switches-end";*/
                 string data = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\WebView2\\";
                 await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(options: opt, userDataFolder: data));
             }
