@@ -38,7 +38,7 @@
             }
         }
 
-        function changeUrl(newUrl, isVideo, volume) {
+        async function changeUrl(newUrl, isVideo, volume) {
             //console.log("aaaa " + newUrl)
             //console.log("aaa " + isVideo)
             //console.log("aa " + volume)
@@ -53,6 +53,9 @@
                 video.volume = volume / 100
                 video.controls = false
                 video.loop = true
+                const wl = await navigator.wakeLock.request('screen');
+                // Release the wake lock
+                wl.release();
                 /*video.addEventListener("ended", () => {
                     video.currentTime = 0
                 })*/

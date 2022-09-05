@@ -431,7 +431,7 @@ namespace Wallpapeuhrs
                     }
                 }
                 restart_dwm.Visibility = sf.getBoolSetting("RestartExplorer") ? Visibility.Visible : Visibility.Collapsed;
-                filters.Visibility = sf.getIntSetting("Edge_Engine") == 0 ? Visibility.Visible : Visibility.Collapsed;
+                filters.Visibility = sf.getIntSetting("Edge_Engine") <= 3 ? Visibility.Visible : Visibility.Collapsed;
             }
             catch 
             {
@@ -458,7 +458,7 @@ namespace Wallpapeuhrs
             restartexplo.IsChecked = sf.getBoolSetting("RestartExplorer");
             engine.SelectedIndex = sf.getIntSetting("Edge_Engine");
             restart_dwm.Visibility = sf.getBoolSetting("RestartExplorer") ? Visibility.Visible : Visibility.Collapsed;
-            filters.Visibility = sf.getIntSetting("Edge_Engine") == 0 ? Visibility.Visible : Visibility.Collapsed;
+            filters.Visibility = sf.getIntSetting("Edge_Engine") <= 3 ? Visibility.Visible : Visibility.Collapsed;
             //
             foreach (Grid g in filters.Children)
             {
@@ -481,7 +481,7 @@ namespace Wallpapeuhrs
             {
                 //NativeWallpaper.changeWallpaper("");
                 loaded = false;
-                if (sf.getIntSetting("Edge_Engine") == 0)
+                if (sf.getIntSetting("Edge_Engine") <= 3)
                 {
                     try
                     {
@@ -535,7 +535,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                     PStcp.Start();
                     ok = true;
                 }
-                filters.Visibility = sf.getIntSetting("Edge_Engine") == 0 ? Visibility.Visible : Visibility.Collapsed;
+                filters.Visibility = sf.getIntSetting("Edge_Engine") <= 3 ? Visibility.Visible : Visibility.Collapsed;
                 if (urls.Text != "")
                 {
                     //Dictionary<string, string> monis = W32.getMoniGPU();
@@ -551,12 +551,8 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                         if(url != "" && !File.Exists(url)) oneIsDir = true;
                         foreach (Process p in pl)
                         {
-                            try
-                            { 
-                                var cmdL = GetCommandLine(p);
-                                if (cmdL != "" && cmdL.Contains("/moni \"" + mon.DeviceName + "\"")) pe.Add(mon.DeviceName);
-                            }
-                            catch { }
+                            var cmdL = GetCommandLine(p);
+                            if (cmdL != null && cmdL.Contains("/moni \"" + mon.DeviceName + "\"")) pe.Add(mon.DeviceName);
                         }
                     }
                     foreach (System.Windows.Forms.Screen mon in System.Windows.Forms.Screen.AllScreens)
@@ -708,7 +704,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
             }
             catch
             {
-                return "";
+                return null;
             }
         }
 
@@ -1155,7 +1151,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 b.urls.Text = sf.getStringSetting("Screen_" + index + "_url");
                 b.interval.Text = sf.getStringSetting("Screen_" + index + "_interval");
                 b.vol.Text = sf.getStringSetting("Screen_" + index + "_vol");
-                if (sf.settingExists("Edge_Engine") && sf.getIntSetting("Edge_Engine") == 0)
+                if (sf.settingExists("Edge_Engine") && sf.getIntSetting("Edge_Engine") <= 3)
                 {
                     foreach (Grid g in b.filters.Children)
                     {

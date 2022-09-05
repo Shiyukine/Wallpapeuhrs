@@ -38,11 +38,11 @@ namespace Wallpapeuhrs
         {
             this.moni = moni;
             this.startAfter = startAfter;
-            this.isEdgeEngine = engine == 0;
+            this.isEdgeEngine = engine <= 3;
             //
             if(isEdgeEngine)
             {
-                med = new MediaVW(this);
+                med = new MediaVW(this, engine);
             }
             else
             {

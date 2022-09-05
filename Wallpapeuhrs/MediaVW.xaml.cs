@@ -20,11 +20,13 @@ namespace Wallpapeuhrs
         public bool repeat;
         public float nextChange = 0;
         private WPBG parent;
+        private int renderer;
         bool coreinit = false;
 
-        public MediaVW(WPBG parent)
+        public MediaVW(WPBG parent, int renderer)
         {
             this.parent = parent;
+            this.renderer = renderer;
             //Windows.UI.Xaml.Hosting.WindowsXamlManager.InitializeForCurrentThread();
             InitializeComponent();
             webview.CoreWebView2InitializationCompleted += (s, e) =>
@@ -53,10 +55,12 @@ namespace Wallpapeuhrs
             async void a()
             {
                 CoreWebView2EnvironmentOptions opt = new CoreWebView2EnvironmentOptions();
-                opt.AdditionalBrowserArguments = "--disable-features=HardwareMediaKeyHandling " +
-                    "--use-angle=gl " +
-                    "--disable-gpu-vsync " +
-                    "--disable-d3d11";
+                string args = "--disable-features=HardwareMediaKeyHandling ";
+                if (renderer == 1) args += "--use-angle=gl ";
+                if (renderer == 2) args += "--use-angle=d3d11 ";
+                if (renderer == 3) args += "--use-angle=d3d11on12 ";
+                args += "--disable-gpu-vsync ";
+                opt.AdditionalBrowserArguments = args;
                 /*actual 
                  * opt.AdditionalBrowserArguments = "--disable-features=HardwareMediaKeyHandling " +
                     "--use-angle=gl " +
@@ -81,7 +85,7 @@ namespace Wallpapeuhrs
                     "--disable-accelerated-2d-canvas " +
                     "--flag-switches-end";*/
                 string data = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\WebView2\\";
-                await Task.Delay(parent.startAfter * 1);
+                await Task.Delay(parent.startAfter * 10);
                 try
                 {
                     await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(options: opt, userDataFolder: data));

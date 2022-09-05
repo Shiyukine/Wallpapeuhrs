@@ -93,8 +93,11 @@
                                 <StackPanel x:Name="show_more_expend" Margin="15,0,15,5" Visibility="Visible">
                                     <Grid Margin="0,0,0,5">
                                         <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center"><Run Text="Render engine"/></TextBlock>
-                                        <ComboBox x:Name="engine" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="119,0,0,0" Foreground="White" Background="#FF4C4C4C" Style="{DynamicResource ComboBoxFlatStyle}" Width="233" SelectedIndex="1" Cursor="Hand" SelectionChanged="engine_SelectionChanged">
-                                            <ComboBoxItem Content="Edge WebView2"/>
+                                        <ComboBox x:Name="engine" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="119,0,0,0" Foreground="White" Background="#FF4C4C4C" Style="{DynamicResource ComboBoxFlatStyle}" Width="275" SelectedIndex="1" Cursor="Hand" SelectionChanged="engine_SelectionChanged">
+                                            <ComboBoxItem Content="Edge WebView2 - Auto"/>
+                                            <ComboBoxItem Content="Edge WebView2 - OpenGL"/>
+                                            <ComboBoxItem Content="Edge WebView2 - DirectX 11"/>
+                                            <ComboBoxItem Content="Edge WebView2 - DirectX 12 (beta)"/>
                                             <ComboBoxItem Content="UWP MediaPlayerElement"/>
                                             <ComboBox.Resources>
                                                 <ResourceDictionary>
