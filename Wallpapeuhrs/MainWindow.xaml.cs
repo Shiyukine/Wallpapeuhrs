@@ -166,15 +166,8 @@ namespace Wallpapeuhrs
                             Dictionary<Process, string> list = new Dictionary<Process, string>();
                             foreach (Process p in pl)
                             {
-                                try
-                                {
-                                    string cmd = GetCommandLine(p);
-                                    if(cmd.Contains("/moni")) list.Add(p, cmd);
-                                }
-                                catch
-                                {
-
-                                }
+                                string cmd = GetCommandLine(p);
+                                if (cmd != null && cmd.Contains("/moni")) list.Add(p, cmd);
                             }
                             List<Process> pRem = new List<Process>(list.Keys);
                             List<System.Windows.Forms.Screen> sRem = new List<System.Windows.Forms.Screen>(System.Windows.Forms.Screen.AllScreens);
@@ -655,6 +648,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                                                         if (tcp == PCtcp)
                                                         {
                                                             processes.Remove(moni);
+                                                            vidReady -= 1;
                                                             //isAddingNewProcess = true;
                                                             //beginWP();
                                                             return;

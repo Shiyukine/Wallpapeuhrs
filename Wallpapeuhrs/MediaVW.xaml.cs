@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
@@ -18,11 +19,12 @@ namespace Wallpapeuhrs
         public double volume;
         public bool repeat;
         public float nextChange = 0;
-        public WPBG parent;
+        private WPBG parent;
         bool coreinit = false;
 
-        public MediaVW()
+        public MediaVW(WPBG parent)
         {
+            this.parent = parent;
             //Windows.UI.Xaml.Hosting.WindowsXamlManager.InitializeForCurrentThread();
             InitializeComponent();
             webview.CoreWebView2InitializationCompleted += (s, e) =>
@@ -79,7 +81,16 @@ namespace Wallpapeuhrs
                     "--disable-accelerated-2d-canvas " +
                     "--flag-switches-end";*/
                 string data = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\WebView2\\";
-                await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(options: opt, userDataFolder: data));
+                await Task.Delay(parent.startAfter * 1);
+                try
+                {
+                    await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(options: opt, userDataFolder: data));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error\n" + ex);
+                    parent.Close();
+                }
             }
             a();
             //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
