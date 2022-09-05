@@ -32,14 +32,14 @@ namespace Wallpapeuhrs
             //settings.BrowserSubprocessPath = appFolder + "AyMusic.exe";
             settings.LogSeverity = LogSeverity.Warning;
             //settings.SetOffScreenRenderingBestPerformanceArgs();
-            /*settings.CefCommandLineArgs.Add("autoplay-policy", "no-user-gesture-required");
+            settings.CefCommandLineArgs.Add("autoplay-policy", "no-user-gesture-required");
             settings.CefCommandLineArgs.Add("enable-media-stream");
             settings.CefCommandLineArgs.Add("disable-direct-composition");
             settings.CefCommandLineArgs.Add("disable-plugins-discovery");
             settings.CefCommandLineArgs.Add("disable-pdf-extension");
             settings.CefCommandLineArgs.Add("disable-extensions");
             settings.CefCommandLineArgs.Add("disable-features", "HardwareMediaKeyHandling");
-            settings.CefCommandLineArgs.Add("use-angle", "d3d11");*/
+            settings.CefCommandLineArgs.Add("use-angle", "d3d11");
             //settings.CefCommandLineArgs.Add("disable-d3d11");
             //if (!AppInfo.sf.settingExists("Use_Proxy_Server")) settings.CefCommandLineArgs.Add("no-proxy-server");
             //settings.CefCommandLineArgs.Add("disable-gpu-vsync");
