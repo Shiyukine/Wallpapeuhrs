@@ -52,16 +52,9 @@ namespace Wallpapeuhrs
             {
                 CoreWebView2EnvironmentOptions opt = new CoreWebView2EnvironmentOptions();
                 opt.AdditionalBrowserArguments = "--disable-features=HardwareMediaKeyHandling " +
-                    "--use-angle=d3d11on12 " +
+                    "--use-angle=gl " +
                     "--disable-gpu-vsync " +
-                    "--disable-renderer-accessibility " +
-                    "--enable-media-stream " +
-                    "--enable-begin-frame-scheduling " +
-                    "--enable-gpu-rasterization " +
-                    "--disallow-non-exact-resource-reuse " +
-                    "--disable-d3d11 " +
-                    "--disable-accelerated-2d-canvas " +
-                    "--max-gum-fps=\"60\"";
+                    "--disable-d3d11";
                 /*actual 
                  * opt.AdditionalBrowserArguments = "--disable-features=HardwareMediaKeyHandling " +
                     "--use-angle=gl " +
