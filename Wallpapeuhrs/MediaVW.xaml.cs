@@ -85,9 +85,10 @@ namespace Wallpapeuhrs
                     "--disable-accelerated-2d-canvas " +
                     "--flag-switches-end";*/
                 string data = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\WebView2\\";
-                await Task.Delay(parent.startAfter * 10);
                 try
                 {
+                    //wait for EnsureCoreWebView2Async works multiple time
+                    await Task.Delay(parent.startAfter * 100);
                     await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(options: opt, userDataFolder: data));
                 }
                 catch (Exception ex)
