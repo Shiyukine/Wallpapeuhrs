@@ -103,9 +103,9 @@
                     if (!play) {
                         let i = img
                         var ctx = cnv.getContext('2d')
-                        cnv.height = i.height
-                        cnv.width = i.width
-                        ctx.drawImage(i, 0, 0, i.width, i.height)
+                        cnv.height = i.naturalHeight
+                        cnv.width = i.naturalWidth
+                        ctx.drawImage(i, 0, 0, i.naturalWidth, i.naturalHeight)
                     }
                     img.style.visibility = play ? "visible" : "hidden"
                     cnv.style.visibility = play ? "hidden" : "visible"
