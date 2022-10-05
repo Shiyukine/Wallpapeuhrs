@@ -43,6 +43,10 @@
                                     </Border>
                                 </Grid>
                                 <Grid Margin="15,5">
+                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Randomize slideshow"/></TextBlock>
+                                    <styles:FlatCheckBox x:Name="fullrdm" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="176,0,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
+                                </Grid>
+                                <Grid Margin="15,5">
                                     <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Start automatically when your PC is starting"/></TextBlock>
                                     <styles:FlatCheckBox x:Name="startwithw" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="344,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
                                 </Grid>

@@ -20,10 +20,33 @@ namespace Wallpapeuhrs
     {
         public System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
         int interval = 60 * 1000;
-        string curUrl = "";
+        string _curUrl = "";
+        int fileIndex = 0;
+        string curUrl
+        {
+            get
+            {
+                return _curUrl;
+            }
+            set
+            {
+                if(_curUrl != value) fileIndex = 0;
+                _curUrl = value;
+            }
+        }
         public bool isDir = false;
         bool autostop = true;
         bool repeat = true;
+        bool _fullrdm = true;
+        bool fullrdm
+        {
+            get { return _fullrdm; }
+            set
+            {
+                if (_fullrdm != value) fileIndex = 0;
+                _fullrdm = value;
+            }
+        }
         public int startAfter = 0;
         public string moni = "";
         double volume = 0;
@@ -135,9 +158,11 @@ namespace Wallpapeuhrs
                                     if (str.StartsWith("Volume")) volume = Convert.ToDouble(str.Split('=')[1], CultureInfo.InvariantCulture);
                                     if (str.StartsWith("Interval")) interval = Convert.ToInt32(str.Split('=')[1]);
                                     if (str.StartsWith("Repeat")) repeat = Convert.ToBoolean(str.Split('=')[1]);
+                                    if (str.StartsWith("Fullrdm")) fullrdm = Convert.ToBoolean(str.Split('=')[1]);
                                     if (str.StartsWith("Autostop"))
                                     {
                                         autostop = Convert.ToBoolean(str.Split('=')[1]);
+                                        //Last parameter. We can start display wp.
                                         beginWP();
                                     }
                                     if (str.StartsWith("Play"))
@@ -273,9 +298,11 @@ namespace Wallpapeuhrs
                             realList.Add(f);
                         }
                     }
-                    int newR = rng.Next(0, realList.Count());
+                    int newR = fullrdm ? rng.Next(0, realList.Count()) : fileIndex;
                     isOk = true;
                     media = realList[newR];
+                    fileIndex += 1;
+                    if (fileIndex >= realList.Count) fileIndex = 0;
                 }
                 else
                 {

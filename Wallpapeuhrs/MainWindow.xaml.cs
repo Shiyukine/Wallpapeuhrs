@@ -418,6 +418,7 @@ namespace Wallpapeuhrs
                 sf.setSetting("Stop", (bool)stopan.IsChecked, null);
                 sf.setSetting("RestartExplorer", (bool)restartexplo.IsChecked, null);
                 sf.setSetting("Edge_Engine", engine.SelectedIndex, null);
+                sf.setSetting("FullRdm", (bool)fullrdm.IsChecked, null);
                 foreach(FrameworkElement el in multiscreen_g.Children)
                 {
                     if(el is ScreenConfig)
@@ -447,6 +448,7 @@ namespace Wallpapeuhrs
             if (!sf.settingExists("Start")) sf.setSetting("Start", true, null);
             if (!sf.settingExists("Repeat")) sf.setSetting("Repeat", true, null);
             if (!sf.settingExists("Stop")) sf.setSetting("Stop", false, null);
+            if (!sf.settingExists("FullRdm")) sf.setSetting("FullRdm", true, null);
             if (!sf.settingExists("RestartExplorer")) sf.setSetting("RestartExplorer", false, null);
             if (!sf.settingExists("Edge_Engine")) sf.setSetting("Edge_Engine", 0, null);
             //
@@ -456,6 +458,7 @@ namespace Wallpapeuhrs
             startwithw.IsChecked = sf.getBoolSetting("Start");
             stopan.IsChecked = sf.getBoolSetting("Stop");
             restartexplo.IsChecked = sf.getBoolSetting("RestartExplorer");
+            fullrdm.IsChecked = sf.getBoolSetting("FullRdm");
             engine.SelectedIndex = sf.getIntSetting("Edge_Engine");
             restart_dwm.Visibility = sf.getBoolSetting("RestartExplorer") ? Visibility.Visible : Visibility.Collapsed;
             filters.Visibility = sf.getIntSetting("Edge_Engine") <= 3 ? Visibility.Visible : Visibility.Collapsed;
@@ -727,6 +730,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                             sendData(PCtcp, "Volume=" + (screenConfig.vol.Text == "" ? sf.getIntSetting("Vol") : Convert.ToInt32(screenConfig.vol.Text)), moni);
                             sendData(PCtcp, "Interval=" + (screenConfig.interval.Text == "" ? sf.getIntSetting("Interval") : Convert.ToInt32(screenConfig.interval.Text)), moni);
                             sendData(PCtcp, "Repeat=" + sf.getBoolSetting("Repeat"), moni);
+                            sendData(PCtcp, "Fullrdm=" + sf.getBoolSetting("FullRdm"), moni);
                             sendData(PCtcp, "Autostop=" + sf.getBoolSetting("Stop"), moni);
                             int i = 0;
                             foreach(Grid g in filters.Children)
