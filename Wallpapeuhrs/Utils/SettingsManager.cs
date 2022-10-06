@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace ShiyukiUtils.Settings
 {
@@ -221,6 +222,9 @@ namespace ShiyukiUtils.Settings
         {
             try
             {
+                //FOR TESTING
+                if (setting == "Theme_") MessageBox.Show("ID 02-226" + Environment.StackTrace, "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                //
                 if (!settings.ContainsKey(setting))
                 {
                     StreamWriter sw = File.AppendText(file);
@@ -238,17 +242,24 @@ namespace ShiyukiUtils.Settings
                 }
                 else
                 {
-                    string set = settings[setting];
-                    string strl = "";
-                    foreach (string l in File.ReadLines(file))
+                    if (value == null || value == "")
                     {
-                        if (l != "")
-                        {
-                            strl = strl + l.Replace(setting + " = " + set, setting + " = " + value) + "\n";
-                        }
+                        removeSetting(setting);
                     }
-                    File.WriteAllText(file, strl);
-                    settings[setting] = value;
+                    else
+                    {
+                        string set = settings[setting];
+                        string strl = "";
+                        foreach (string l in File.ReadLines(file))
+                        {
+                            if (l != "")
+                            {
+                                strl = strl + l.Replace(setting + " = " + set, setting + " = " + value) + "\n";
+                            }
+                        }
+                        File.WriteAllText(file, strl);
+                        settings[setting] = value;
+                    }
                 }
             }
             catch (Exception)

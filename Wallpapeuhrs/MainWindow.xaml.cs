@@ -466,7 +466,7 @@ namespace Wallpapeuhrs
             foreach (Grid g in filters.Children)
             {
                 var slider = g.Children[1] as Slider;
-                if(slider.Tag == null) MessageBox.Show("ID 01-466\n'" + slider.Tag + "'", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                if(slider.Tag == null || (string)slider.Tag == "") MessageBox.Show("ID 01-466\n'" + slider.Tag + "'", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 if (sf.settingExists("Theme_" + slider.Tag)) slider.Value = sf.getDoubleSetting("Theme_" + slider.Tag);
             }
         }
@@ -1161,7 +1161,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                     foreach (Grid g in b.filters.Children)
                     {
                         var slider = g.Children[1] as Slider;
-                        if (slider.Tag == null) MessageBox.Show("ID 01-1160\n'" + slider.Tag + "'", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        if (slider.Tag == null || (string)slider.Tag == "") MessageBox.Show("ID 01-1160\n'" + slider.Tag + "'", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         if (sf.settingExists("Screen_" + index + "_Theme_" + slider.Tag)) slider.Value = sf.getDoubleSetting("Screen_" + index + "_Theme_" + slider.Tag);
                     }
                 }
@@ -1187,6 +1187,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 var slider = sender as Slider;
                 if (loaded)
                 {
+                    if (slider.Tag == null || (string)slider.Tag == "") MessageBox.Show("ID 01-1188\n'" + slider.Tag + "'", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     if (moni == null)
                     {
                         foreach (string monii in processes.Keys)
