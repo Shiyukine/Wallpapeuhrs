@@ -1187,28 +1187,32 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 var slider = sender as Slider;
                 if (loaded)
                 {
-                    if (slider.Tag == null || (string)slider.Tag == "") MessageBox.Show("ID 01-1188\n'" + slider.Tag + "'", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    if (moni == null)
+                    if (slider.Tag != null && (string)slider.Tag != "")
                     {
-                        foreach (string monii in processes.Keys)
+                        if (moni == null)
                         {
-                            if (!sf.settingExists("Screen_" + monii + "_Theme_" + (string)slider.Tag))
-                                sendData(processes[monii], "ChangeTheme=" + (string)slider.Tag + "=" + slider.Value, monii);
+                            foreach (string monii in processes.Keys)
+                            {
+                                if (!sf.settingExists("Screen_" + monii + "_Theme_" + (string)slider.Tag))
+                                    sendData(processes[monii], "ChangeTheme=" + (string)slider.Tag + "=" + slider.Value, monii);
+                            }
+                            if ("Theme_" + slider.Tag == "Theme_") MessageBox.Show("ID 01-1199" + Environment.StackTrace, "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            else sf.setSetting("Theme_" + slider.Tag, slider.Value, null);
                         }
-                        sf.setSetting("Theme_" + slider.Tag, slider.Value, null);
-                    }
-                    else
-                    {
-                        if (sf.settingExists("Screen_" + moni + "_Theme_" + slider.Tag))
-                            sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + slider.Value, moni);
                         else
                         {
-                            if(sf.settingExists("Theme_" + slider.Tag))
-                                sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + sf.getDoubleSetting("Theme_" + slider.Tag), moni);
-                            else
+                            if (sf.settingExists("Screen_" + moni + "_Theme_" + slider.Tag))
                                 sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + slider.Value, moni);
+                            else
+                            {
+                                if (sf.settingExists("Theme_" + slider.Tag))
+                                    sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + sf.getDoubleSetting("Theme_" + slider.Tag), moni);
+                                else
+                                    sendData(processes[moni], "ChangeTheme=" + (string)slider.Tag + "=" + slider.Value, moni);
+                            }
+                            if ("Screen_" + moni + "_Theme_" + slider.Tag == "Screen_" + moni + "_Theme_") MessageBox.Show("ID 01-1214" + Environment.StackTrace, "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            else sf.setSetting("Screen_" + moni + "_Theme_" + slider.Tag, slider.Value, null);
                         }
-                        sf.setSetting("Screen_" + moni + "_Theme_" + slider.Tag, slider.Value, null);
                     }
                 }
             }

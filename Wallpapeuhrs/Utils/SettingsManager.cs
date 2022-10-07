@@ -57,7 +57,12 @@ namespace ShiyukiUtils.Settings
                     string[] lines = str.Split(new string[] { " = " }, StringSplitOptions.None);
                     if (!str.StartsWith("#") && !settings.ContainsKey(lines[0]))
                     {
-                        settings.Add(lines[0], lines[1]);
+                        string longString = lines[1];
+                        for(int i = 2; i < lines.Length; i++)
+                        {
+                            longString += " = " + lines[i];
+                        }
+                        settings.Add(lines[0], longString);
                     }
                 }
             }
@@ -222,23 +227,23 @@ namespace ShiyukiUtils.Settings
         {
             try
             {
-                //FOR TESTING
-                if (setting == "Theme_") MessageBox.Show("ID 02-226" + Environment.StackTrace, "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                //
                 if (!settings.ContainsKey(setting))
                 {
-                    StreamWriter sw = File.AppendText(file);
-                    if (com != null)
+                    if (value != null && value != "")
                     {
-                        foreach (string c in com)
+                        StreamWriter sw = File.AppendText(file);
+                        if (com != null)
                         {
-                            sw.WriteLine("#" + c);
+                            foreach (string c in com)
+                            {
+                                sw.WriteLine("#" + c);
+                            }
                         }
+                        sw.WriteLine(setting + " = " + value);
+                        sw.Close();
+                        sw.Dispose();
+                        settings.Add(setting, value);
                     }
-                    sw.WriteLine(setting + " = " + value);
-                    sw.Close();
-                    sw.Dispose();
-                    settings.Add(setting, value);
                 }
                 else
                 {
@@ -293,4 +298,4 @@ namespace ShiyukiUtils.Settings
         }
     }
 }
-//By Shiyuki~Neko - v1.3.2
+//By Shiyuki~Neko - v1.3.3
