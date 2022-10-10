@@ -159,6 +159,7 @@ namespace Wallpapeuhrs
                                     if (str.StartsWith("Interval")) interval = Convert.ToInt32(str.Split('=')[1]);
                                     if (str.StartsWith("Repeat")) repeat = Convert.ToBoolean(str.Split('=')[1]);
                                     if (str.StartsWith("Fullrdm")) fullrdm = Convert.ToBoolean(str.Split('=')[1]);
+                                    if (str.StartsWith("ForceReset")) fileIndex = 0;
                                     if (str.StartsWith("Autostop"))
                                     {
                                         autostop = Convert.ToBoolean(str.Split('=')[1]);
@@ -298,11 +299,11 @@ namespace Wallpapeuhrs
                             realList.Add(f);
                         }
                     }
+                    if (fileIndex >= realList.Count) fileIndex = 0;
                     int newR = fullrdm ? rng.Next(0, realList.Count()) : fileIndex;
                     isOk = true;
                     media = realList[newR];
                     fileIndex += 1;
-                    if (fileIndex >= realList.Count) fileIndex = 0;
                 }
                 else
                 {

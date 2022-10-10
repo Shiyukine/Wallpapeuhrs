@@ -31,6 +31,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Wallpapeuhrs.Styles;
 using Wallpapeuhrs.Utils;
+using Windows.ApplicationModel;
+using Windows.Management.Deployment;
 
 namespace Wallpapeuhrs
 {
@@ -196,7 +198,7 @@ namespace Wallpapeuhrs
                                 vidReady = 0;
                                 foreach (string monii in processes.Keys)
                                 {
-                                    sendChange(monii, processes[monii]);
+                                    sendChange(monii, processes[monii], true);
                                 }
                                 refreshScreensConfig();
                             }
@@ -485,14 +487,73 @@ namespace Wallpapeuhrs
             {
                 //NativeWallpaper.changeWallpaper("");
                 loaded = false;
+                /*if (sf.getIntSetting("Edge_Engine") == 4)
+                {
+                    try
+                    {
+                        Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\X64", false);
+                        if (key == null)
+                        {
+                            start.Visibility = Visibility.Collapsed;
+                            MessageBoxResult mbr = MessageBox.Show(@"Microsoft Visual C++ 2015-2022 Redistributable (x64) is not installed.
+We need this application to show your wallpapers. Do you want to download and install Microsoft Visual C++ 2015-2022 Redistributable (x64)?
+Yes = Download and install
+No = Change the render engine to Edge WebView2 - Auto
+Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCancel, MessageBoxImage.Error);
+                            if (mbr == MessageBoxResult.Yes)
+                            {
+                                WebClient wc = new WebClient();
+                                wc.Encoding = Encoding.UTF8;
+                                wc.DownloadFileCompleted += (sendere, ee) =>
+                                {
+                                    Process p = new Process();
+                                    p.StartInfo = new ProcessStartInfo();
+                                    p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "\\vc_redist.x64.exe";
+                                    p.EnableRaisingEvents = true;
+                                    p.Exited += (s, e) =>
+                                    {
+                                        Debug.WriteLine("fdsdsq " + p.ExitCode);
+                                        Dispatcher.Invoke(() => beginWP());
+                                    };
+                                    //p.StartInfo.Arguments = "/VERYSILENT";
+                                    p.Start();
+                                    //p.StartInfo.UseShellExecute = true;
+                                    //App.Current.Shutdown();
+                                    //Process.GetCurrentProcess().Kill();
+                                };
+                                wc.DownloadFileAsync(new Uri("https://aka.ms/vs/17/release/vc_redist.x64.exe"), AppDomain.CurrentDomain.BaseDirectory + "\\vc_redist.x64.exe");
+                            }
+                            if (mbr == MessageBoxResult.No)
+                            {
+                                loaded = true;
+                                engine.SelectedIndex = 0;
+                            }
+                            if(mbr == MessageBoxResult.Cancel)
+                            {
+                                start.Visibility = Visibility.Visible;
+                            }
+                            return;
+                        }
+                        else
+                        {
+                            start.Visibility = Visibility.Visible;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Unable to check if Microsoft Visual C++ 2015-2022 Redistributable (x64) is installed.\nException :\n" + ex, "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }*/
                 if (sf.getIntSetting("Edge_Engine") <= 3)
                 {
                     try
                     {
                         CoreWebView2Environment.GetAvailableBrowserVersionString();
+                        start.Visibility = Visibility.Visible;
                     }
                     catch
                     {
+                        start.Visibility = Visibility.Collapsed;
                         MessageBoxResult r = MessageBox.Show(@"WebView2 Runtime is not installed.
 We need this application to show your wallpapers. Do you want to download and install WebView2?
 Yes = Download and install
@@ -524,7 +585,11 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                         if (r == MessageBoxResult.No)
                         {
                             loaded = true;
-                            engine.SelectedIndex = 1;
+                            engine.SelectedIndex = 4;
+                        }
+                        if (r == MessageBoxResult.Cancel)
+                        {
+                            start.Visibility = Visibility.Visible;
                         }
                         return;
                     }
@@ -601,7 +666,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                                                     Debug.WriteLine("launch " + System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
                                                     foreach (string monii in processes.Keys)
                                                     {
-                                                        sendChange(monii, processes[monii]);
+                                                        sendChange(monii, processes[monii], false);
                                                     }
                                                 }
                                             });
@@ -677,7 +742,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                         else
                         {
                             if (processes.ContainsKey(mon.DeviceName) && !isAddingNewProcess)
-                                sendChange(mon.DeviceName, processes[mon.DeviceName]);
+                                sendChange(mon.DeviceName, processes[mon.DeviceName], true);
                         }
                         startAfter += 1;
                     }
@@ -712,7 +777,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
             }
         }
 
-        private void sendChange(string moni, TcpClient PCtcp)
+        private void sendChange(string moni, TcpClient PCtcp, bool forceReset)
         {
             Dispatcher.Invoke(() =>
             {
@@ -731,6 +796,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                             sendData(PCtcp, "Interval=" + (screenConfig.interval.Text == "" ? sf.getIntSetting("Interval") : Convert.ToInt32(screenConfig.interval.Text)), moni);
                             sendData(PCtcp, "Repeat=" + sf.getBoolSetting("Repeat"), moni);
                             sendData(PCtcp, "Fullrdm=" + sf.getBoolSetting("FullRdm"), moni);
+                            if(forceReset) sendData(PCtcp, "ForceReset", moni);
                             sendData(PCtcp, "Autostop=" + sf.getBoolSetting("Stop"), moni);
                             int i = 0;
                             foreach(Grid g in filters.Children)
