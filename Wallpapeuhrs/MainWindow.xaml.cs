@@ -666,7 +666,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                                                     Debug.WriteLine("launch " + System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
                                                     foreach (string monii in processes.Keys)
                                                     {
-                                                        sendChange(monii, processes[monii], false);
+                                                        sendChange(monii, processes[monii], true);
                                                     }
                                                 }
                                             });
@@ -742,7 +742,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                         else
                         {
                             if (processes.ContainsKey(mon.DeviceName) && !isAddingNewProcess)
-                                sendChange(mon.DeviceName, processes[mon.DeviceName], true);
+                                sendChange(mon.DeviceName, processes[mon.DeviceName], false);
                         }
                         startAfter += 1;
                     }
