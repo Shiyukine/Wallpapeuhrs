@@ -10,6 +10,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using Wallpapeuhrs.Utils;
+using Windows.Storage;
+using Windows.Storage.FileProperties;
 
 namespace Wallpapeuhrs
 {
@@ -265,6 +268,7 @@ namespace Wallpapeuhrs
                 curPlay = true;
                 if (isEdgeEngine) (med as MediaVW).changeUrl(newUrl);
                 else (med as Media).changeUrl(newUrl);
+                changeNativeWallpaper(newUrl);
             }
             catch (Exception e)
             {
@@ -276,6 +280,28 @@ namespace Wallpapeuhrs
         }
 
         bool isOk = true;
+
+        async void changeNativeWallpaper(string path)
+        {
+            if (System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)
+            {
+                string data = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\NativeWallpaper\\";
+                //var a = VideoThumbnail.getVideoThumbnail(newUrl);
+                //a.Save(data + "thumb.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+                StorageFile sf = await StorageFile.GetFileFromPathAsync(path);
+                ThumbnailOptions opt = ThumbnailOptions.UseCurrentScale;
+                StorageItemThumbnail sit = await sf.GetThumbnailAsync(Windows.Storage.FileProperties.ThumbnailMode.SingleItem, 1440, opt);
+                if (sit != null)
+                {
+                    Directory.CreateDirectory(data);
+                    var fileStream = File.Create(data + "thumb.png");
+                    sit.AsStreamForRead().Seek(0, SeekOrigin.Begin);
+                    sit.AsStreamForRead().CopyTo(fileStream);
+                    fileStream.Close();
+                    NativeWallpaper.changeWallpaper(data + "thumb.png");
+                }
+            }
+        }
 
         private string getNewMedia()
         {
@@ -375,6 +401,7 @@ namespace Wallpapeuhrs
             curPlay = play;
             if(isEdgeEngine) (med as MediaVW).changePlayerState(play);
             else (med as Media).changePlayerState(play);
+            //if (play) W32.SetThreadExecutionState(W32.EXECUTION_STATE.ES_CONTINUOUS);
         }
 
         private void main_KeyDown(object sender, KeyEventArgs e)

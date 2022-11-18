@@ -54,7 +54,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Toolkit.Wpf.UI.XamlHost" Version="6.1.2" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1245.22" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1418.22" />
     <PackageReference Include="System.Management" Version="6.0.0" />
     <PackageReference Include="WinCopies.WindowsAPICodePack.Shell" Version="2.10.2" />
   </ItemGroup>
@@ -87,5 +87,9 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="mkdir &quot;$(TargetDir)\app.publish\&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(ProjectName).exe&quot; &quot;$(TargetDir)\app.publish\$(ProjectName).exe&quot;&#xD;&#xA;&quot;E:\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe&quot; sign /fd sha256 /sha1 B496F8648E8B57D13C657A4DF4D709EF5333B0B3 /tr http://timestamp.digicert.com/ &quot;$(TargetDir)\app.publish\$(ProjectName).exe&quot;" />
   </Target>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.VCRTForwarders.140" Version="1.0.7" />
+  </ItemGroup>
 
 </Project>

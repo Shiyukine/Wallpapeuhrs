@@ -49,7 +49,7 @@ namespace Wallpapeuhrs
         bool inbg = false;
         System.Windows.Forms.NotifyIcon ni = new System.Windows.Forms.NotifyIcon();
         static bool loaded = false;
-        //string curNativeWallpaper = "";
+        string curNativeWallpaper = "";
 
         public MainWindow(bool inbg)
         {
@@ -61,7 +61,6 @@ namespace Wallpapeuhrs
             vname.Content = Update.getVersionName();
             changeScreenConfig(0);
             Update.searchUpdates();
-            //curNativeWallpaper = NativeWallpaper.getCurrentDesktopWallpaper();
             this.inbg = inbg;
             //
             var wih = new WindowInteropHelper(this);
@@ -76,6 +75,11 @@ namespace Wallpapeuhrs
             if (!Directory.Exists(newF)) Directory.CreateDirectory(newF);
             sf = new SettingsManager(newF + "Settings.cfg");
             loadSettings();
+            //
+            string dFonds = newF + "NativeWallpaper\\";
+            if (!Directory.Exists(dFonds)) Directory.CreateDirectory(dFonds);
+            curNativeWallpaper = NativeWallpaper.getCurrentDesktopWallpaper();
+            if (curNativeWallpaper != null && curNativeWallpaper != dFonds + "thumb.png") sf.setSetting("NativeWallpaper", curNativeWallpaper, null);
             //
             System.Windows.Forms.ContextMenuStrip cm = new System.Windows.Forms.ContextMenuStrip();
             cm.BackColor = System.Drawing.Color.FromArgb(38, 38, 38);
@@ -391,7 +395,12 @@ namespace Wallpapeuhrs
             //W32.SetParent(new WindowInteropHelper(this).Handle, WPBG.Form1.workerw);
             if (isclos)
             {
-                //NativeWallpaper.changeWallpaper(curNativeWallpaper);
+                string dFonds = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\NativeWallpaper\\";
+                if (sf.settingExists("NativeWallpaper") && sf.getStringSetting("NativeWallpaper") != "None")
+                {
+                    NativeWallpaper.changeWallpaper(sf.getStringSetting("NativeWallpaper"));
+                    sf.setSetting("NativeWallpaper", "None", null);
+                }
                 stopping = true;
                 if(PStcp != null) PStcp.Stop();
                 foreach (string moni in processes.Keys)

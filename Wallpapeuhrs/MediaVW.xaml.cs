@@ -88,7 +88,7 @@ namespace Wallpapeuhrs
                 try
                 {
                     //wait for EnsureCoreWebView2Async works multiple time
-                    await Task.Delay(parent.startAfter * 100);
+                    //await Task.Delay(parent.startAfter * 100);
                     await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(options: opt, userDataFolder: data));
                 }
                 catch (Exception ex)
