@@ -283,23 +283,31 @@ namespace Wallpapeuhrs
 
         async void changeNativeWallpaper(string path)
         {
-            if (System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)
+            try
             {
-                string data = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\NativeWallpaper\\";
-                //var a = VideoThumbnail.getVideoThumbnail(newUrl);
-                //a.Save(data + "thumb.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
-                StorageFile sf = await StorageFile.GetFileFromPathAsync(path);
-                ThumbnailOptions opt = ThumbnailOptions.UseCurrentScale;
-                StorageItemThumbnail sit = await sf.GetThumbnailAsync(Windows.Storage.FileProperties.ThumbnailMode.SingleItem, 1440, opt);
-                if (sit != null)
+                if (System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)
                 {
-                    Directory.CreateDirectory(data);
-                    var fileStream = File.Create(data + "thumb.png");
-                    sit.AsStreamForRead().Seek(0, SeekOrigin.Begin);
-                    sit.AsStreamForRead().CopyTo(fileStream);
-                    fileStream.Close();
-                    NativeWallpaper.changeWallpaper(data + "thumb.png");
+                    string data = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\NativeWallpaper\\";
+                    //var a = VideoThumbnail.getVideoThumbnail(newUrl);
+                    //a.Save(data + "thumb.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+                    path = path.Replace("\\\\", "\\");
+                    StorageFile sf = await StorageFile.GetFileFromPathAsync(path);
+                    ThumbnailOptions opt = ThumbnailOptions.UseCurrentScale;
+                    StorageItemThumbnail sit = await sf.GetThumbnailAsync(Windows.Storage.FileProperties.ThumbnailMode.SingleItem, 1440, opt);
+                    if (sit != null)
+                    {
+                        Directory.CreateDirectory(data);
+                        var fileStream = File.Create(data + "thumb.png");
+                        sit.AsStreamForRead().Seek(0, SeekOrigin.Begin);
+                        sit.AsStreamForRead().CopyTo(fileStream);
+                        fileStream.Close();
+                        NativeWallpaper.changeWallpaper(data + "thumb.png");
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Unable to load the new thumb wallpaper for media (" + path + ") : " + ex.ToString(), "Wallpapeuhrs - Error");
             }
         }
 
