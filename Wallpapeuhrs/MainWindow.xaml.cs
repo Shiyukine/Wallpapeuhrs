@@ -50,6 +50,7 @@ namespace Wallpapeuhrs
         System.Windows.Forms.NotifyIcon ni = new System.Windows.Forms.NotifyIcon();
         static bool loaded = false;
         string curNativeWallpaper = "";
+        bool settingsLoaded = false;
 
         public MainWindow(bool inbg)
         {
@@ -75,6 +76,7 @@ namespace Wallpapeuhrs
             if (!Directory.Exists(newF)) Directory.CreateDirectory(newF);
             sf = new SettingsManager(newF + "Settings.cfg");
             loadSettings();
+            settingsLoaded = true;
             //
             string dFonds = newF + "NativeWallpaper\\";
             if (!Directory.Exists(dFonds)) Directory.CreateDirectory(dFonds);
@@ -477,9 +479,13 @@ namespace Wallpapeuhrs
             foreach (Grid g in filters.Children)
             {
                 var slider = g.Children[1] as Slider;
-                if(slider.Tag == null || (string)slider.Tag == "") MessageBox.Show("ID 01-466\n'" + slider.Tag + "'", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                if (sf.settingExists("Theme_" + slider.Tag)) slider.Value = sf.getDoubleSetting("Theme_" + slider.Tag);
+                if (slider.Tag == null || (string)slider.Tag == "") MessageBox.Show("ID 01-466\n'" + slider.Tag + "'", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                else
+                {
+                    if (sf.settingExists("Theme_" + slider.Tag)) slider.Value = sf.getDoubleSetting("Theme_" + slider.Tag);
+                }
             }
+            //add settings loaded
         }
 
         //for explorer.exe
@@ -625,7 +631,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                         ScreenConfig sc = multiscreen_g.Children.OfType<ScreenConfig>().Where(x => x.screenName == mon.DeviceName).FirstOrDefault();
                         string url = sc.urls.Text;
                         if (url == "") url = urls.Text;
-                        Debug.WriteLine("dsqdsqdqsdqs " + url);
+                        //Debug.WriteLine("dsqdsqdqsdqs " + url);
                         if(url != "" && !File.Exists(url)) oneIsDir = true;
                         foreach (Process p in pl)
                         {
@@ -668,11 +674,11 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                                             Dispatcher.Invoke(() =>
                                             {
                                                 processes.Add(moni, PCtcp);
-                                                Debug.WriteLine(System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
+                                                //Debug.WriteLine(System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
                                                 if (processes.Count == System.Windows.Forms.Screen.AllScreens.Count() /*&& !alreadySendChange*/)
                                                 {
                                                     //alreadySendChange = true;
-                                                    Debug.WriteLine("launch " + System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
+                                                    //Debug.WriteLine("launch " + System.Windows.Forms.Screen.AllScreens.Count() + " " + processes.Count + " " + moni);
                                                     foreach (string monii in processes.Keys)
                                                     {
                                                         sendChange(monii, processes[monii], true);
@@ -686,10 +692,10 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                                             vidReady++;
                                             Dispatcher.Invoke(() =>
                                             {
-                                                Debug.WriteLine("a " + oneIsDir);
+                                                //Debug.WriteLine("a " + oneIsDir);
                                                 if (!oneIsDir)
                                                 {
-                                                    Debug.WriteLine("aaaaaa " + moni + " " + vidReady + " " + System.Windows.Forms.Screen.AllScreens.Count());
+                                                    //Debug.WriteLine("aaaaaa " + moni + " " + vidReady + " " + System.Windows.Forms.Screen.AllScreens.Count());
                                                     if (vidReady == System.Windows.Forms.Screen.AllScreens.Count() /*&& !alreadySendChange*/)
                                                     {
                                                         foreach (string monii in processes.Keys)
@@ -700,7 +706,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                                                 }
                                                 else
                                                 {
-                                                    Debug.WriteLine("aaaaab " + moni);
+                                                    //Debug.WriteLine("aaaaab " + moni);
                                                     sendData(processes[moni], "VPlay", moni);
                                                 }
                                             });
@@ -1252,7 +1258,10 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
 
         private void th_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            changeThemeValue(sender, null);
+            if (settingsLoaded)
+            {
+                changeThemeValue(sender, null);
+            }
         }
 
         public static void changeThemeValue(object sender, string moni)
