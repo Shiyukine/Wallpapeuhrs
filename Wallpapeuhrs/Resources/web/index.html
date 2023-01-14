@@ -109,6 +109,16 @@
                         var ctx = cnv.getContext('2d')
                         cnv.height = i.naturalHeight
                         cnv.width = i.naturalWidth
+                        var nFilter = "";
+                        for (var f in filters) {
+                            var txt = f
+                            var unit = "%"
+                            if (txt === "hue-rotate") {
+                                unit = "deg"
+                            }
+                            if (filters[f] != initialFilters[f]) nFilter += txt + "(" + filters[f] + unit + ") "
+                        }
+                        ctx.filter = nFilter
                         ctx.drawImage(i, 0, 0, i.naturalWidth, i.naturalHeight)
                     }
                     img.style.visibility = play ? "visible" : "hidden"
