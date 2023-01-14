@@ -17,6 +17,7 @@
             "hue-rotate": 0
         }
         var filters = {}
+        var anTimeout;
 
         function changeFilter(filter, value) {
             /*console.log("dqsdqsdqs")
@@ -36,6 +37,8 @@
                 //console.log(nFilter)
                 document.body.style.filter = nFilter
             }
+            if (anTimeout) clearTimeout(anTimeout)
+            anTimeout = setTimeout(() => screenshot(), 5000)
         }
 
         async function changeUrl(newUrl, isVideo, volume) {
@@ -43,19 +46,19 @@
             //console.log("aaa " + isVideo)
             //console.log("aa " + volume)
             if (isVideo) {
+                const wl = await navigator.wakeLock.request('screen');
                 var video = document.createElement("video")
                 //loadeddata canplaythrough
                 video.addEventListener("loadeddata", function () {
                     remove()
                     bo.videoLoaded()
+                    wl.release();
                 }, false);
+                video.crossOrigin = "anonymous"
                 video.src = newUrl
                 video.volume = volume / 100
                 video.controls = false
                 video.loop = true
-                const wl = await navigator.wakeLock.request('screen');
-                // Release the wake lock
-                wl.release();
                 /*video.addEventListener("ended", () => {
                     video.currentTime = 0
                 })*/
@@ -69,6 +72,7 @@
                     remove()
                     bo.videoLoaded()
                 }, false);
+                img.crossOrigin = "anonymous"
                 img.src = newUrl
                 div.appendChild(img)
                 div.appendChild(cnv)
@@ -117,6 +121,39 @@
             if (_isVideo && document.body.firstChild) {
                 document.body.firstChild.currentTime = 0
             }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function screenshot() {
+            //await sleep(2000)
+            var elem = document.body.firstChild
+            var vwidth = elem.clientWidth
+            var vheight = elem.clientHeight
+            var cnv = document.createElement("canvas")
+            cnv.height = vheight
+            cnv.width = vwidth
+            var ctx = cnv.getContext("2d")
+            var nFilter = "";
+            for (var f in filters) {
+                var txt = f
+                var unit = "%"
+                if (txt === "hue-rotate") {
+                    unit = "deg"
+                }
+                if (filters[f] != initialFilters[f]) nFilter += txt + "(" + filters[f] + unit + ") "
+            }
+            ctx.filter = nFilter
+            ctx.drawImage(elem, 0, 0, vwidth, vheight)
+            var blob = await new Promise(resolve => cnv.toBlob(resolve));
+            var ret = []
+            var buf = new Uint8Array(await blob.arrayBuffer())
+            for (let b of buf) {
+                ret.push(b)
+            }
+            await bo.screenshoted(ret)
         }
     </script>
     <style>

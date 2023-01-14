@@ -268,7 +268,7 @@ namespace Wallpapeuhrs
                 curPlay = true;
                 if (isEdgeEngine) (med as MediaVW).changeUrl(newUrl);
                 else (med as Media).changeUrl(newUrl);
-                changeNativeWallpaper(newUrl);
+                //changeNativeWallpaper(newUrl);
             }
             catch (Exception e)
             {
@@ -281,7 +281,7 @@ namespace Wallpapeuhrs
 
         bool isOk = true;
 
-        async void changeNativeWallpaper(string path)
+        public async void changeNativeWallpaper(MemoryStream msVW)
         {
             try
             {
@@ -290,7 +290,7 @@ namespace Wallpapeuhrs
                     string data = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\NativeWallpaper\\";
                     //var a = VideoThumbnail.getVideoThumbnail(newUrl);
                     //a.Save(data + "thumb.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
-                    path = path.Replace("\\\\", "\\");
+                    /*path = path.Replace("\\\\", "\\");
                     StorageFile sf = await StorageFile.GetFileFromPathAsync(path);
                     ThumbnailOptions opt = ThumbnailOptions.UseCurrentScale;
                     StorageItemThumbnail sit = await sf.GetThumbnailAsync(Windows.Storage.FileProperties.ThumbnailMode.SingleItem, 1440, opt);
@@ -302,12 +302,20 @@ namespace Wallpapeuhrs
                         sit.AsStreamForRead().CopyTo(fileStream);
                         fileStream.Close();
                         NativeWallpaper.changeWallpaper(data + "thumb.png");
-                    }
+                    }*/
+                    MemoryStream ms;
+                    if (isEdgeEngine) ms = msVW;
+                    else ms = await (med as Media).screenshot();
+                    Directory.CreateDirectory(data);
+                    var fileStream = File.Create(data + "thumb.png");
+                    ms.WriteTo(fileStream);
+                    fileStream.Close();
+                    NativeWallpaper.changeWallpaper(data + "thumb.png");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Unable to load the new thumb wallpaper for media (" + path + ") : " + ex.ToString(), "Wallpapeuhrs - Error");
+                MessageBox.Show("Unable to load the new thumb wallpaper : " + ex.ToString(), "Wallpapeuhrs - Error");
             }
         }
 

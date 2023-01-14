@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,12 +15,13 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Windows.Graphics.Imaging;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
+using Windows.Storage.Streams;
 using Windows.System.Display;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
@@ -98,9 +100,13 @@ namespace Wallpapeuhrs
                     value.MediaPlayer.Volume = v / 100;
                     main.Children.Insert(0, value);
                     value.Stretch = Windows.UI.Xaml.Media.Stretch.UniformToFill;
-                    value.MediaPlayer.MediaOpened += (sender, eee) =>
+                    value.MediaPlayer.MediaOpened += async (sender, eee) =>
                     {
                         remove(value);
+                        await main.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        {
+                            parent.changeNativeWallpaper(null);
+                        });
                     };
                     _media = value;
                     value.MediaPlayer.MediaFailed += async (sender, e) =>
@@ -176,9 +182,13 @@ namespace Wallpapeuhrs
                         me.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Center;
                         me.CacheMode = setCache(newUrl);
                         Windows.UI.Xaml.Media.Imaging.BitmapImage img = new Windows.UI.Xaml.Media.Imaging.BitmapImage();
-                        img.ImageOpened += (sender, e) =>
+                        img.ImageOpened += async (sender, e) =>
                         {
                             remove(null);
+                            await main.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                            {
+                                parent.changeNativeWallpaper(null);
+                            });
                         };
                         img.ImageFailed += async (sender, e) =>
                         {
@@ -321,6 +331,41 @@ namespace Wallpapeuhrs
                     }
                 }
             });
+        }
+
+        public async Task<MemoryStream> screenshot()
+        {
+            Windows.UI.Xaml.Media.Imaging.RenderTargetBitmap renderTargetBitmap =
+    new Windows.UI.Xaml.Media.Imaging.RenderTargetBitmap();
+            foreach (string ext in App.types.Keys)
+            {
+                if (App.types[ext].Contains(System.IO.Path.GetExtension(curUrl)))
+                {
+                    if (ext == "Video files")
+                    {
+                        if (curMedia != null)
+                        {
+                            await renderTargetBitmap.RenderAsync(curMedia);
+                        }
+                    }
+                    if (ext == "Image files")
+                    {
+                        Windows.UI.Xaml.Controls.Image med = (Windows.UI.Xaml.Controls.Image)main.Children[0];
+                        await renderTargetBitmap.RenderAsync(med);
+                    }
+                }
+            }
+            IBuffer buf = await renderTargetBitmap.GetPixelsAsync();
+            var encoded = new InMemoryRandomAccessStream();
+            var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, encoded);
+            byte[] bytes = buf.ToArray();
+            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore,
+                (uint)renderTargetBitmap.PixelWidth, (uint)renderTargetBitmap.PixelHeight, 96, 96, bytes);
+            await encoder.FlushAsync();
+            encoded.Seek(0);
+            var by = new byte[encoded.Size];
+            await encoded.AsStream().ReadAsync(by, 0, by.Length);
+            return new MemoryStream(by);
         }
     }
 }

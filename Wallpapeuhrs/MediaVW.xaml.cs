@@ -3,11 +3,15 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using Wallpapeuhrs.Utils;
+using System.Web;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace Wallpapeuhrs
 {
@@ -40,6 +44,36 @@ namespace Wallpapeuhrs
                 {
                     //if (System.Windows.Forms.Screen.PrimaryScreen.DeviceName == parent.moni) webview.CoreWebView2.OpenDevToolsWindow();
                     string result = reader.ReadToEnd();
+                    webview.CoreWebView2.AddWebResourceRequestedFilter("*", CoreWebView2WebResourceContext.All);
+                    webview.CoreWebView2.WebResourceRequested += async (s, e) =>
+                    {
+                        if (e.Request.Uri.StartsWith("https://myfiles/"))
+                        {
+                            var uri = new Uri(e.Request.Uri);
+                            var fileName = uri.AbsolutePath.Substring(1);
+                            var deferral = e.GetDeferral();
+                            try
+                            {
+                                Stream res = await getResource(fileName);
+                                if (res != null)
+                                {
+                                    e.Response = webview.CoreWebView2.Environment.CreateWebResourceResponse(res, 200, "OK", null);
+                                    e.Response.Headers.AppendHeader("Access-Control-Allow-Origin", "*");
+                                    e.Response.Headers.AppendHeader("Access-Control-Allow-Headers", "*");
+                                    e.Response.Headers.AppendHeader("Accept-Ranges", "bytes");
+                                }
+                                else e.Response = webview.CoreWebView2.Environment.CreateWebResourceResponse(new MemoryStream(Encoding.UTF8.GetBytes("Unable to load \"" + fileName + "\"")), 404, "Not found", null);
+                            }
+                            catch (Exception ex)
+                            {
+                                e.Response = webview.CoreWebView2.Environment.CreateWebResourceResponse(new MemoryStream(Encoding.UTF8.GetBytes("Unable to load \"" + fileName + "\"")), 500, "Internal Server Error", null);
+                            }
+                            string contentType;
+                            new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType);
+                            e.Response.Headers.AppendHeader("Content-type", contentType);
+                            deferral.Complete();
+                        }
+                    };
                     webview.NavigationCompleted += async (s, e) =>
                     {
                         webview.CoreWebView2.AddHostObjectToScript("boundobject", new ChromeBoundObject(parent));
@@ -114,6 +148,28 @@ namespace Wallpapeuhrs
             main.ManipulationMode = Windows.UI.Xaml.Input.ManipulationModes.None;*/
         }
 
+        public static async Task<Stream> getResource(string path)
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    StreamReader sr = new StreamReader(HttpUtility.UrlDecode(path));
+                    Stream stream = sr.BaseStream;
+                    async void flush()
+                    {
+                        await sr.BaseStream.FlushAsync();
+                    }
+                    flush();
+                    return stream;
+                }
+                catch (Exception e)
+                {
+                    return null;
+                }
+            });
+        }
+
         private void setDWM(IntPtr handle)
         {
             int a = 1;
@@ -133,6 +189,7 @@ namespace Wallpapeuhrs
         public async void changeUrl(string newUrl)
         {
             curUrl = newUrl;
+            newUrl = "https://myfiles/" + newUrl;
             parent.log("aaaaaaaa " + newUrl + " " + System.IO.Path.GetExtension(newUrl));
             foreach (string ext in App.types.Keys)
             {
