@@ -38,7 +38,7 @@
                 document.body.style.filter = nFilter
             }
             if (anTimeout) clearTimeout(anTimeout)
-            anTimeout = setTimeout(() => screenshot(), 5000)
+            anTimeout = setTimeout(() => screenshot(), 3000)
         }
 
         async function changeUrl(newUrl, isVideo, volume) {
@@ -52,6 +52,7 @@
                 video.addEventListener("loadeddata", function () {
                     remove()
                     bo.videoLoaded()
+                    screenshot()
                     wl.release();
                 }, false);
                 video.crossOrigin = "anonymous"
@@ -71,6 +72,7 @@
                 img.addEventListener("load", function () {
                     remove()
                     bo.videoLoaded()
+                    screenshot()
                 }, false);
                 img.crossOrigin = "anonymous"
                 img.src = newUrl
@@ -138,7 +140,11 @@
         }
 
         async function screenshot() {
-            //await sleep(2000)
+            try {
+                if (anTimeout) clearTimeout(anTimeout)
+            }
+            catch (e) {}
+            await sleep(5000)
             var elem = document.body.firstChild
             var vwidth = elem.clientWidth
             var vheight = elem.clientHeight
