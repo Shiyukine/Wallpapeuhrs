@@ -1273,7 +1273,16 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 {
                     if (slider.Tag != null && (string)slider.Tag != "")
                     {
-                        if(slider.Value == 100) MessageBox.Show("ID 01-1276\n" + Environment.StackTrace, "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        if (slider.Value == 100 || slider.Value == 0)
+                        {
+                            string str = Environment.StackTrace;
+                            async void mess()
+                            {
+                                await Task.Run(() => { });
+                                MessageBox.Show("ID 01-1276\n" + str, "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            };
+                            mess();
+                        }
                         if (moni == null)
                         {
                             foreach (string monii in processes.Keys)
