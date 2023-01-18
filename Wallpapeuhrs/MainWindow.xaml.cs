@@ -1230,6 +1230,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 bu.Name = "";
                 multiscreen.Children.Add(bu);
                 ScreenConfig b = new ScreenConfig();
+                b.screenName = s.DeviceName;
                 b.Visibility = Visibility.Collapsed;
                 if (!sf.settingExists("Screen_" + index + "_url")) sf.setSetting("Screen_" + index + "_url", "", null);
                 if (!sf.settingExists("Screen_" + index + "_interval")) sf.setSetting("Screen_" + index + "_interval", "", null);
@@ -1250,7 +1251,6 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 {
                     b.filters.Visibility = Visibility.Collapsed;
                 }
-                b.screenName = s.DeviceName;
                 multiscreen_g.Children.Add(b);
                 i++;
             }
@@ -1260,7 +1260,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
         {
             if (settingsLoaded)
             {
-                changeThemeValue(sender, null);
+                changeThemeValue(sender, "-");
             }
         }
 
@@ -1273,17 +1273,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 {
                     if (slider.Tag != null && (string)slider.Tag != "")
                     {
-                        if (slider.Value == 100 || slider.Value == 0)
-                        {
-                            string str = Environment.StackTrace;
-                            async void mess()
-                            {
-                                await Task.Run(() => { });
-                                MessageBox.Show("ID 01-1276\n" + str, "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            };
-                            mess();
-                        }
-                        if (moni == null)
+                        if (moni == "-")
                         {
                             foreach (string monii in processes.Keys)
                             {

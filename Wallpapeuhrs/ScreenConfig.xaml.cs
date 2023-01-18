@@ -38,7 +38,7 @@ namespace Wallpapeuhrs
 
         private void th_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            MainWindow.changeThemeValue(sender, screenName);
+            if(screenName != null) MainWindow.changeThemeValue(sender, screenName);
         }
 
         private void th_DragDelta(object sender, DragDeltaEventArgs e)
