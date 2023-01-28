@@ -865,19 +865,16 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
         {
             System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
             openFileDialog.InitialDirectory = System.IO.Path.GetFullPath(tb.Text != "" ? tb.Text : "c:\\");
-            string filter = "";
+            string filter = "Video or Image|";
             foreach (string type in App.types.Keys)
             {
-                filter += type + "|";
                 int i = 0;
                 foreach (string ext in App.types[type])
                 {
                     filter += "*" + ext + (i < App.types[type].Count - 1 ? ";" : "");
                     i++;
                 }
-                filter += "|";
             }
-            filter += "All files (*.*)|*.*";
             //openFileDialog.Filter = "Videos files|*.mp4;*.avi;*.gif;*.mov|Images files|*.jpg;*.jpeg;*.png;*.bmp|All files (*.*)|*.*";
             openFileDialog.Filter = filter;
             openFileDialog.RestoreDirectory = true;
