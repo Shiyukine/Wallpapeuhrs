@@ -1160,5 +1160,8 @@ namespace Wallpapeuhrs
             // Legacy flag, should not be used.
             // ES_USER_PRESENT = 0x00000004
         }
+
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        public static extern int GetWindowTextLength(IntPtr hWnd);
     }
 }

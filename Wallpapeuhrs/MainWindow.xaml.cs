@@ -158,8 +158,6 @@ namespace Wallpapeuhrs
                 };
             }
             //
-            connectLocalTCP();
-            //
             System.Windows.Forms.Timer t = new System.Windows.Forms.Timer();
             t.Interval = 1000;
             t.Tick += (sender, e) =>
@@ -276,6 +274,13 @@ namespace Wallpapeuhrs
         private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             // handler of console display state system event 
+            if(msg == 5250)
+            {
+                if (WindowState != WindowState.Maximized) WindowState = WindowState.Normal;
+                IntPtr handle = new WindowInteropHelper(this).Handle;
+                ForceWindowIntoForeground(handle);
+                inbg = false;
+            }
             if (msg == W32.WM_POWERBROADCAST)
             {
                 if (wParam.ToInt32() == W32.PBT_POWERSETTINGCHANGE)
@@ -330,64 +335,6 @@ namespace Wallpapeuhrs
                 vname.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0,0,0));
                 vname.ToolTip = "Update available - Click to install";
             }
-        }
-
-        private async void connectLocalTCP()
-        {
-            TcpClient tcp = null;
-            TcpListener tcps = null;
-            int port = 30929;
-            try
-            {
-                tcps = new TcpListener(IPAddress.Parse("127.0.0.1"), port);
-                tcps.Start();
-                tcp = await tcps.AcceptTcpClientAsync();
-            }
-            catch
-            {
-                MessageBox.Show("Unable to start Wallpapeuhrs. The TCP at port locahost:" + port + " is already used. Please kill all applications who use this port and then restart Wallpapeuhrs.",
-                    "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                App.Current.Shutdown();
-            }
-            NetworkStream ns = tcp.GetStream();
-            tcp.ReceiveBufferSize = 1024;
-            byte[] read = new byte[tcp.ReceiveBufferSize];
-            //
-            AsyncCallback asy = null;
-            asy = async (ar) =>
-            {
-                try
-                {
-                    int bytesRead = ns.EndRead(ar);
-                    string stra = Encoding.ASCII.GetString(read, 0, bytesRead).Replace(",", ".");
-                    if (stra == "SHOW")
-                    {
-                        Dispatcher.Invoke(() =>
-                        {
-                            if (WindowState != WindowState.Maximized) WindowState = WindowState.Normal;
-                            IntPtr handle = new WindowInteropHelper(this).Handle;
-                            ForceWindowIntoForeground(handle);
-                            inbg = false;
-                        });
-                    }
-                    if (stra == "")
-                    {
-                        /*tcps.Stop();
-                        tcp.Close();
-                        connectLocalTCP();*/
-                        tcp = await tcps.AcceptTcpClientAsync();
-                        ns = tcp.GetStream();
-                        tcp.ReceiveBufferSize = 1024;
-                        read = new byte[tcp.ReceiveBufferSize];
-                    }
-                    ns.BeginRead(read, 0, tcp.ReceiveBufferSize, asy, null);
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show("TCP error:\n" + e);
-                }
-            };
-            ns.BeginRead(read, 0, tcp.ReceiveBufferSize, asy, null);
         }
 
         bool stopping = false;

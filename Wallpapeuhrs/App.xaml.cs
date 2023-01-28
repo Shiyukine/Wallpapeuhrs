@@ -53,25 +53,19 @@ namespace Wallpapeuhrs
                 {
                     try
                     {
-                        int port = 30929;
-                        if (!isTCPAvailable(port))
+                        bool shutdowning = false;
+                        W32.EnumWindows((handle, param) =>
                         {
-                            TcpClient tcp = new TcpClient();
-                            tcp.Connect("127.0.0.1", port);
-                            SocketAsyncEventArgs sa = new SocketAsyncEventArgs();
-                            sa.Completed += (sendere, ee) =>
+                            if(isWallpapeuhrs(handle) && !shutdowning)
                             {
-                                if (ee.SocketError != SocketError.Success) MessageBox.Show("An instance of Wallpapeuhrs is already opened !");
-                                closeApp(tcp);
-                            };
-                            byte[] data2 = System.Text.Encoding.ASCII.GetBytes("SHOW");
-                            sa.SetBuffer(data2, 0, data2.Length);
-                            if (!tcp.Client.SendAsync(sa))
-                            {
-                                closeApp(tcp);
+                                shutdowning = true;
+                                W32.SendMessage(handle, 5250, 0, IntPtr.Zero);
+                                App.Current.Shutdown();
+                                return false;
                             }
-                        }
-                        else
+                            return true;
+                        }, IntPtr.Zero);
+                        if (!shutdowning)
                         {
                             bool inbg = nargs.Length > 0 && nargs[0].Contains("background");
                             new MainWindow(inbg);
@@ -119,6 +113,30 @@ namespace Wallpapeuhrs
                 }
             }
             return true;
+        }
+
+        private static bool isWallpapeuhrs(IntPtr hWnd)
+        {
+            int length = W32.GetWindowTextLength(hWnd);
+            StringBuilder sb = new StringBuilder(length + 1);
+            W32.GetWindowText(hWnd, sb, sb.Capacity);
+            if (sb.ToString() == "Wallpapeuhrs")
+            {
+                int nRet;
+                // Pre-allocate 256 characters, since this is the maximum class name length.
+                StringBuilder ClassName = new StringBuilder(256);
+                //Get the window class name
+                nRet = W32.GetClassName(hWnd, ClassName, ClassName.Capacity);
+                if (nRet != 0)
+                {
+                    return ClassName.ToString().Contains("Wallpapeuhrs");
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return false;
         }
     }
 }
