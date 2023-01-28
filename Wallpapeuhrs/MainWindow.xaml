@@ -51,8 +51,29 @@
                                     <styles:FlatCheckBox x:Name="startwithw" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="344,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
                                 </Grid>
                                 <Grid Margin="15,5">
-                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Stop animation when you're not on the Desktop"/></TextBlock>
-                                    <styles:FlatCheckBox x:Name="stopan" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="371,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
+                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Eco mode"/><Run Text="&#xD;Eco+ disables animation when you're not on the Desktop" FontSize="12"/></TextBlock>
+                                    <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,40,28,0" Background="#FF353535" CornerRadius="19,19,19,19" Padding="0,3,0,3">
+                                        <Border.Resources>
+                                            <utils:BorderClipConverter x:Key="BorderClipConverter" />
+                                        </Border.Resources>
+                                        <Border.Clip>
+                                            <MultiBinding Converter="{StaticResource BorderClipConverter}">
+                                                <Binding Path="ActualWidth"
+                        RelativeSource="{RelativeSource Self}"/>
+                                                <Binding Path="ActualHeight"
+                        RelativeSource="{RelativeSource Self}"/>
+                                                <Binding Path="CornerRadius"
+                        RelativeSource="{RelativeSource Self}"/>
+                                            </MultiBinding>
+                                        </Border.Clip>
+                                        <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" MouseWheel="ScrollViewer_MouseWheel" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+                                            <StackPanel x:Name="ecomode" Orientation="Horizontal" Margin="1,0,4,0">
+                                                <styles:NewButtons x:Name="eco_off" BorderRadius="15,15,15,15" Content="Off" Height="30" Click="change_eco_Click" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" BackgroundHover="#FF717171" Margin="3,1,0,1" Padding="8,1,8,1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                                <styles:NewButtons x:Name="eco_on" BorderRadius="15,15,15,15" Content="On" Height="30" Click="change_eco_Click" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" BackgroundHover="#FF717171" Margin="3,1,0,1" Padding="8,1,8,1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                                <styles:NewButtons x:Name="eco_onplus" BorderRadius="15,15,15,15" Content="Eco+" Height="30" Click="change_eco_Click" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" BackgroundHover="#FF717171" Margin="3,1,0,1" Padding="8,1,8,1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                            </StackPanel>
+                                        </ScrollViewer>
+                                    </Border>
                                 </Grid>
                                 <StackPanel x:Name="filters">
                                     <Grid Margin="15,5">
