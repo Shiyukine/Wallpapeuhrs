@@ -1163,12 +1163,5 @@ namespace Wallpapeuhrs
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         public static extern int GetWindowTextLength(IntPtr hWnd);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
-
-        [DllImport("user32.dll")]
-        public static extern bool EnumDesktopWindows(IntPtr hDesktop,
-   EnumWindowsProc lpfn, IntPtr lParam);
     }
 }
