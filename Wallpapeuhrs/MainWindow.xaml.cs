@@ -252,7 +252,7 @@ namespace Wallpapeuhrs
                                 {
                                     W32.RECT rct;
                                     W32.GetWindowRect(hwnd, out rct);
-                                    System.Drawing.Rectangle r = s.Bounds;
+                                    System.Drawing.Rectangle r = s.WorkingArea;
                                     System.Drawing.Rectangle r2 = rct;
                                     //test maximized 1
                                     bool b1 = r == r2;
