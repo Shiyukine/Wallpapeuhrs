@@ -38,7 +38,6 @@ namespace Wallpapeuhrs
             }
         }
         public bool isDir = false;
-        bool autostop = true;
         bool repeat = true;
         bool _fullrdm = true;
         bool fullrdm
@@ -163,9 +162,8 @@ namespace Wallpapeuhrs
                                     if (str.StartsWith("Repeat")) repeat = Convert.ToBoolean(str.Split('=')[1]);
                                     if (str.StartsWith("Fullrdm")) fullrdm = Convert.ToBoolean(str.Split('=')[1]);
                                     if (str.StartsWith("ForceReset")) fileIndex = 0;
-                                    if (str.StartsWith("Autostop"))
+                                    if (str.StartsWith("InitOK"))
                                     {
-                                        autostop = Convert.ToBoolean(str.Split('=')[1]);
                                         //Last parameter. We can start display wp.
                                         beginWP();
                                     }

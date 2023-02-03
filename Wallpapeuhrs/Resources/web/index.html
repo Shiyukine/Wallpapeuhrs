@@ -17,6 +17,7 @@
             "hue-rotate": 0
         }
         var filters = {}
+        var modifyScreenshot = true;
         var anTimeout;
 
         function changeFilter(filter, value) {
@@ -38,13 +39,14 @@
                 document.body.style.filter = nFilter
             }
             if (anTimeout) clearTimeout(anTimeout)
-            anTimeout = setTimeout(() => screenshot(), 3000)
+            anTimeout = setTimeout(() => screenshot(), 2000)
         }
 
         async function changeUrl(newUrl, isVideo, volume) {
             //console.log("aaaa " + newUrl)
             //console.log("aaa " + isVideo)
             //console.log("aa " + volume)
+            modifyScreenshot = true
             if (isVideo) {
                 const wl = await navigator.wakeLock.request('screen');
                 var video = document.createElement("video")
@@ -52,9 +54,11 @@
                 video.addEventListener("loadeddata", function () {
                     remove()
                     bo.videoLoaded()
-                    screenshot()
                     wl.release();
                 }, false);
+                video.addEventListener("timeupdate", () => {
+                    if (modifyScreenshot) screenshot()
+                })
                 video.crossOrigin = "anonymous"
                 video.src = newUrl
                 video.volume = volume / 100
@@ -111,7 +115,7 @@
                         var ctx = cnv.getContext('2d')
                         cnv.height = i.naturalHeight
                         cnv.width = i.naturalWidth
-                        var nFilter = "";
+                        /*var nFilter = "";
                         for (var f in filters) {
                             var txt = f
                             var unit = "%"
@@ -120,7 +124,7 @@
                             }
                             if (filters[f] != initialFilters[f]) nFilter += txt + "(" + filters[f] + unit + ") "
                         }
-                        ctx.filter = nFilter
+                        ctx.filter = nFilter*/
                         ctx.drawImage(i, 0, 0, i.naturalWidth, i.naturalHeight)
                     }
                     img.style.visibility = play ? "visible" : "hidden"
@@ -143,9 +147,9 @@
             try {
                 if (anTimeout) clearTimeout(anTimeout)
             }
-            catch (e) {}
-            await sleep(5000)
-            var elem = document.body.firstChild
+            catch (e) { }
+            modifyScreenshot = false
+            var elem = _isVideo ? document.body.firstChild : document.body.firstChild.firstChild
             var vwidth = elem.clientWidth
             var vheight = elem.clientHeight
             var cnv = document.createElement("canvas")

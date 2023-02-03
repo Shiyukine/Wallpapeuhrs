@@ -51,8 +51,29 @@
                                     <styles:FlatCheckBox x:Name="startwithw" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="344,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
                                 </Grid>
                                 <Grid Margin="15,5">
-                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Stop animation when you're not on the Desktop"/></TextBlock>
-                                    <styles:FlatCheckBox x:Name="stopan" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="371,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
+                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Eco mode"/><Run Text="&#xD;Eco stops the animations of a screen when an application is in full screen mode on&#xD;this screen" FontSize="12"/><Run Text="&#xD;Eco+ stops animation when you're not on the Desktop" FontSize="12"/></TextBlock>
+                                    <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,70,0,0" Background="#FF353535" CornerRadius="19,19,19,19" Padding="0,3,0,3">
+                                        <Border.Resources>
+                                            <utils:BorderClipConverter x:Key="BorderClipConverter" />
+                                        </Border.Resources>
+                                        <Border.Clip>
+                                            <MultiBinding Converter="{StaticResource BorderClipConverter}">
+                                                <Binding Path="ActualWidth"
+                        RelativeSource="{RelativeSource Self}"/>
+                                                <Binding Path="ActualHeight"
+                        RelativeSource="{RelativeSource Self}"/>
+                                                <Binding Path="CornerRadius"
+                        RelativeSource="{RelativeSource Self}"/>
+                                            </MultiBinding>
+                                        </Border.Clip>
+                                        <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" MouseWheel="ScrollViewer_MouseWheel" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+                                            <StackPanel x:Name="ecomode" Orientation="Horizontal" Margin="1,0,4,0">
+                                                <styles:NewButtons x:Name="eco_off" BorderRadius="15,15,15,15" Content="Off" Height="30" Click="change_eco_Click" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" BackgroundHover="#FF717171" Margin="3,1,0,1" Padding="8,1,8,1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                                <styles:NewButtons x:Name="eco_on" BorderRadius="15,15,15,15" Content="On" Height="30" Click="change_eco_Click" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" BackgroundHover="#FF717171" Margin="3,1,0,1" Padding="8,1,8,1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                                <styles:NewButtons x:Name="eco_onplus" BorderRadius="15,15,15,15" Content="Eco+" Height="30" Click="change_eco_Click" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" BackgroundHover="#FF717171" Margin="3,1,0,1" Padding="8,1,8,1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                            </StackPanel>
+                                        </ScrollViewer>
+                                    </Border>
                                 </Grid>
                                 <StackPanel x:Name="filters">
                                     <Grid Margin="15,5">
@@ -76,66 +97,70 @@
                                         <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="210,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="th_reset" Tag="hue-rotate 0"/>
                                     </Grid>
                                 </StackPanel>
-                                <styles:NewButtons x:Name="show_more" Margin="15,5" Background="#FF4C4C4C" BorderRadius="14" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="7,4,12,4" Cursor="Hand" Click="show_more_Click" BackgroundHover="#FF5B5B5B">
-                                    <Grid>
-                                        <Viewbox Width="19" Height="19" HorizontalAlignment="Left" VerticalAlignment="Center" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
-                                            <Viewbox.RenderTransform>
-                                                <TransformGroup>
-                                                    <ScaleTransform/>
-                                                    <SkewTransform/>
-                                                    <RotateTransform x:Name="show_more_r" Angle="00"/>
-                                                    <TranslateTransform/>
-                                                </TransformGroup>
-                                            </Viewbox.RenderTransform>
-                                            <Canvas Width="24" Height="24">
-                                                <Path Fill="White" Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
-                                            </Canvas>
-                                        </Viewbox>
-                                        <TextBlock Foreground="White" HorizontalAlignment="Left" Margin="24,0,0,0" VerticalAlignment="Center" TextWrapping="WrapWithOverflow"><Run Text="Show more"/></TextBlock>
-                                    </Grid>
-                                </styles:NewButtons>
-                                <StackPanel x:Name="show_more_expend" Margin="15,0,15,5" Visibility="Visible">
-                                    <Grid Margin="0,0,0,5">
-                                        <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center"><Run Text="Render engine"/></TextBlock>
-                                        <ComboBox x:Name="engine" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="119,0,0,0" Foreground="White" Background="#FF4C4C4C" Style="{DynamicResource ComboBoxFlatStyle}" Width="275" SelectedIndex="1" Cursor="Hand" SelectionChanged="engine_SelectionChanged">
-                                            <ComboBoxItem Content="Edge WebView2 - Auto"/>
-                                            <ComboBoxItem Content="Edge WebView2 - OpenGL"/>
-                                            <ComboBoxItem Content="Edge WebView2 - DirectX 11"/>
-                                            <ComboBoxItem Content="Edge WebView2 - DirectX 12 (beta)"/>
-                                            <ComboBoxItem Content="UWP MediaPlayerElement"/>
-                                            <ComboBox.Resources>
-                                                <ResourceDictionary>
-                                                    <utils:MathConverter x:Key="MathConverter" />
-                                                </ResourceDictionary>
-                                            </ComboBox.Resources>
-                                            <ComboBox.ItemContainerStyle>
-                                                <Style TargetType="ComboBoxItem">
-                                                    <Setter Property="BorderThickness" Value="0"></Setter>
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate TargetType="ComboBoxItem">
-                                                                <Border Name="uwu" CornerRadius="{Binding ElementName=uwu, Path=ActualHeight,
+                                <Border CornerRadius="15" Background="#FF313131" Margin="15,15,15,10" Padding="5,5,5,5">
+                                    <StackPanel>
+                                        <styles:NewButtons x:Name="show_more" Margin="15,5" Background="#FF4C4C4C" BorderRadius="14" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="7,4,12,4" Cursor="Hand" Click="show_more_Click" BackgroundHover="#FF5B5B5B">
+                                            <Grid>
+                                                <Viewbox Width="19" Height="19" HorizontalAlignment="Left" VerticalAlignment="Center" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
+                                                    <Viewbox.RenderTransform>
+                                                        <TransformGroup>
+                                                            <ScaleTransform/>
+                                                            <SkewTransform/>
+                                                            <RotateTransform x:Name="show_more_r" Angle="00"/>
+                                                            <TranslateTransform/>
+                                                        </TransformGroup>
+                                                    </Viewbox.RenderTransform>
+                                                    <Canvas Width="24" Height="24">
+                                                        <Path Fill="White" Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
+                                                    </Canvas>
+                                                </Viewbox>
+                                                <TextBlock Foreground="White" HorizontalAlignment="Left" Margin="24,0,0,0" VerticalAlignment="Center" TextWrapping="WrapWithOverflow"><Run Text="Show more"/></TextBlock>
+                                            </Grid>
+                                        </styles:NewButtons>
+                                        <StackPanel x:Name="show_more_expend" Margin="15,0,15,5" Visibility="Visible">
+                                            <Grid Margin="0,0,0,5">
+                                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center"><Run Text="Render engine"/></TextBlock>
+                                                <ComboBox x:Name="engine" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="119,0,0,0" Foreground="White" Background="#FF4C4C4C" Style="{DynamicResource ComboBoxFlatStyle}" Width="275" SelectedIndex="1" Cursor="Hand" SelectionChanged="engine_SelectionChanged">
+                                                    <ComboBoxItem Content="Edge WebView2 - Auto"/>
+                                                    <ComboBoxItem Content="Edge WebView2 - OpenGL"/>
+                                                    <ComboBoxItem Content="Edge WebView2 - DirectX 11"/>
+                                                    <ComboBoxItem Content="Edge WebView2 - DirectX 12 (beta)"/>
+                                                    <ComboBoxItem Content="UWP MediaPlayerElement"/>
+                                                    <ComboBox.Resources>
+                                                        <ResourceDictionary>
+                                                            <utils:MathConverter x:Key="MathConverter" />
+                                                        </ResourceDictionary>
+                                                    </ComboBox.Resources>
+                                                    <ComboBox.ItemContainerStyle>
+                                                        <Style TargetType="ComboBoxItem">
+                                                            <Setter Property="BorderThickness" Value="0"></Setter>
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="ComboBoxItem">
+                                                                        <Border Name="uwu" CornerRadius="{Binding ElementName=uwu, Path=ActualHeight,
                  Converter={StaticResource MathConverter},
                  ConverterParameter=@VALUE/2}" Padding="10,5" Margin="2" Cursor="Hand">
-                                                                    <ContentPresenter/>
-                                                                </Border>
-                                                                <ControlTemplate.Triggers>
-                                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter TargetName="uwu" Property="Background" Value="#FF545454"/>
-                                                                    </Trigger>
-                                                                </ControlTemplate.Triggers>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                </Style>
-                                            </ComboBox.ItemContainerStyle>
-                                        </ComboBox>
-                                    </Grid>
-                                    <Grid x:Name="restartexplo_g" Margin="0,5,0,0">
-                                        <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" Width="396" Background="#00000000"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is launched in background (requires Administrator authorization)"/><Run Text="&#xD;Please activate this setting only if you encounter memory leaks with dwm.exe" FontSize="12"/></TextBlock>
-                                        <styles:FlatCheckBox x:Name="restartexplo" VerticalAlignment="Center" Margin="406,0,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747" HorizontalAlignment="Left" Width="19"/>
-                                    </Grid>
-                                </StackPanel>
+                                                                            <ContentPresenter/>
+                                                                        </Border>
+                                                                        <ControlTemplate.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter TargetName="uwu" Property="Background" Value="#FF545454"/>
+                                                                            </Trigger>
+                                                                        </ControlTemplate.Triggers>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </Style>
+                                                    </ComboBox.ItemContainerStyle>
+                                                </ComboBox>
+                                            </Grid>
+                                            <Grid x:Name="restartexplo_g" Margin="0,5,0,0">
+                                                <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" Width="396" Background="#00000000"><Run Text="Restart automatically dwm.exe when Wallpapeuhrs is launched in background (requires Administrator authorization)"/><Run Text="&#xD;Please activate this setting only if you encounter memory leaks with dwm.exe" FontSize="12"/></TextBlock>
+                                                <styles:FlatCheckBox x:Name="restartexplo" VerticalAlignment="Center" Margin="406,0,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747" HorizontalAlignment="Left" Width="19"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
                         </Border>
                         <styles:NewButtons x:Name="slide" BorderRadius="14,14,14,14" Content="Slideshow" VerticalAlignment="Top" Margin="0,35,0,0" Height="28" Click="slide_Click" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90" BackgroundHover="#FF717171"/>

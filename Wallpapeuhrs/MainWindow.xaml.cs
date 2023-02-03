@@ -228,7 +228,67 @@ namespace Wallpapeuhrs
 
                     }
                 }
-                if ((bool)stopan.IsChecked)
+                if (curIndexEcoConfig == 1)
+                {
+                    List<string> list = new List<string>();
+                    foreach (System.Windows.Forms.Screen s in System.Windows.Forms.Screen.AllScreens)
+                    {
+                        list.Add(s.DeviceName);
+                        if (!playersStateEco.ContainsKey(s.DeviceName))
+                            playersStateEco.Add(s.DeviceName, true);
+                    }
+                    IntPtr curProg = W32.GetForegroundWindow();
+                    if (curProg != IntPtr.Zero)
+                    {
+                        if(!programs.Contains(curProg))
+                        {
+                            programs.Add(curProg);
+                        }
+                    }
+                    foreach(IntPtr prog in programs)
+                    {
+                        System.Windows.Forms.Screen s = System.Windows.Forms.Screen.FromHandle(prog);
+                        int length = W32.GetWindowTextLength(prog);
+                        StringBuilder sb = new StringBuilder(length + 1);
+                        W32.GetWindowText(prog, sb, sb.Capacity);
+                        string aa = sb.ToString();
+                        if (list.Contains(s.DeviceName) && aa != "WPBG" && aa != "Microsoft Text Input Application" && aa != "Task Switching" && aa != "Window" && aa != "" && !aa.Contains("NVIDIA GeForce Overlay"))
+                        {
+                            W32.RECT rct;
+                            W32.GetWindowRect(prog, out rct);
+                            System.Drawing.Rectangle r = s.WorkingArea;
+                            System.Drawing.Rectangle r2 = rct;
+                            //test maximized 1
+                            bool b1 = r == r2;
+                            //test maximized 2
+                            r2.X += 8;
+                            r2.Y += 8;
+                            r2.Width -= 16;
+                            r2.Height -= 16;
+                            bool b2 = r == r2;
+                            //
+                            if (b1 || b2)
+                            {
+                                list.Remove(s.DeviceName);
+                                if (processes.ContainsKey(s.DeviceName) && playersStateEco[s.DeviceName])
+                                {
+                                    //MessageBox.Show(prog + " " + aa);
+                                    sendData(processes[s.DeviceName], "Pause", s.DeviceName);
+                                    playersStateEco[s.DeviceName] = false;
+                                }
+                            }
+                        }
+                    }
+                    foreach (string s in list)
+                    {
+                        if (processes.ContainsKey(s) && !playersStateEco[s])
+                        {
+                            sendData(processes[s], "Play", s);
+                            playersStateEco[s] = true;
+                        }
+                    }
+                }
+                if (curIndexEcoConfig == 2)
                 {
                     int window = W32.GetForegroundWindow().ToInt32();
                     //log("play " + ", contains " + !win.Contains(window) + ", diff win " + (anWin != window));
@@ -247,9 +307,28 @@ namespace Wallpapeuhrs
                 }
             };
             t.Start();
+            //
+            /* Disabled
+             * string a = "";
+            foreach(Process p in Process.GetProcesses())
+            {
+                IntPtr curProg = p.MainWindowHandle;
+                if (curProg != IntPtr.Zero)
+                {
+                    a += p.MainWindowTitle + "\n";
+                    if (!programs.Contains(curProg))
+                    {
+                        programs.Add(curProg);
+                    }
+                }
+            }
+            MessageBox.Show(a);*/
             // 
             if (urls.Text != "") beginWP();
         }
+
+        Dictionary<string, bool> playersStateEco = new Dictionary<string, bool>();
+        List<IntPtr> programs = new List<IntPtr>();
 
         /*private void OnPowerChange(object sender, PowerModeChangedEventArgs e)
         {
@@ -375,7 +454,7 @@ namespace Wallpapeuhrs
                 sf.setSetting("Vol", Convert.ToInt32(vol.Text), null);
                 sf.setSetting("Interval", Convert.ToInt32(interval.Text), null);
                 sf.setSetting("Start", (bool)startwithw.IsChecked, null);
-                sf.setSetting("Stop", (bool)stopan.IsChecked, null);
+                sf.setSetting("EcoMode", curIndexEcoConfig, null);
                 sf.setSetting("RestartExplorer", (bool)restartexplo.IsChecked, null);
                 sf.setSetting("Edge_Engine", engine.SelectedIndex, null);
                 sf.setSetting("FullRdm", (bool)fullrdm.IsChecked, null);
@@ -407,7 +486,7 @@ namespace Wallpapeuhrs
             if (!sf.settingExists("Interval")) sf.setSetting("Interval", 60, null);
             if (!sf.settingExists("Start")) sf.setSetting("Start", true, null);
             if (!sf.settingExists("Repeat")) sf.setSetting("Repeat", true, null);
-            if (!sf.settingExists("Stop")) sf.setSetting("Stop", false, null);
+            if (!sf.settingExists("EcoMode")) sf.setSetting("EcoMode", 0, null);
             if (!sf.settingExists("FullRdm")) sf.setSetting("FullRdm", true, null);
             if (!sf.settingExists("RestartExplorer")) sf.setSetting("RestartExplorer", false, null);
             if (!sf.settingExists("Edge_Engine")) sf.setSetting("Edge_Engine", 0, null);
@@ -416,7 +495,15 @@ namespace Wallpapeuhrs
             vol.Text = sf.getStringSetting("Vol");
             interval.Text = sf.getStringSetting("Interval");
             startwithw.IsChecked = sf.getBoolSetting("Start");
-            stopan.IsChecked = sf.getBoolSetting("Stop");
+            if (sf.settingExists("Stop"))
+            {
+                if (sf.getBoolSetting("Stop"))
+                {
+                    sf.setSetting("EcoMode", 2, null);
+                }
+                sf.removeSetting("Stop");
+            }
+            changeEcoConfig(sf.getIntSetting("EcoMode"));
             restartexplo.IsChecked = sf.getBoolSetting("RestartExplorer");
             fullrdm.IsChecked = sf.getBoolSetting("FullRdm");
             engine.SelectedIndex = sf.getIntSetting("Edge_Engine");
@@ -759,7 +846,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                             sendData(PCtcp, "Repeat=" + sf.getBoolSetting("Repeat"), moni);
                             sendData(PCtcp, "Fullrdm=" + sf.getBoolSetting("FullRdm"), moni);
                             if(forceReset) sendData(PCtcp, "ForceReset", moni);
-                            sendData(PCtcp, "Autostop=" + sf.getBoolSetting("Stop"), moni);
+                            sendData(PCtcp, "InitOK", moni);
                             int i = 0;
                             foreach(Grid g in filters.Children)
                             {
@@ -825,8 +912,8 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 }
                 return true;
             }), IntPtr.Zero);
-            if ((bool)stopan.IsChecked && anLength != win.Count) play = true;
-            if (play || !(bool)stopan.IsChecked || anLength == win.Count)
+            if (curIndexEcoConfig == 2 && anLength != win.Count) play = true;
+            if (play || curIndexEcoConfig == 0 || anLength == win.Count)
             {
                 //log("changePlayerState " + play);
                 curPlay = play;
@@ -1145,6 +1232,27 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
             anButton = nButton;
             anBorder = nBorder;
             curIndexConfig = index;
+        }
+
+        NewButtons anButtonEco = null;
+
+        private void change_eco_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = (Button)sender;
+            changeEcoConfig(ecomode.Children.IndexOf(button));
+        }
+
+        int curIndexEcoConfig = -1;
+        private void changeEcoConfig(int index)
+        {
+            NewButtons nButton = (NewButtons)ecomode.Children[index];
+            if (anButtonEco != null)
+            {
+                anButtonEco.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0, 79, 79, 79));
+            }
+            nButton.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 79, 79, 79));
+            anButtonEco = nButton;
+            curIndexEcoConfig = index;
         }
 
         private void refreshScreensConfig()
