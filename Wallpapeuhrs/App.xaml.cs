@@ -46,7 +46,8 @@ namespace Wallpapeuhrs
                     ".jfif",
                     ".png",
                     ".bmp",
-                    ".gif"
+                    ".gif",
+                    ".webp"
                 });
                 //
                 if (nargs.Length == 0 || !nargs[0].Contains("wp"))
