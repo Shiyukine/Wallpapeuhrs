@@ -57,7 +57,9 @@
                     wl.release();
                 }, false);
                 video.addEventListener("timeupdate", () => {
-                    if (modifyScreenshot) screenshot()
+                    if (modifyScreenshot) {
+                        setTimeout(() => screenshot(), 1000)
+                    }
                 })
                 video.crossOrigin = "anonymous"
                 video.src = newUrl
@@ -150,6 +152,7 @@
             catch (e) { }
             modifyScreenshot = false
             var elem = _isVideo ? document.body.firstChild : document.body.firstChild.firstChild
+            var clientBound = getObjectFitSize(false, elem.clientWidth, elem.clientHeight, elem.videoWidth, elem.videoHeight)
             var vwidth = elem.clientWidth
             var vheight = elem.clientHeight
             var cnv = document.createElement("canvas")
@@ -166,7 +169,7 @@
                 if (filters[f] != initialFilters[f]) nFilter += txt + "(" + filters[f] + unit + ") "
             }
             ctx.filter = nFilter
-            ctx.drawImage(elem, 0, 0, vwidth, vheight)
+            ctx.drawImage(elem, clientBound.x, clientBound.y, clientBound.width, clientBound.height)
             var blob = await new Promise(resolve => cnv.toBlob(resolve));
             var ret = []
             var buf = new Uint8Array(await blob.arrayBuffer())
@@ -174,6 +177,29 @@
                 ret.push(b)
             }
             await bo.screenshoted(ret)
+        }
+
+        function getObjectFitSize(contains /* true = contain, false = cover */, containerWidth, containerHeight, width, height) {
+            var doRatio = width / height;
+            var cRatio = containerWidth / containerHeight;
+            var targetWidth = 0;
+            var targetHeight = 0;
+            var test = contains ? (doRatio > cRatio) : (doRatio < cRatio);
+
+            if (test) {
+                targetWidth = containerWidth;
+                targetHeight = targetWidth / doRatio;
+            } else {
+                targetHeight = containerHeight;
+                targetWidth = targetHeight * doRatio;
+            }
+
+            return {
+                width: targetWidth,
+                height: targetHeight,
+                x: (containerWidth - targetWidth) / 2,
+                y: (containerHeight - targetHeight) / 2
+            };
         }
     </script>
     <style>

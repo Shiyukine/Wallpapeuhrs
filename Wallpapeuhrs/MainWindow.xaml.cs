@@ -51,6 +51,7 @@ namespace Wallpapeuhrs
         static bool loaded = false;
         string curNativeWallpaper = "";
         bool settingsLoaded = false;
+        static string userFolder = "";
 
         public MainWindow(bool inbg)
         {
@@ -72,11 +73,14 @@ namespace Wallpapeuhrs
             //SystemEvents.PowerModeChanged += OnPowerChange;
             //
             string newF = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\";
+            userFolder = newF;
             if (!inbg) Show();
             if (!Directory.Exists(newF)) Directory.CreateDirectory(newF);
             sf = new SettingsManager(newF + "Settings.cfg");
             loadSettings();
             settingsLoaded = true;
+            //
+            File.Create(newF + "latest.log").Close();
             //
             string dFonds = newF + "NativeWallpaper\\";
             if (!Directory.Exists(dFonds)) Directory.CreateDirectory(dFonds);
@@ -273,6 +277,7 @@ namespace Wallpapeuhrs
                                 if (processes.ContainsKey(s.DeviceName) && playersStateEco[s.DeviceName])
                                 {
                                     //MessageBox.Show(prog + " " + aa);
+                                    addLog("EcoMode", prog + " " + aa);
                                     sendData(processes[s.DeviceName], "Pause", s.DeviceName);
                                     playersStateEco[s.DeviceName] = false;
                                 }
@@ -1414,6 +1419,16 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                     sf.removeSetting("Screen_" + moni + "_Theme_" + tag);
                 }
             }
+        }
+
+        public static void addLog(string type, string className, string log)
+        {
+            File.AppendAllText(userFolder + "latest.log", "[" + className + "] " + type + " -> " + log + "\n");
+        }
+
+        public static void addLog(string className, string log)
+        {
+            addLog("log", className, log);
         }
 
         /* NE PAS TOUCHER
