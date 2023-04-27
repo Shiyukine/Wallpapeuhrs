@@ -256,7 +256,14 @@ namespace Wallpapeuhrs
                         StringBuilder sb = new StringBuilder(length + 1);
                         W32.GetWindowText(prog, sb, sb.Capacity);
                         string aa = sb.ToString();
-                        if (list.Contains(s.DeviceName) && aa != "WPBG" && aa != "Microsoft Text Input Application" && aa != "Task Switching" && aa != "Window" && aa != "" && !aa.Contains("NVIDIA GeForce Overlay"))
+                        if (list.Contains(s.DeviceName) && 
+                        aa != "WPBG" && 
+                        aa != "Microsoft Text Input Application" && 
+                        aa != "Task Switching" && 
+                        aa != "Window" && 
+                        aa != "" &&
+                        aa != "Windows Default Lock Screen" &&
+                        !aa.Contains("NVIDIA GeForce Overlay"))
                         {
                             W32.RECT rct;
                             W32.GetWindowRect(prog, out rct);
