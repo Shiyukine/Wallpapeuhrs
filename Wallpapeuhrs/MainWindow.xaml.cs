@@ -2,7 +2,6 @@
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using Microsoft.WindowsAPICodePack.Shell;
 using ShiyukiUtils.Settings;
 using System;
 using System.Collections.Generic;

@@ -48,13 +48,11 @@
             //console.log("aa " + volume)
             modifyScreenshot = true
             if (isVideo) {
-                const wl = await navigator.wakeLock.request('screen');
                 var video = document.createElement("video")
                 //loadeddata canplaythrough
                 video.addEventListener("loadeddata", function () {
                     remove()
                     bo.videoLoaded()
-                    wl.release();
                 }, false);
                 video.addEventListener("timeupdate", () => {
                     if (modifyScreenshot) {
@@ -152,7 +150,7 @@
             catch (e) { }
             modifyScreenshot = false
             var elem = _isVideo ? document.body.firstChild : document.body.firstChild.firstChild
-            var clientBound = getObjectFitSize(false, elem.clientWidth, elem.clientHeight, elem.videoWidth, elem.videoHeight)
+            var clientBound = getObjectFitSize(false, elem.clientWidth, elem.clientHeight, _isVideo ? elem.videoWidth : elem.naturalWidth, _isVideo ? elem.videoHeight : elem.naturalHeight);
             var vwidth = elem.clientWidth
             var vheight = elem.clientHeight
             var cnv = document.createElement("canvas")
