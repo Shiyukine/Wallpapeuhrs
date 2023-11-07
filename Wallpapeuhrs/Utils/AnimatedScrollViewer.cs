@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -150,7 +151,12 @@ namespace Wallpapeuhrs.Utils
             storyboard.Children.Add(verticalAnimation);
             Storyboard.SetTarget(verticalAnimation, scrollViewer);
             Storyboard.SetTargetProperty(verticalAnimation, new PropertyPath(ScrollAnimationBehavior.VerticalOffsetProperty));
+            storyboard.Completed += (s, e) =>
+            {
+                isAnimating = false;
+            };
             storyboard.Begin();
+            isAnimating = true;
         }
 
         #endregion
@@ -248,25 +254,33 @@ namespace Wallpapeuhrs.Utils
 
         #region ScrollViewerPreviewMouseWheel Event Handler
 
+        static bool isAnimating = false;
+        static int scrollCounter = 1;
+
         public static void ScrollViewerPreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            double mouseWheelChange = (double)e.Delta;
-            ScrollViewer scroller = (ScrollViewer)sender;
-            double newVOffset = GetVerticalOffset(scroller) - (mouseWheelChange / 3);
-
-            if (newVOffset < 0)
+            if (!isAnimating)
             {
-                AnimateScroll(scroller, 0);
+                double mouseWheelChange = (double)e.Delta;
+                ScrollViewer scroller = (ScrollViewer)sender;
+                int mult = scrollCounter;
+                Debug.WriteLine("" + scrollCounter);
+                double newVOffset = GetVerticalOffset(scroller) - (mouseWheelChange * mult / 3);
+                if (newVOffset < 0)
+                {
+                    AnimateScroll(scroller, 0);
+                }
+                else if (newVOffset > scroller.ScrollableHeight)
+                {
+                    AnimateScroll(scroller, scroller.ScrollableHeight);
+                }
+                else
+                {
+                    AnimateScroll(scroller, newVOffset);
+                }
+                scrollCounter = 1;
             }
-            else if (newVOffset > scroller.ScrollableHeight)
-            {
-                AnimateScroll(scroller, scroller.ScrollableHeight);
-            }
-            else
-            {
-                AnimateScroll(scroller, newVOffset);
-            }
-
+            else scrollCounter++;
             e.Handled = true;
         }
 

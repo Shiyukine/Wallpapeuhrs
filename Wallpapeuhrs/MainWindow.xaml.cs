@@ -131,6 +131,7 @@ namespace Wallpapeuhrs
             //
             foreach (ScrollViewer sv in FindVisualChildren<ScrollViewer>(g_main))
             {
+                ScrollAnimationBehavior.SetTimeDuration(sv, TimeSpan.FromMilliseconds(150));
                 sv.PreviewMouseWheel += ScrollAnimationBehavior.ScrollViewerPreviewMouseWheel;
             }
             //
