@@ -248,7 +248,7 @@ namespace Wallpapeuhrs.Utils
 
         #region ScrollViewerPreviewMouseWheel Event Handler
 
-        private static void ScrollViewerPreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        public static void ScrollViewerPreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             double mouseWheelChange = (double)e.Delta;
             ScrollViewer scroller = (ScrollViewer)sender;

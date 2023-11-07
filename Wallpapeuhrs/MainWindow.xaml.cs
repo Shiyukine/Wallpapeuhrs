@@ -131,37 +131,7 @@ namespace Wallpapeuhrs
             //
             foreach (ScrollViewer sv in FindVisualChildren<ScrollViewer>(g_main))
             {
-                //sv.CanContentScroll = false;
-                int ii = 1;
-                sv.PreviewMouseWheel += (sendere, ee) =>
-                {
-                    if (ii < 10)
-                    {
-                        sv.InvalidateScrollInfo();
-                        ee.Handled = true;
-                        //sv.ScrollToVerticalOffset(sv.VerticalOffset);
-                        ii++;
-                        DoubleAnimation verticalAnimation = new DoubleAnimation();
-
-                        verticalAnimation.From = sv.VerticalOffset;
-                        int delta = ee.Delta / 3;
-                        //if (delta < 0) delta = ee.Delta * (-1);
-                        int offset = delta * ii;
-                        verticalAnimation.To = sv.VerticalOffset - offset;
-                        verticalAnimation.Duration = new Duration(TimeSpan.FromMilliseconds(150));
-
-                        Storyboard storyboard = new Storyboard();
-
-                        storyboard.Children.Add(verticalAnimation);
-                        Storyboard.SetTarget(verticalAnimation, sv);
-                        Storyboard.SetTargetProperty(verticalAnimation, new PropertyPath(ScrollAnimationBehavior.VerticalOffsetProperty));
-                        storyboard.Completed += (ss, eee) =>
-                        {
-                            ii = 1;
-                        };
-                        storyboard.Begin();
-                    }
-                };
+                sv.PreviewMouseWheel += ScrollAnimationBehavior.ScrollViewerPreviewMouseWheel;
             }
             //
             System.Windows.Forms.Timer t = new System.Windows.Forms.Timer();
