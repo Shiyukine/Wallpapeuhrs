@@ -264,7 +264,7 @@ namespace Wallpapeuhrs.Utils
                 double mouseWheelChange = (double)e.Delta;
                 ScrollViewer scroller = (ScrollViewer)sender;
                 int mult = scrollCounter;
-                Debug.WriteLine("" + scrollCounter);
+                //Debug.WriteLine("" + scrollCounter);
                 double newVOffset = GetVerticalOffset(scroller) - (mouseWheelChange * mult / 3);
                 if (newVOffset < 0)
                 {
