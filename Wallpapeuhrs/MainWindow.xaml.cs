@@ -132,32 +132,35 @@ namespace Wallpapeuhrs
             foreach (ScrollViewer sv in FindVisualChildren<ScrollViewer>(g_main))
             {
                 //sv.CanContentScroll = false;
-                int ii = 0;
+                int ii = 1;
                 sv.PreviewMouseWheel += (sendere, ee) =>
                 {
-                    sv.InvalidateScrollInfo();
-                    ee.Handled = true;
-                    sv.ScrollToVerticalOffset(sv.VerticalOffset);
-                    ii++;
-                    DoubleAnimation verticalAnimation = new DoubleAnimation();
-
-                    verticalAnimation.From = sv.VerticalOffset;
-                    int delta = ee.Delta;
-                    //if (delta < 0) delta = ee.Delta * (-1);
-                    int offset = 40 * ee.Delta / 120 * ii;
-                    verticalAnimation.To = sv.VerticalOffset - offset;
-                    verticalAnimation.Duration = new Duration(TimeSpan.FromMilliseconds(150));
-
-                    Storyboard storyboard = new Storyboard();
-
-                    storyboard.Children.Add(verticalAnimation);
-                    Storyboard.SetTarget(verticalAnimation, sv);
-                    Storyboard.SetTargetProperty(verticalAnimation, new PropertyPath(ScrollAnimationBehavior.VerticalOffsetProperty));
-                    storyboard.Completed += (ss, eee) =>
+                    if (ii < 10)
                     {
-                        ii = 0;
-                    };
-                    storyboard.Begin();
+                        sv.InvalidateScrollInfo();
+                        ee.Handled = true;
+                        //sv.ScrollToVerticalOffset(sv.VerticalOffset);
+                        ii++;
+                        DoubleAnimation verticalAnimation = new DoubleAnimation();
+
+                        verticalAnimation.From = sv.VerticalOffset;
+                        int delta = ee.Delta / 3;
+                        //if (delta < 0) delta = ee.Delta * (-1);
+                        int offset = delta * ii;
+                        verticalAnimation.To = sv.VerticalOffset - offset;
+                        verticalAnimation.Duration = new Duration(TimeSpan.FromMilliseconds(150));
+
+                        Storyboard storyboard = new Storyboard();
+
+                        storyboard.Children.Add(verticalAnimation);
+                        Storyboard.SetTarget(verticalAnimation, sv);
+                        Storyboard.SetTargetProperty(verticalAnimation, new PropertyPath(ScrollAnimationBehavior.VerticalOffsetProperty));
+                        storyboard.Completed += (ss, eee) =>
+                        {
+                            ii = 1;
+                        };
+                        storyboard.Begin();
+                    }
                 };
             }
             //
