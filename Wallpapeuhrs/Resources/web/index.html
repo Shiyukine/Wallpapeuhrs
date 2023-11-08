@@ -21,6 +21,7 @@
         var anTimeout;
         var anTimeout2;
         var screenshotData = "";
+        var isMainScreen = false;
 
         function changeFilter(filter, value) {
             /*console.log("dqsdqsdqs")
@@ -44,7 +45,8 @@
             anTimeout = setTimeout(() => screenshot(), 2000)
         }
 
-        function changeUrl(newUrl, isVideo, volume) {
+        function changeUrl(newUrl, isVideo, volume, mainScreen) {
+            isMainScreen = mainScreen;
             //console.log("aaaa " + newUrl)
             //console.log("aaa " + isVideo)
             //console.log("aa " + volume)
@@ -160,33 +162,35 @@
             }
             catch (e) { }
             modifyScreenshot = false
-            var elem = _isVideo ? document.body.firstChild : document.body.firstChild.firstChild
-            var clientBound = getObjectFitSize(false, elem.clientWidth, elem.clientHeight, _isVideo ? elem.videoWidth : elem.naturalWidth, _isVideo ? elem.videoHeight : elem.naturalHeight);
-            var vwidth = elem.clientWidth
-            var vheight = elem.clientHeight
-            var cnv = document.createElement("canvas")
-            cnv.height = vheight
-            cnv.width = vwidth
-            var ctx = cnv.getContext("2d")
-            var nFilter = "";
-            for (var f in filters) {
-                var txt = f
-                var unit = "%"
-                if (txt === "hue-rotate") {
-                    unit = "deg"
+            if (isMainScreen) {
+                var elem = _isVideo ? document.body.firstChild : document.body.firstChild.firstChild
+                var clientBound = getObjectFitSize(false, elem.clientWidth, elem.clientHeight, _isVideo ? elem.videoWidth : elem.naturalWidth, _isVideo ? elem.videoHeight : elem.naturalHeight);
+                var vwidth = elem.clientWidth
+                var vheight = elem.clientHeight
+                var cnv = document.createElement("canvas")
+                cnv.height = vheight
+                cnv.width = vwidth
+                var ctx = cnv.getContext("2d")
+                var nFilter = "";
+                for (var f in filters) {
+                    var txt = f
+                    var unit = "%"
+                    if (txt === "hue-rotate") {
+                        unit = "deg"
+                    }
+                    if (filters[f] != initialFilters[f]) nFilter += txt + "(" + filters[f] + unit + ") "
                 }
-                if (filters[f] != initialFilters[f]) nFilter += txt + "(" + filters[f] + unit + ") "
+                ctx.filter = nFilter
+                ctx.drawImage(elem, clientBound.x, clientBound.y, clientBound.width, clientBound.height)
+                var blob = await new Promise(resolve => cnv.toBlob(resolve));
+                var ret = []
+                var buf = new Uint8Array(await blob.arrayBuffer())
+                for (let b of buf) {
+                    ret.push(b)
+                }
+                screenshotData = ret.join(" ");
+                await bo.screenshoted()
             }
-            ctx.filter = nFilter
-            ctx.drawImage(elem, clientBound.x, clientBound.y, clientBound.width, clientBound.height)
-            var blob = await new Promise(resolve => cnv.toBlob(resolve));
-            var ret = []
-            var buf = new Uint8Array(await blob.arrayBuffer())
-            for (let b of buf) {
-                ret.push(b)
-            }
-            screenshotData = ret.join(" ");
-            await bo.screenshoted()
         }
 
         function getObjectFitSize(contains /* true = contain, false = cover */, containerWidth, containerHeight, width, height) {

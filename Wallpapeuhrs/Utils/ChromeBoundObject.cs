@@ -23,26 +23,40 @@ namespace Wallpapeuhrs.Utils
 
         public void screenshoted()
         {
-            async void a()
+            if (System.Windows.Forms.Screen.PrimaryScreen.DeviceName == parent.moni)
             {
-                try
+                async void a()
                 {
-                    string str = await (parent.med as MediaVW).webview.ExecuteScriptAsync("screenshotData");
-                    str = str.Replace("\"", "");
-                    parent.log("Screenshot");
-                    var data = str.Split(' ').Select(byte.Parse).ToArray();
-                    parent.changeNativeWallpaper(new System.IO.MemoryStream(data));
-                    data = new byte[1];
-                    data = null;
-                    str = "";
-                    str = null;
+                    try
+                    {
+                        string str = await (parent.med as MediaVW).webview.ExecuteScriptAsync("screenshotData");
+                        str = str.Replace("\"", "");
+                        List<byte> data = new List<byte>();
+                        string cur = "";
+                        for (int i = 0; i < str.Length; i++)
+                        {
+                            if (str[i] == ' ')
+                            {
+                                data.Add(byte.Parse(cur));
+                                cur = "";
+                            }
+                            else
+                            {
+                                cur += str[i];
+                            }
+                        }
+                        parent.changeNativeWallpaper(new System.IO.MemoryStream(data.ToArray()));
+                        data = null;
+                        str = null;
+                        GC.Collect();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.ToString());
+                    }
                 }
-                catch(Exception ex)
-                {
-                    MessageBox.Show(ex.ToString());
-                }
+                a();
             }
-            a();
         }
     }
 }

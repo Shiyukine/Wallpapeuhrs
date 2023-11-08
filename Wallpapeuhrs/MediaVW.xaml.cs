@@ -137,6 +137,7 @@ namespace Wallpapeuhrs
         public void changeUrl(string newUrl)
         {
             curUrl = newUrl;
+            string isMainScreen = System.Windows.Forms.Screen.PrimaryScreen.DeviceName == parent.moni ? "true" : "false";
             parent.log("aaaaaaaa " + newUrl + " " + System.IO.Path.GetExtension(newUrl));
             foreach (string ext in App.types.Keys)
             {
@@ -146,11 +147,11 @@ namespace Wallpapeuhrs
                     parent.log("aaaaaaac " + ext);
                     if (ext == "Video files")
                     {
-                        if (coreinit) evaluateJS(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', true, " + volume + ")");
+                        if (coreinit) evaluateJS(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', true, " + volume + ", " + isMainScreen + ")");
                     }
                     if(ext == "Image files")
                     {
-                        if (coreinit) evaluateJS(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', false, " + volume + ")");
+                        if (coreinit) evaluateJS(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', false, " + volume + ", " + isMainScreen + ")");
                     }
                     return;
                 }
