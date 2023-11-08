@@ -183,12 +183,12 @@
                 ctx.filter = nFilter
                 ctx.drawImage(elem, clientBound.x, clientBound.y, clientBound.width, clientBound.height)
                 var blob = await new Promise(resolve => cnv.toBlob(resolve));
-                var ret = []
                 var buf = new Uint8Array(await blob.arrayBuffer())
+                screenshotData = "";
                 for (let b of buf) {
-                    ret.push(b)
+                    screenshotData += b.toString() + " "
                 }
-                screenshotData = ret.join(" ");
+                //screenshotData = ret.join(" ");
                 await bo.screenshoted()
             }
         }
