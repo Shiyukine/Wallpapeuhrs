@@ -19,6 +19,8 @@
         var filters = {}
         var modifyScreenshot = true;
         var anTimeout;
+        var anTimeout2;
+        var screenshotData = "";
 
         function changeFilter(filter, value) {
             /*console.log("dqsdqsdqs")
@@ -42,21 +44,27 @@
             anTimeout = setTimeout(() => screenshot(), 2000)
         }
 
-        async function changeUrl(newUrl, isVideo, volume) {
+        function changeUrl(newUrl, isVideo, volume) {
             //console.log("aaaa " + newUrl)
             //console.log("aaa " + isVideo)
             //console.log("aa " + volume)
+            try {
+                if (anTimeout2) clearTimeout(anTimeout2)
+            }
+            catch (e) { }
             modifyScreenshot = true
             if (isVideo) {
                 var video = document.createElement("video")
                 //loadeddata canplaythrough
-                video.addEventListener("loadeddata", function () {
+                video.addEventListener("loadeddata", async function () {
                     remove()
-                    bo.videoLoaded()
+                    await bo.videoLoaded()
                 }, false);
+                let doSS = true;
                 video.addEventListener("timeupdate", () => {
-                    if (modifyScreenshot) {
-                        setTimeout(() => screenshot(), 1000)
+                    if (modifyScreenshot && doSS) {
+                        anTimeout2 = setTimeout(() => screenshot(), 1000)
+                        doSS = false;
                     }
                 })
                 video.crossOrigin = "anonymous"
@@ -76,7 +84,7 @@
                 img.addEventListener("load", function () {
                     remove()
                     bo.videoLoaded()
-                    screenshot()
+                    anTimeout2 = setTimeout(() => screenshot(), 1000)
                 }, false);
                 img.crossOrigin = "anonymous"
                 img.src = newUrl
@@ -86,7 +94,6 @@
                 document.body.insertBefore(div, document.body.firstChild)
             }
             _isVideo = isVideo
-            return true
         }
 
         function remove() {
@@ -145,6 +152,10 @@
 
         async function screenshot() {
             try {
+                if (anTimeout2) clearTimeout(anTimeout2)
+            }
+            catch (e) { }
+            try {
                 if (anTimeout) clearTimeout(anTimeout)
             }
             catch (e) { }
@@ -174,7 +185,8 @@
             for (let b of buf) {
                 ret.push(b)
             }
-            await bo.screenshoted(ret)
+            screenshotData = ret.join(" ");
+            await bo.screenshoted()
         }
 
         function getObjectFitSize(contains /* true = contain, false = cover */, containerWidth, containerHeight, width, height) {

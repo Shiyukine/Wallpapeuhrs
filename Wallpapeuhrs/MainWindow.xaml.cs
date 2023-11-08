@@ -519,65 +519,7 @@ namespace Wallpapeuhrs
         {
             try
             {
-                //NativeWallpaper.changeWallpaper("");
                 loaded = false;
-                /*if (sf.getIntSetting("Edge_Engine") == 4)
-                {
-                    try
-                    {
-                        Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\X64", false);
-                        if (key == null)
-                        {
-                            start.Visibility = Visibility.Collapsed;
-                            MessageBoxResult mbr = MessageBox.Show(@"Microsoft Visual C++ 2015-2022 Redistributable (x64) is not installed.
-We need this application to show your wallpapers. Do you want to download and install Microsoft Visual C++ 2015-2022 Redistributable (x64)?
-Yes = Download and install
-No = Change the render engine to Edge WebView2 - Auto
-Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCancel, MessageBoxImage.Error);
-                            if (mbr == MessageBoxResult.Yes)
-                            {
-                                WebClient wc = new WebClient();
-                                wc.Encoding = Encoding.UTF8;
-                                wc.DownloadFileCompleted += (sendere, ee) =>
-                                {
-                                    Process p = new Process();
-                                    p.StartInfo = new ProcessStartInfo();
-                                    p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "\\vc_redist.x64.exe";
-                                    p.EnableRaisingEvents = true;
-                                    p.Exited += (s, e) =>
-                                    {
-                                        Debug.WriteLine("fdsdsq " + p.ExitCode);
-                                        Dispatcher.Invoke(() => beginWP());
-                                    };
-                                    //p.StartInfo.Arguments = "/VERYSILENT";
-                                    p.Start();
-                                    //p.StartInfo.UseShellExecute = true;
-                                    //App.Current.Shutdown();
-                                    //Process.GetCurrentProcess().Kill();
-                                };
-                                wc.DownloadFileAsync(new Uri("https://aka.ms/vs/17/release/vc_redist.x64.exe"), AppDomain.CurrentDomain.BaseDirectory + "\\vc_redist.x64.exe");
-                            }
-                            if (mbr == MessageBoxResult.No)
-                            {
-                                loaded = true;
-                                engine.SelectedIndex = 0;
-                            }
-                            if(mbr == MessageBoxResult.Cancel)
-                            {
-                                start.Visibility = Visibility.Visible;
-                            }
-                            return;
-                        }
-                        else
-                        {
-                            start.Visibility = Visibility.Visible;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Unable to check if Microsoft Visual C++ 2015-2022 Redistributable (x64) is installed.\nException :\n" + ex, "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }*/
                 if (sf.getIntSetting("Edge_Engine") <= 3)
                 {
                     try
@@ -641,7 +583,6 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 filters.Visibility = sf.getIntSetting("Edge_Engine") <= 3 ? Visibility.Visible : Visibility.Collapsed;
                 if (urls.Text != "")
                 {
-                    //Dictionary<string, string> monis = W32.getMoniGPU();
                     int startAfter = 0;
                     var pe = new List<string>();
                     Process[] pl = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
@@ -660,15 +601,6 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                     }
                     foreach (System.Windows.Forms.Screen mon in System.Windows.Forms.Screen.AllScreens)
                     {
-                        /*if(monis.ContainsKey(mon.DeviceName))
-                        {
-                            //Computer\HKEY_CURRENT_USER\SOFTWARE\Microsoft\DirectX\UserGpuPreferences
-                            Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\DirectX\\UserGpuPreferences", true);
-                            string str = Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe");
-                            string gpu = monis[mon.DeviceName].Contains("NVIDIA") ? "2" : "1";
-                            key.SetValue(str, "GpuPreference=" + gpu + ";");
-                            //await Task.Delay(1000);
-                        }*/
                         if (!pe.Contains(mon.DeviceName) && !processes.ContainsKey(mon.DeviceName))
                         {
                             if (!monis.ContainsKey(mon.DeviceName)) monis.Add(mon.DeviceName, mon.Bounds);
@@ -785,9 +717,6 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 }
                 else MessageBox.Show("Please put the path of a media or a folder to continue.", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 isAddingNewProcess = false;
-                /*Microsoft.Win32.RegistryKey keyk = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\DirectX\\UserGpuPreferences", true);
-                string strk = Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe");
-                keyk.SetValue(strk, "GpuPreference=0;");*/
             }
             catch (Exception e)
             {

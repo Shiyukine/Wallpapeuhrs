@@ -57,7 +57,7 @@ namespace Wallpapeuhrs
         bool allClients = false;
         bool isEdgeEngine = true;
         DebugWindow dw;
-        UserControl med;
+        public UserControl med;
 
         public WPBG(string moni, int startAfter, int engine)
         {
@@ -309,6 +309,11 @@ namespace Wallpapeuhrs
                     ms.WriteTo(fileStream);
                     fileStream.Close();
                     NativeWallpaper.changeWallpaper(data + "thumb.png");
+                    ms.Close();
+                    msVW.Close();
+                    fileStream.Dispose();
+                    ms.Dispose();
+                    msVW.Dispose();
                 }
             }
             catch (Exception ex)
@@ -350,6 +355,7 @@ namespace Wallpapeuhrs
                     isOk = true;
                     media = curUrl;
                 }
+                log(media);
             }
             catch
             {

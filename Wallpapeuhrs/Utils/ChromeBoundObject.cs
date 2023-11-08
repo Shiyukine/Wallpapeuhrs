@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Windows;
+using Microsoft.Web.WebView2.Core;
 
 namespace Wallpapeuhrs.Utils
 {
@@ -19,14 +21,28 @@ namespace Wallpapeuhrs.Utils
             MainWindow.sendData(parent.tcp, "VIDREADY " + parent.moni + " ", null);
         }
 
-        public void screenshoted(object[] ret)
+        public void screenshoted()
         {
-            byte[] data = new byte[ret.Length];
-            for(int i = 0; i < ret.Length; i++)
+            async void a()
             {
-                data[i] = Convert.ToByte(ret[i]);
+                try
+                {
+                    string str = await (parent.med as MediaVW).webview.ExecuteScriptAsync("screenshotData");
+                    str = str.Replace("\"", "");
+                    parent.log("Screenshot");
+                    var data = str.Split(' ').Select(byte.Parse).ToArray();
+                    parent.changeNativeWallpaper(new System.IO.MemoryStream(data));
+                    data = new byte[1];
+                    data = null;
+                    str = "";
+                    str = null;
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
             }
-            parent.changeNativeWallpaper(new System.IO.MemoryStream(data));
+            a();
         }
     }
 }

@@ -92,7 +92,7 @@ namespace Wallpapeuhrs
                 try
                 {
                     //wait for EnsureCoreWebView2Async works multiple time
-                    await Task.Delay(parent.startAfter * 100);
+                    await Task.Delay(parent.startAfter * 200);
                     await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(options: opt, userDataFolder: data));
                 }
                 catch (Exception ex)
@@ -134,7 +134,7 @@ namespace Wallpapeuhrs
 
         string curUrl = "";
 
-        public async void changeUrl(string newUrl)
+        public void changeUrl(string newUrl)
         {
             curUrl = newUrl;
             parent.log("aaaaaaaa " + newUrl + " " + System.IO.Path.GetExtension(newUrl));
@@ -146,15 +146,20 @@ namespace Wallpapeuhrs
                     parent.log("aaaaaaac " + ext);
                     if (ext == "Video files")
                     {
-                        if (coreinit) await webview.ExecuteScriptAsync(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', true, " + volume + ")");
+                        if (coreinit) evaluateJS(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', true, " + volume + ")");
                     }
                     if(ext == "Image files")
                     {
-                        if (coreinit) await webview.ExecuteScriptAsync(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', false, " + volume + ")");
+                        if (coreinit) evaluateJS(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', false, " + volume + ")");
                     }
                     return;
                 }
             }
+        }
+
+        private async void evaluateJS(string js)
+        {
+            await webview.ExecuteScriptAsync(js);
         }
 
         public async void changePlayerState(bool play)
