@@ -65,7 +65,13 @@ namespace Wallpapeuhrs
             this.startAfter = startAfter;
             this.isEdgeEngine = engine <= 3;
             //
-            if(isEdgeEngine)
+            if (isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni))
+            {
+                dw = new DebugWindow(moni);
+                dw.Show();
+            }
+            //
+            if (isEdgeEngine)
             {
                 med = new MediaVW(this, engine);
             }
@@ -76,13 +82,6 @@ namespace Wallpapeuhrs
             InitializeComponent();
             AddChild(med);
             WindowStartupLocation = WindowStartupLocation.Manual;
-            //
-            if (isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni))
-            {
-                dw = new DebugWindow(moni);
-                dw.Show();
-            }
-            //
             timer.Tick += Timer_Tick;
             timer.Interval = 1000;
             //

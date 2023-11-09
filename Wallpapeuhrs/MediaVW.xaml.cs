@@ -34,25 +34,28 @@ namespace Wallpapeuhrs
             InitializeComponent();
             webview.CoreWebView2InitializationCompleted += (s, e) =>
             {
-                coreinit = true;
-                var assembly = Assembly.GetExecutingAssembly();
-                var resourceName = "Wallpapeuhrs.Resources.web.index.html";
-
-                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-                using (StreamReader reader = new StreamReader(stream))
+                if (!coreinit)
                 {
-                    //if (System.Windows.Forms.Screen.PrimaryScreen.DeviceName == parent.moni) webview.CoreWebView2.OpenDevToolsWindow();
-                    string result = reader.ReadToEnd();
-                    webview.NavigationCompleted += async (s, e) =>
+                    coreinit = true;
+                    var assembly = Assembly.GetExecutingAssembly();
+                    var resourceName = "Wallpapeuhrs.Resources.web.index.html";
+
+                    using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+                    using (StreamReader reader = new StreamReader(stream))
                     {
-                        webview.CoreWebView2.AddHostObjectToScript("boundobject", new ChromeBoundObject(parent));
-                        await webview.CoreWebView2.ExecuteScriptAsync("document.write(`" + result + "`)");
-                        MainWindow.sendData(parent.tcp, "READY " + parent.moni + " ", null);
-                        webview.Visibility = Visibility.Visible;
-                        //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
-                        setDWM(new WindowInteropHelper(parent).Handle);
-                    };
-                    webview.Source = new Uri("file:///C:/");
+                        //if (System.Windows.Forms.Screen.PrimaryScreen.DeviceName == parent.moni) webview.CoreWebView2.OpenDevToolsWindow();
+                        string result = reader.ReadToEnd();
+                        webview.NavigationCompleted += async (s, e) =>
+                        {
+                            webview.CoreWebView2.AddHostObjectToScript("boundobject", new ChromeBoundObject(parent));
+                            await webview.CoreWebView2.ExecuteScriptAsync("document.write(`" + result + "`)");
+                            MainWindow.sendData(parent.tcp, "READY " + parent.moni + " ", null);
+                            webview.Visibility = Visibility.Visible;
+                            //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
+                            setDWM(new WindowInteropHelper(parent).Handle);
+                        };
+                        webview.Source = new Uri("file:///C:/");
+                    }
                 }
             };
             async void a()
@@ -89,16 +92,26 @@ namespace Wallpapeuhrs
                     "--disable-accelerated-2d-canvas " +
                     "--flag-switches-end";*/
                 string data = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\WebView2\\";
-                try
+                for(int i = 0; i < 5; i++)
                 {
-                    //wait for EnsureCoreWebView2Async works multiple time
-                    await Task.Delay(parent.startAfter * 200);
-                    await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(options: opt, userDataFolder: data));
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error\n" + ex);
-                    parent.Close();
+                    //MessageBox.Show("a");
+                    parent.log("attempt " + i + " " + (i == 4));
+                    try
+                    {
+                        await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(options: opt, userDataFolder: data));
+                        //break loop because it's working
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        //wait for EnsureCoreWebView2Async works multiple time
+                        await Task.Delay(parent.startAfter * 200);
+                        if (i == 4)
+                        {
+                            MessageBox.Show("Error when launching Edge WebView2 after 5 times\n" + ex);
+                            parent.Close();
+                        }
+                    }
                 }
             }
             a();
