@@ -51,8 +51,8 @@
                                     <styles:FlatCheckBox x:Name="startwithw" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="344,1,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
                                 </Grid>
                                 <Grid Margin="15,5">
-                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Eco mode"/><Run Text="&#xD;Eco stops the animations of a screen when an application is in full screen mode on&#xD;that screen" FontSize="12"/><Run Text="&#xD;Eco+ stops animation when you're not on the Desktop" FontSize="12"/></TextBlock>
-                                    <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,70,0,0" Background="#FF353535" CornerRadius="19,19,19,19" Padding="0,3,0,3">
+                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Eco mode"/><Run Text="&#xD;Eco stops animations of a screen when an application is in full screen mode on&#xD;that screen" FontSize="12"/><Run Text="&#xD;Eco+ stops animations when you're not on the Desktop even if an application is not in&#xD;full screen mode" FontSize="12"/></TextBlock>
+                                    <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,85,0,0" Background="#FF353535" CornerRadius="19,19,19,19" Padding="0,3,0,3">
                                         <Border.Resources>
                                             <utils:BorderClipConverter x:Key="BorderClipConverter" />
                                         </Border.Resources>
