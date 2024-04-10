@@ -105,7 +105,8 @@ namespace Wallpapeuhrs
                     catch (Exception ex)
                     {
                         //wait for EnsureCoreWebView2Async works multiple time
-                        await Task.Delay(parent.startAfter * 200);
+                        //update v1.2.16 (10/04/2024): + 1 is mandatory
+                        await Task.Delay((parent.startAfter + 1) * 200);
                         if (i == 4)
                         {
                             MessageBox.Show("Error when launching Edge WebView2 after 5 times\n" + ex);
