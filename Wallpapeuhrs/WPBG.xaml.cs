@@ -306,13 +306,18 @@ namespace Wallpapeuhrs
                     Directory.CreateDirectory(data);
                     var fileStream = File.Create(data + "thumb.png");
                     ms.WriteTo(fileStream);
+                    if (msVW != null) msVW.Close();
                     fileStream.Close();
-                    NativeWallpaper.changeWallpaper(data + "thumb.png");
                     ms.Close();
-                    msVW.Close();
+                    if (msVW != null) msVW.Dispose();
                     fileStream.Dispose();
                     ms.Dispose();
-                    msVW.Dispose();
+                    fileStream = null;
+                    ms = null;
+                    msVW = null;
+                    NativeWallpaper.changeWallpaper(data + "thumb.png");
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
                 }
             }
             catch (Exception ex)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -15,6 +16,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Windows.Graphics.Imaging;
@@ -47,9 +49,17 @@ namespace Wallpapeuhrs
             InitializeComponent();
             myHostControl.ChildChanged += (sender, e) =>
             {
-                main = myHostControl.GetUwpInternalObject() as Windows.UI.Xaml.Controls.Grid;
-                SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
-                setDWM(new WindowInteropHelper(parent).Handle);
+                try
+                {
+                    main = myHostControl.GetUwpInternalObject() as Windows.UI.Xaml.Controls.Grid;
+                    SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
+                    setDWM(new WindowInteropHelper(parent).Handle);
+                }
+                catch(Exception ex)
+                {
+                    parent.log("Error. Quit immediatly\n" + ex);
+                    parent.Close();
+                }
             };
             SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
             setDWM(myHostControl.Handle);
@@ -100,6 +110,8 @@ namespace Wallpapeuhrs
                     value.MediaPlayer.Volume = v / 100;
                     main.Children.Insert(0, value);
                     value.Stretch = Windows.UI.Xaml.Media.Stretch.UniformToFill;
+                    value.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Center;
+                    value.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Center;
                     value.MediaPlayer.MediaOpened += async (sender, eee) =>
                     {
                         remove(value);
@@ -177,11 +189,11 @@ namespace Wallpapeuhrs
                     if(ext == "Image files")
                     {
                         Windows.UI.Xaml.Controls.Image me = new Windows.UI.Xaml.Controls.Image();
-                        me.Stretch = Stretch.UniformToFill;
-                        me.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Center;
-                        me.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Center;
                         me.CacheMode = setCache(newUrl);
                         Windows.UI.Xaml.Media.Imaging.BitmapImage img = new Windows.UI.Xaml.Media.Imaging.BitmapImage();
+                        me.Stretch = Stretch.UniformToFill;
+                        me.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Center;
+                        me.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Center;
                         img.ImageOpened += async (sender, e) =>
                         {
                             remove(null);
@@ -335,29 +347,14 @@ namespace Wallpapeuhrs
 
         public async Task<MemoryStream> screenshot()
         {
+            await Task.Delay(1000);
+            parent.log("screenshot");
             Windows.UI.Xaml.Media.Imaging.RenderTargetBitmap renderTargetBitmap =
     new Windows.UI.Xaml.Media.Imaging.RenderTargetBitmap();
-            foreach (string ext in App.types.Keys)
-            {
-                if (App.types[ext].Contains(System.IO.Path.GetExtension(curUrl)))
-                {
-                    if (ext == "Video files")
-                    {
-                        if (curMedia != null)
-                        {
-                            await renderTargetBitmap.RenderAsync(curMedia);
-                        }
-                    }
-                    if (ext == "Image files")
-                    {
-                        Windows.UI.Xaml.Controls.Image med = (Windows.UI.Xaml.Controls.Image)main.Children[0];
-                        await renderTargetBitmap.RenderAsync(med);
-                    }
-                }
-            }
+            await renderTargetBitmap.RenderAsync(main);
             IBuffer buf = await renderTargetBitmap.GetPixelsAsync();
             var encoded = new InMemoryRandomAccessStream();
-            var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, encoded);
+            var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(Windows.Graphics.Imaging.BitmapEncoder.PngEncoderId, encoded);
             byte[] bytes = buf.ToArray();
             encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore,
                 (uint)renderTargetBitmap.PixelWidth, (uint)renderTargetBitmap.PixelHeight, 96, 96, bytes);
@@ -365,6 +362,13 @@ namespace Wallpapeuhrs
             encoded.Seek(0);
             var by = new byte[encoded.Size];
             await encoded.AsStream().ReadAsync(by, 0, by.Length);
+            encoded.Dispose();
+            encoded = null;
+            renderTargetBitmap = null;
+            buf = null;
+            bytes = null;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
             return new MemoryStream(by);
         }
     }

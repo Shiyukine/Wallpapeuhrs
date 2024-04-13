@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
+using Windows.UI.Xaml.Controls;
 
 namespace Wallpapeuhrs.Utils
 {
@@ -30,10 +31,9 @@ namespace Wallpapeuhrs.Utils
                     try
                     {
                         string str = await (parent.med as MediaVW).webview.ExecuteScriptAsync("screenshotData");
-                        str = str.Replace("\"", "");
                         List<byte> data = new List<byte>();
                         string cur = "";
-                        for (int i = 0; i < str.Length; i++)
+                        for (int i = 1; i < str.Length - 1; i++)
                         {
                             if (str[i] == ' ')
                             {
@@ -45,10 +45,18 @@ namespace Wallpapeuhrs.Utils
                                 cur += str[i];
                             }
                         }
-                        parent.changeNativeWallpaper(new System.IO.MemoryStream(data.ToArray()));
+                        var ms = new System.IO.MemoryStream(data.ToArray());
+                        parent.changeNativeWallpaper(ms);
+                        ms.Close();
+                        ms.Dispose();
+                        data.Clear();
+                        ms = null;
                         data = null;
                         str = null;
+                        await (parent.med as MediaVW).webview.ExecuteScriptAsync("screenshotData = undefined");
+                        (parent.med as MediaVW).webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Low;
                         GC.Collect();
+                        GC.WaitForPendingFinalizers();
                     }
                     catch (Exception ex)
                     {

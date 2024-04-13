@@ -471,7 +471,7 @@ namespace Wallpapeuhrs
             if (!sf.settingExists("Interval")) sf.setSetting("Interval", 60, null);
             if (!sf.settingExists("Start")) sf.setSetting("Start", true, null);
             if (!sf.settingExists("Repeat")) sf.setSetting("Repeat", true, null);
-            if (!sf.settingExists("EcoMode")) sf.setSetting("EcoMode", 0, null);
+            if (!sf.settingExists("EcoMode")) sf.setSetting("EcoMode", 1, null);
             if (!sf.settingExists("FullRdm")) sf.setSetting("FullRdm", true, null);
             if (!sf.settingExists("RestartExplorer")) sf.setSetting("RestartExplorer", false, null);
             if (!sf.settingExists("Edge_Engine")) sf.setSetting("Edge_Engine", 0, null);

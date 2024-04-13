@@ -22,6 +22,7 @@
         var anTimeout2;
         var screenshotData = "";
         var isMainScreen = false;
+        var controllerSignal = null;
 
         function changeFilter(filter, value) {
             /*console.log("dqsdqsdqs")
@@ -29,10 +30,10 @@
             console.log(value)*/
             if (filter != "") {
                 filters[filter] = value
-                var nFilter = "";
-                for (var f in filters) {
-                    var txt = f
-                    var unit = "%"
+                let nFilter = "";
+                for (let f in filters) {
+                    let txt = f
+                    let unit = "%"
                     if (txt === "hue-rotate") {
                         unit = "deg"
                     }
@@ -46,6 +47,7 @@
         }
 
         function changeUrl(newUrl, isVideo, volume, mainScreen) {
+            controllerSignal = new AbortController();
             isMainScreen = mainScreen;
             //console.log("aaaa " + newUrl)
             //console.log("aaa " + isVideo)
@@ -56,7 +58,7 @@
             catch (e) { }
             modifyScreenshot = true
             if (isVideo) {
-                var video = document.createElement("video")
+                let video = document.createElement("video")
                 //loadeddata canplaythrough
                 video.addEventListener("loadeddata", async function () {
                     remove()
@@ -68,7 +70,7 @@
                         anTimeout2 = setTimeout(() => screenshot(), 1000)
                         doSS = false;
                     }
-                })
+                }, { signal: controllerSignal.signal })
                 video.crossOrigin = "anonymous"
                 video.src = newUrl
                 video.volume = volume / 100
@@ -80,9 +82,9 @@
                 document.body.insertBefore(video, document.body.firstChild)
             }
             else {
-                var div = document.createElement("div")
-                var img = document.createElement("img")
-                var cnv = document.createElement("canvas")
+                let div = document.createElement("div")
+                let img = document.createElement("img")
+                let cnv = document.createElement("canvas")
                 img.addEventListener("load", function () {
                     remove()
                     bo.videoLoaded()
@@ -99,7 +101,7 @@
         }
 
         function remove() {
-            for (var index in document.body.children) {
+            for (let index in document.body.children) {
                 let el = document.body.children[index]
                 if (index > 0 && !el.style.opacity) {
                     el.ontransitionend = () => {
@@ -117,17 +119,17 @@
                     else document.body.firstChild.pause()
                 }
                 else {
-                    var img = document.body.firstChild.firstChild
-                    var cnv = document.body.firstChild.lastChild
+                    let img = document.body.firstChild.firstChild
+                    let cnv = document.body.firstChild.lastChild
                     if (!play) {
                         let i = img
-                        var ctx = cnv.getContext('2d')
+                        let ctx = cnv.getContext('2d')
                         cnv.height = i.naturalHeight
                         cnv.width = i.naturalWidth
-                        /*var nFilter = "";
-                        for (var f in filters) {
-                            var txt = f
-                            var unit = "%"
+                        /*let nFilter = "";
+                        for (let f in filters) {
+                            let txt = f
+                            let unit = "%"
                             if (txt === "hue-rotate") {
                                 unit = "deg"
                             }
@@ -152,7 +154,8 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        async function screenshot() {
+        function screenshot() {
+            //console.log("screenshot");
             try {
                 if (anTimeout2) clearTimeout(anTimeout2)
             }
@@ -162,19 +165,20 @@
             }
             catch (e) { }
             modifyScreenshot = false
+            controllerSignal.abort()
             if (isMainScreen) {
-                var elem = _isVideo ? document.body.firstChild : document.body.firstChild.firstChild
-                var clientBound = getObjectFitSize(false, elem.clientWidth, elem.clientHeight, _isVideo ? elem.videoWidth : elem.naturalWidth, _isVideo ? elem.videoHeight : elem.naturalHeight);
-                var vwidth = elem.clientWidth
-                var vheight = elem.clientHeight
-                var cnv = document.createElement("canvas")
+                let elem = _isVideo ? document.body.firstChild : document.body.firstChild.firstChild
+                let clientBound = getObjectFitSize(false, elem.clientWidth, elem.clientHeight, _isVideo ? elem.videoWidth : elem.naturalWidth, _isVideo ? elem.videoHeight : elem.naturalHeight);
+                let vwidth = elem.clientWidth
+                let vheight = elem.clientHeight
+                let cnv = document.createElement("canvas")
                 cnv.height = vheight
                 cnv.width = vwidth
-                var ctx = cnv.getContext("2d")
-                var nFilter = "";
-                for (var f in filters) {
-                    var txt = f
-                    var unit = "%"
+                let ctx = cnv.getContext("2d")
+                let nFilter = "";
+                for (let f in filters) {
+                    let txt = f
+                    let unit = "%"
                     if (txt === "hue-rotate") {
                         unit = "deg"
                     }
@@ -182,23 +186,26 @@
                 }
                 ctx.filter = nFilter
                 ctx.drawImage(elem, clientBound.x, clientBound.y, clientBound.width, clientBound.height)
-                var blob = await new Promise(resolve => cnv.toBlob(resolve));
-                var buf = new Uint8Array(await blob.arrayBuffer())
-                screenshotData = "";
-                for (let b of buf) {
-                    screenshotData += b.toString() + " "
-                }
-                //screenshotData = ret.join(" ");
-                await bo.screenshoted()
+                cnv.toBlob((blob) => {
+                    blob.arrayBuffer().then(async (arrayBuffer) => {
+                        let buf = new Uint8Array(arrayBuffer)
+                        screenshotData = "";
+                        for (let b of buf) {
+                            screenshotData += b.toString() + " "
+                        }
+                        await bo.screenshoted()
+                        buf = undefined;
+                    })
+                })
             }
         }
 
         function getObjectFitSize(contains /* true = contain, false = cover */, containerWidth, containerHeight, width, height) {
-            var doRatio = width / height;
-            var cRatio = containerWidth / containerHeight;
-            var targetWidth = 0;
-            var targetHeight = 0;
-            var test = contains ? (doRatio > cRatio) : (doRatio < cRatio);
+            let doRatio = width / height;
+            let cRatio = containerWidth / containerHeight;
+            let targetWidth = 0;
+            let targetHeight = 0;
+            let test = contains ? (doRatio > cRatio) : (doRatio < cRatio);
 
             if (test) {
                 targetWidth = containerWidth;
@@ -243,7 +250,7 @@
 </head>
 
 <body>
-    <!--<p>dfsghjfdsugjfsdfjhgdfshjkgfdshijufdsqikhgfdsqihkg</p>-->
+
 </body>
 
 </html>

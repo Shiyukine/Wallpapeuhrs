@@ -116,20 +116,6 @@ namespace Wallpapeuhrs
                 }
             }
             a();
-            //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
-            //  setDWM(myHostControl.Handle);
-            /*main = new Windows.UI.Xaml.Controls.Grid();
-            main.CanBeScrollAnchor = false;
-            main.ReleasePointerCaptures();
-            main.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Stretch;
-            main.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Stretch;
-            main.IsHitTestVisible = false;
-            main.AllowFocusOnInteraction = false;
-            IsHitTestVisible = false;
-            main.AllowFocusWhenDisabled = false;
-            main.IsTapEnabled = main.IsRightTapEnabled = main.IsDoubleTapEnabled = main.IsHoldingEnabled = false;
-            myHostControl.Child = main;
-            main.ManipulationMode = Windows.UI.Xaml.Input.ManipulationModes.None;*/
         }
 
         private void setDWM(IntPtr handle)
@@ -150,22 +136,23 @@ namespace Wallpapeuhrs
 
         public void changeUrl(string newUrl)
         {
+            webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
             curUrl = newUrl;
             string isMainScreen = System.Windows.Forms.Screen.PrimaryScreen.DeviceName == parent.moni ? "true" : "false";
-            parent.log("aaaaaaaa " + newUrl + " " + System.IO.Path.GetExtension(newUrl));
+            parent.log(newUrl + " " + System.IO.Path.GetExtension(newUrl));
             foreach (string ext in App.types.Keys)
             {
-                parent.log("aaaaaaab " + ext);
                 if (App.types[ext].Contains(System.IO.Path.GetExtension(newUrl)))
                 {
-                    parent.log("aaaaaaac " + ext);
                     if (ext == "Video files")
                     {
                         if (coreinit) evaluateJS(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', true, " + volume + ", " + isMainScreen + ")");
+                        webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Low;
                     }
                     if(ext == "Image files")
                     {
                         if (coreinit) evaluateJS(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', false, " + volume + ", " + isMainScreen + ")");
+                        webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Low;
                     }
                     return;
                 }
@@ -179,8 +166,28 @@ namespace Wallpapeuhrs
 
         public async void changePlayerState(bool play)
         {
-            string np = play ? "true" : "false";
-            if (coreinit) await webview.ExecuteScriptAsync(@"changePlayerState(" + np + ")");
+            try
+            {
+                string np = play ? "true" : "false";
+                if (coreinit)
+                {
+                    webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
+                    await webview.ExecuteScriptAsync(@"changePlayerState(" + np + ")");
+                    /*if (!play)
+                    {
+                        webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Low;
+                    }
+                    else
+                    {
+                        webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
+                    }*/
+                    webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Low;
+                }
+            }
+            catch(Exception e)
+            {
+                parent.log(e + "");
+            }
         }
 
         public async void changeFilter(string filter, double value)

@@ -35,7 +35,7 @@ namespace Wallpapeuhrs
                 if (!pageCache.ContainsKey(url))
                 {
                     string script = await httpClient.GetStringAsync(url);
-                    try { pageCache.Add(url, script); } catch { }
+                    if(!pageCache.ContainsKey(url)) pageCache.Add(url, script);
                     return script;
                 }
                 else return pageCache[url];
