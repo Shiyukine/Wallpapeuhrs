@@ -13,6 +13,7 @@ using System.Management;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,6 +33,7 @@ using Wallpapeuhrs.Styles;
 using Wallpapeuhrs.Utils;
 using Windows.ApplicationModel;
 using Windows.Management.Deployment;
+using Windows.Storage.Streams;
 
 namespace Wallpapeuhrs
 {
@@ -253,13 +255,20 @@ namespace Wallpapeuhrs
                             //
                             if (b1 || b2)
                             {
-                                list.Remove(s.DeviceName);
-                                if (processes.ContainsKey(s.DeviceName) && playersStateEco[s.DeviceName])
+                                uint pid = 0;
+                                var ab = W32.GetWindowThreadProcessId(prog, out pid);
+                                var procFullPath = GetProcessFullPath((int)pid);
+                                if (procFullPath != @"C:\WINDOWS\SystemApps\Microsoft.LockApp_cw5n1h2txyewy\LockApp.exe")
                                 {
-                                    //MessageBox.Show(prog + " " + aa);
-                                    addLog("EcoMode", prog + " " + aa);
-                                    sendData(processes[s.DeviceName], "Pause", s.DeviceName);
-                                    playersStateEco[s.DeviceName] = false;
+                                    list.Remove(s.DeviceName);
+                                    if (processes.ContainsKey(s.DeviceName) && playersStateEco[s.DeviceName])
+                                    {
+                                        //MessageBox.Show(prog + " " + aa);
+                                        Debug.WriteLine(System.Environment.TickCount + " - EcoMode -> " + prog + " " + aa + " " + procFullPath);
+                                        addLog("EcoMode", prog + " " + aa);
+                                        sendData(processes[s.DeviceName], "Pause", s.DeviceName);
+                                        playersStateEco[s.DeviceName] = false;
+                                    }
                                 }
                             }
                         }
@@ -324,6 +333,27 @@ namespace Wallpapeuhrs
             MessageBox.Show(a);*/
             // 
             if (urls.Text != "") beginWP();
+
+            SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
+        }
+
+        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            Debug.WriteLine(System.Environment.TickCount + " - SessionSwitch -> " + e.Reason.ToString() + " " + e.Reason.ToString());
+            if (e.Reason == SessionSwitchReason.SessionLock)
+            {
+                foreach (string moni in processes.Keys)
+                {
+                    sendData(processes[moni], "Pause", moni);
+                }
+            }
+            if(e.Reason == SessionSwitchReason.SessionUnlock)
+            {
+                foreach (string moni in processes.Keys)
+                {
+                    sendData(processes[moni], "Play", moni);
+                }
+            }
         }
 
         Dictionary<string, bool> playersStateEco = new Dictionary<string, bool>();
@@ -748,6 +778,22 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 using (ManagementObjectCollection objects = searcher.Get())
                 {
                     return objects.Cast<ManagementBaseObject>().SingleOrDefault()?["CommandLine"]?.ToString();
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private string GetProcessFullPath(int processId)
+        {
+            try
+            {
+                using (ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT ExecutablePath FROM Win32_Process WHERE ProcessId = " + processId))
+                using (ManagementObjectCollection objects = searcher.Get())
+                {
+                    return objects.Cast<ManagementBaseObject>().SingleOrDefault()?["ExecutablePath"]?.ToString();
                 }
             }
             catch
