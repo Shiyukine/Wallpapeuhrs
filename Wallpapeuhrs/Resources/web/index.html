@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WPBG</title>
+    <title>Wallpapeuhrs</title>
     <script>
         var _isVideo = false;
         const bo = chrome.webview.hostObjects.boundobject;
@@ -57,6 +57,12 @@
             }
             catch (e) { }
             modifyScreenshot = true
+            try {
+                changePlayerState(false);
+            }
+            catch (e) {
+                console.warn(e)
+            }
             if (isVideo) {
                 let video = document.createElement("video")
                 //loadeddata canplaythrough

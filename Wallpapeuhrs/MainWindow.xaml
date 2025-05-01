@@ -26,11 +26,11 @@
                     <Grid Margin="15,15,15,15">
                         <TextBlock Foreground="Gainsboro" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5,0,0">Path</TextBlock>
                         <Border Margin="48,0,0,0" VerticalAlignment="Top" Background="#FF3C3C3C" CornerRadius="15,15,15,15" Height="30">
-                            <TextBox x:Name="urls" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" Text="" VerticalContentAlignment="Center" Margin="10,0"></TextBox>
+                            <TextBox x:Name="urls" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" Text="" VerticalContentAlignment="Center" Margin="10,0" TextChanged="urls_TextChanged"></TextBox>
                         </Border>
                         <Border Background="#FF3A3A3A" Margin="0,74,0,0" CornerRadius="15">
                             <StackPanel Margin="0,5">
-                                <Grid Margin="15,5">
+                                <Grid Margin="15,5" x:Name="opt_interval">
                                     <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">Interval (in seconds)</TextBlock>
                                     <Border Margin="167,0,0,0" VerticalAlignment="Center" Width="64" HorizontalAlignment="Left" Background="#FF474747" BorderThickness="0" CornerRadius="12">
                                         <TextBox x:Name="interval" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" HorizontalContentAlignment="Center" CaretBrush="White" BorderThickness="0" Margin="0,2"/>
@@ -42,7 +42,7 @@
                                         <TextBox x:Name="vol" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" HorizontalContentAlignment="Center" Margin="0,2"/>
                                     </Border>
                                 </Grid>
-                                <Grid Margin="15,5">
+                                <Grid Margin="15,5" x:Name="opt_fullrdm">
                                     <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Randomize slideshow"/></TextBlock>
                                     <styles:FlatCheckBox x:Name="fullrdm" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="176,0,0,0" CheckMarkColor="White" Foreground="White" Background="#FF474747"/>
                                 </Grid>

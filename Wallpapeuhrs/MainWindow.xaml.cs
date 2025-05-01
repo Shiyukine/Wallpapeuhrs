@@ -292,9 +292,23 @@ namespace Wallpapeuhrs
                 }
             };
             t.Start();
+            System.Windows.Forms.Timer t2 = new System.Windows.Forms.Timer();
+            t2.Interval = 2 * 60 * 60 * 1000;
+            t2.Tick += async (sender, e) =>
+            {
+                await Update.searchUpdatesSilent();
+                if (Update.haveUpdate)
+                {
+                    vname.BackgroundHover = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFFFF500"));
+                    vname.Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFE0D700"));
+                    vname.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 0));
+                    vname.ToolTip = "Update available - Click to install";
+                }
+            };
+            t2.Start();
             //
             /* Disabled
-             * string a = "";
+                * string a = "";
             foreach(Process p in Process.GetProcesses())
             {
                 IntPtr curProg = p.MainWindowHandle;
@@ -439,7 +453,7 @@ namespace Wallpapeuhrs
                 sf.setSetting("Vol", Convert.ToInt32(vol.Text), null);
                 sf.setSetting("Interval", Convert.ToInt32(interval.Text), null);
                 sf.setSetting("Start", (bool)startwithw.IsChecked, null);
-                sf.setSetting("EcoMode", curIndexEcoConfig, null);
+                sf.setSetting("EcoMode", selectedIndexEcoConfig, null);
                 sf.setSetting("RestartExplorer", (bool)restartexplo.IsChecked, null);
                 sf.setSetting("Edge_Engine", engine.SelectedIndex, null);
                 sf.setSetting("FullRdm", (bool)fullrdm.IsChecked, null);
@@ -457,6 +471,7 @@ namespace Wallpapeuhrs
                 }
                 restart_dwm.Visibility = sf.getBoolSetting("RestartExplorer") ? Visibility.Visible : Visibility.Collapsed;
                 filters.Visibility = sf.getIntSetting("Edge_Engine") <= 3 ? Visibility.Visible : Visibility.Collapsed;
+                curIndexEcoConfig = selectedIndexEcoConfig;
             }
             catch 
             {
@@ -489,6 +504,7 @@ namespace Wallpapeuhrs
                 sf.removeSetting("Stop");
             }
             changeEcoConfig(sf.getIntSetting("EcoMode"));
+            curIndexEcoConfig = selectedIndexEcoConfig;
             restartexplo.IsChecked = sf.getBoolSetting("RestartExplorer");
             fullrdm.IsChecked = sf.getBoolSetting("FullRdm");
             engine.SelectedIndex = sf.getIntSetting("Edge_Engine");
@@ -1160,6 +1176,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
         }
 
         int curIndexEcoConfig = -1;
+        int selectedIndexEcoConfig = -1;
         private void changeEcoConfig(int index)
         {
             NewButtons nButton = (NewButtons)ecomode.Children[index];
@@ -1169,7 +1186,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
             }
             nButton.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 79, 79, 79));
             anButtonEco = nButton;
-            curIndexEcoConfig = index;
+            selectedIndexEcoConfig = index;
         }
 
         private void refreshScreensConfig()
@@ -1341,6 +1358,12 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
         public static void addLog(string className, string log)
         {
             addLog("log", className, log);
+        }
+
+        private void urls_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            opt_interval.Visibility = File.Exists(urls.Text) ? Visibility.Collapsed : Visibility.Visible;
+            opt_fullrdm.Visibility = File.Exists(urls.Text) ? Visibility.Collapsed : Visibility.Visible;
         }
 
         /* NE PAS TOUCHER

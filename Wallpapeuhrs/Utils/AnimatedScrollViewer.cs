@@ -1,20 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
 using System.Windows.Media.Animation;
+using System.Windows.Input;
 
+using System.Windows.Media;
+using System.Windows.Controls.Primitives;
+
+// using modified https://stackoverflow.com/a/53810853 solution
 namespace Wallpapeuhrs.Utils
 {
     [TemplatePart(Name = "PART_VerticalScrollBar", Type = typeof(ScrollBar))]
     [TemplatePart(Name = "PART_HorizontalScrollBar", Type = typeof(ScrollBar))]
-
     public static class ScrollAnimationBehavior
     {
+        public static double intendedLocation = 0;
+
         #region Private ScrollViewer for ListBox
 
         private static ScrollViewer _listBoxScroller = new ScrollViewer();
@@ -86,7 +87,6 @@ namespace Wallpapeuhrs.Utils
         private static void OnVerticalOffsetChanged(DependencyObject target, DependencyPropertyChangedEventArgs e)
         {
             ScrollViewer scrollViewer = target as ScrollViewer;
-
             if (scrollViewer != null)
             {
                 scrollViewer.ScrollToVerticalOffset((double)e.NewValue);
@@ -127,11 +127,11 @@ namespace Wallpapeuhrs.Utils
                 scroller.Loaded += new RoutedEventHandler(scrollerLoaded);
             }
 
-            /*if (target != null && target is ListBox)
+            if (target != null && target is ListBox)
             {
                 ListBox listbox = target as ListBox;
                 listbox.Loaded += new RoutedEventHandler(listboxLoaded);
-            }*/
+            }
         }
 
         #endregion
@@ -140,23 +140,12 @@ namespace Wallpapeuhrs.Utils
 
         private static void AnimateScroll(ScrollViewer scrollViewer, double ToValue)
         {
+            scrollViewer.BeginAnimation(VerticalOffsetProperty, null);
             DoubleAnimation verticalAnimation = new DoubleAnimation();
-
             verticalAnimation.From = scrollViewer.VerticalOffset;
             verticalAnimation.To = ToValue;
             verticalAnimation.Duration = new Duration(GetTimeDuration(scrollViewer));
-
-            Storyboard storyboard = new Storyboard();
-
-            storyboard.Children.Add(verticalAnimation);
-            Storyboard.SetTarget(verticalAnimation, scrollViewer);
-            Storyboard.SetTargetProperty(verticalAnimation, new PropertyPath(ScrollAnimationBehavior.VerticalOffsetProperty));
-            storyboard.Completed += (s, e) =>
-            {
-                isAnimating = false;
-            };
-            storyboard.Begin();
-            isAnimating = true;
+            scrollViewer.BeginAnimation(VerticalOffsetProperty, verticalAnimation);
         }
 
         #endregion
@@ -218,6 +207,13 @@ namespace Wallpapeuhrs.Utils
         {
             scroller.PreviewMouseWheel += new MouseWheelEventHandler(ScrollViewerPreviewMouseWheel);
             scroller.PreviewKeyDown += new KeyEventHandler(ScrollViewerPreviewKeyDown);
+            scroller.PreviewMouseLeftButtonUp += Scroller_PreviewMouseLeftButtonUp;
+
+        }
+
+        private static void Scroller_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            intendedLocation = ((ScrollViewer)sender).VerticalOffset;
         }
 
         #endregion
@@ -235,11 +231,33 @@ namespace Wallpapeuhrs.Utils
 
         #region listboxLoaded Event Handler
 
-        /*private static void listboxLoaded(object sender, RoutedEventArgs e)
+        public static T GetFirstChildOfType<T>(DependencyObject dependencyObject) where T : DependencyObject
+        {
+            if (dependencyObject == null)
+            {
+                return null;
+            }
+
+            for (var i = 0; i < VisualTreeHelper.GetChildrenCount(dependencyObject); i++)
+            {
+                var child = VisualTreeHelper.GetChild(dependencyObject, i);
+
+                var result = (child as T) ?? GetFirstChildOfType<T>(child);
+
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+
+            return null;
+        }
+
+        private static void listboxLoaded(object sender, RoutedEventArgs e)
         {
             ListBox listbox = sender as ListBox;
 
-            _listBoxScroller = FindVisualChildHelper.GetFirstChildOfType<ScrollViewer>(listbox);
+            _listBoxScroller = GetFirstChildOfType<ScrollViewer>(listbox);
             SetEventHandlersForScrollViewer(_listBoxScroller);
 
             SetTimeDuration(_listBoxScroller, new TimeSpan(0, 0, 0, 0, 200));
@@ -248,39 +266,30 @@ namespace Wallpapeuhrs.Utils
             listbox.SelectionChanged += new SelectionChangedEventHandler(ListBoxSelectionChanged);
             listbox.Loaded += new RoutedEventHandler(ListBoxLoaded);
             listbox.LayoutUpdated += new EventHandler(ListBoxLayoutUpdated);
-        }*/
+        }
 
         #endregion
 
         #region ScrollViewerPreviewMouseWheel Event Handler
 
-        static bool isAnimating = false;
-        static int scrollCounter = 1;
-
         public static void ScrollViewerPreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            if (!isAnimating)
+            double mouseWheelChange = (double)e.Delta;
+            ScrollViewer scroller = (ScrollViewer)sender;
+            double newVOffset = intendedLocation - (mouseWheelChange / 3);
+            //We got hit by the mouse again. jump to the offset.
+            scroller.ScrollToVerticalOffset(intendedLocation);
+            if (newVOffset < 0)
             {
-                double mouseWheelChange = (double)e.Delta;
-                ScrollViewer scroller = (ScrollViewer)sender;
-                int mult = scrollCounter;
-                //Debug.WriteLine("" + scrollCounter);
-                double newVOffset = GetVerticalOffset(scroller) - (mouseWheelChange * mult / 3);
-                if (newVOffset < 0)
-                {
-                    AnimateScroll(scroller, 0);
-                }
-                else if (newVOffset > scroller.ScrollableHeight)
-                {
-                    AnimateScroll(scroller, scroller.ScrollableHeight);
-                }
-                else
-                {
-                    AnimateScroll(scroller, newVOffset);
-                }
-                scrollCounter = 1;
+                newVOffset = 0;
             }
-            else scrollCounter++;
+            if (newVOffset > scroller.ScrollableHeight)
+            {
+                newVOffset = scroller.ScrollableHeight;
+            }
+
+            AnimateScroll(scroller, newVOffset);
+            intendedLocation = newVOffset;
             e.Handled = true;
         }
 
@@ -299,26 +308,31 @@ namespace Wallpapeuhrs.Utils
             if (keyPressed == Key.Down)
             {
                 newVerticalPos = NormalizeScrollPos(scroller, (newVerticalPos + GetPointsToScroll(scroller)), Orientation.Vertical);
+                intendedLocation = newVerticalPos;
                 isKeyHandled = true;
             }
             else if (keyPressed == Key.PageDown)
             {
                 newVerticalPos = NormalizeScrollPos(scroller, (newVerticalPos + scroller.ViewportHeight), Orientation.Vertical);
+                intendedLocation = newVerticalPos;
                 isKeyHandled = true;
             }
             else if (keyPressed == Key.Up)
             {
                 newVerticalPos = NormalizeScrollPos(scroller, (newVerticalPos - GetPointsToScroll(scroller)), Orientation.Vertical);
+                intendedLocation = newVerticalPos;
                 isKeyHandled = true;
             }
             else if (keyPressed == Key.PageUp)
             {
                 newVerticalPos = NormalizeScrollPos(scroller, (newVerticalPos - scroller.ViewportHeight), Orientation.Vertical);
+                intendedLocation = newVerticalPos;
                 isKeyHandled = true;
             }
 
             if (newVerticalPos != GetVerticalOffset(scroller))
             {
+                intendedLocation = newVerticalPos;
                 AnimateScroll(scroller, newVerticalPos);
             }
 

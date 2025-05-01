@@ -62,7 +62,8 @@ namespace Wallpapeuhrs
             {
                 CoreWebView2EnvironmentOptions opt = new CoreWebView2EnvironmentOptions();
                 string args = "--disable-features=HardwareMediaKeyHandling ";
-                if (renderer == 1) args += "--use-angle=gl ";
+                //update v1.2.17 (1/05/2025): NOW DEPRECATED
+                //if (renderer == 1) args += "--use-angle=gl ";
                 if (renderer == 2) args += "--use-angle=d3d11 ";
                 if (renderer == 3) args += "--use-angle=d3d11on12 ";
                 args += "--disable-gpu-vsync ";

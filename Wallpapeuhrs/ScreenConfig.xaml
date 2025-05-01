@@ -18,14 +18,14 @@
     </UserControl.Resources>
     <Border x:Name="screen_all_g" Background="#FF303030" CornerRadius="15,15,15,15" VerticalAlignment="Top" Margin="18,0,0,0">
         <Grid Margin="15,15,15,15">
-            <TextBlock Foreground="Gainsboro" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,54,0,0">Path</TextBlock>
-            <TextBlock Foreground="Gainsboro" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-4,0,0" TextAlignment="Center"><Run Text="Put nothing in each setting if you don't want to have a custom&#xD;configuration for this screen"/></TextBlock>
-            <Border Margin="48,49,0,0" VerticalAlignment="Top" Background="#FF3C3C3C" CornerRadius="15,15,15,15" Height="30">
-                <TextBox x:Name="urls" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" Text="" VerticalContentAlignment="Center" Margin="10,0"></TextBox>
+            <TextBlock Foreground="Gainsboro" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,73,0,0">Path</TextBlock>
+            <TextBlock Foreground="Gainsboro" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-4,0,0" TextAlignment="Center"><Run Text="Put nothing in each setting if you don't want to have a custom&#xD;configuration for this screen&#xD;You must have set a wallpaper in 'All screens' to use this feature."/></TextBlock>
+            <Border Margin="48,68,0,0" VerticalAlignment="Top" Background="#FF3C3C3C" CornerRadius="15,15,15,15" Height="30">
+                <TextBox x:Name="urls" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" Text="" VerticalContentAlignment="Center" Margin="10,0" TextChanged="urls_TextChanged"></TextBox>
             </Border>
-            <Border Background="#FF3A3A3A" Margin="0,123,0,0" CornerRadius="15">
+            <Border Background="#FF3A3A3A" Margin="0,142,0,0" CornerRadius="15">
                 <StackPanel Margin="0,5">
-                    <Grid Margin="15,5">
+                    <Grid Margin="15,5" x:Name="opt_interval">
                         <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">Interval (in seconds)</TextBlock>
                         <Border Margin="167,0,0,0" VerticalAlignment="Center" Width="64" HorizontalAlignment="Left" Background="#FF474747" BorderThickness="0" CornerRadius="12">
                             <TextBox x:Name="interval" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" HorizontalContentAlignment="Center" CaretBrush="White" BorderThickness="0" Margin="0,2"/>
@@ -61,8 +61,8 @@
                     </StackPanel>
                 </StackPanel>
             </Border>
-            <styles:NewButtons x:Name="slide" BorderRadius="14,14,14,14" Content="Slideshow" VerticalAlignment="Top" Margin="0,84,0,0" Height="28" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90" BackgroundHover="#FF717171" Click="slide_Click"/>
-            <styles:NewButtons x:Name="vid" BorderRadius="14,14,14,14" Content="Video or Image" VerticalAlignment="Top" Margin="0,84,95,0" Height="28" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="120" BackgroundHover="#FF717171" Click="vid_Click"/>
+            <styles:NewButtons x:Name="slide" BorderRadius="14,14,14,14" Content="Slideshow" VerticalAlignment="Top" Margin="0,103,0,0" Height="28" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="90" BackgroundHover="#FF717171" Click="slide_Click"/>
+            <styles:NewButtons x:Name="vid" BorderRadius="14,14,14,14" Content="Video or Image" VerticalAlignment="Top" Margin="0,103,95,0" Height="28" Background="#FF4F4F4F" Foreground="White" FontSize="14" BorderBrush="{x:Null}" HorizontalAlignment="Right" Width="120" BackgroundHover="#FF717171" Click="vid_Click"/>
         </Grid>
     </Border>
 </UserControl>

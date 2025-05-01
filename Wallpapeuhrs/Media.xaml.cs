@@ -176,6 +176,7 @@ namespace Wallpapeuhrs
                 if (App.types[ext].Contains(System.IO.Path.GetExtension(newUrl)))
                 {
                     parent.log("aaaaaaac " + ext);
+                    changePlayerState(false);
                     if (ext == "Video files")
                     {
                         Windows.UI.Xaml.Controls.MediaPlayerElement me = new Windows.UI.Xaml.Controls.MediaPlayerElement();

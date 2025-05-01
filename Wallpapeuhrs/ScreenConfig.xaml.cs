@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -53,6 +54,11 @@ namespace Wallpapeuhrs
         private void th_reset(object sender, RoutedEventArgs e)
         {
             MainWindow.resetThemeValue(sender, screenName);
+        }
+
+        private void urls_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            opt_interval.Visibility = File.Exists(urls.Text) ? Visibility.Collapsed : Visibility.Visible;
         }
     }
 }
