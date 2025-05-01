@@ -54,8 +54,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Toolkit.Wpf.UI.XamlHost" Version="6.1.2" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2420.47" />
-    <PackageReference Include="System.Management" Version="6.0.2" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.2" />
+    <PackageReference Include="System.Management" Version="9.0.4" />
     <PackageReference Include="WinCopies.WindowsAPICodePack.Shell" Version="2.12.0.2" />
   </ItemGroup>
 
@@ -85,7 +86,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="mkdir &quot;$(TargetDir)\app.publish\&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(ProjectName).exe&quot; &quot;$(TargetDir)\app.publish\$(ProjectName).exe&quot;&#xD;&#xA;&quot;E:\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe&quot; sign /fd sha256 /sha1 B496F8648E8B57D13C657A4DF4D709EF5333B0B3 /tr http://timestamp.digicert.com/ &quot;$(TargetDir)\app.publish\$(ProjectName).exe&quot;" />
+    <Exec Command="mkdir &quot;$(TargetDir)\app.publish\&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(ProjectName).exe&quot; &quot;$(TargetDir)\app.publish\$(ProjectName).exe&quot;&#xD;&#xA;&quot;E:\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe&quot; sign /fd sha256 /sha1 cf5be20ec9bb462e4b0f4af303a6320fe9c40da6 /td sha256 /tr http://timestamp.digicert.com/ &quot;$(TargetDir)\app.publish\$(ProjectName).exe&quot;" />
   </Target>
 
   <ItemGroup>
