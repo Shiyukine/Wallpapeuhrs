@@ -37,6 +37,15 @@
     <Optimize>True</Optimize>
   </PropertyGroup>
 
+	<PropertyGroup>
+		<WindowsKitsRoot>$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Kits\Installed Roots', 'KitsRoot10', null, RegistryView.Registry32, RegistryView.Default))</WindowsKitsRoot>
+		<WindowsKitsRoot Condition="'$(WindowsKitsRoot)' == ''">$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Kits\Installed Roots', 'KitsRoot81', null, RegistryView.Registry32, RegistryView.Default))</WindowsKitsRoot>
+		<WindowsKitsRoot Condition="'$(WindowsKitsRoot)' == ''">$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Kits\Installed Roots', 'KitsRoot', null, RegistryView.Registry32, RegistryView.Default))</WindowsKitsRoot>
+		<WindowsKitsRootVersion>$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0', 'ProductVersion', null, RegistryView.Registry32, RegistryView.Default))</WindowsKitsRootVersion>
+		<SignToolPath Condition=" '$(SignToolPath)' == '' And '$(Platform)' == 'AnyCPU' ">$(WindowsKitsRoot)bin\$(WindowsKitsRootVersion).0\x64\</SignToolPath>
+		<SignToolPath Condition="'$(SignToolPath)' == ''">$(WindowsKitsRoot)bin\$(WindowsKitsRootVersion).0\$(Platform)\</SignToolPath>
+	</PropertyGroup>
+
   <ItemGroup>
     <None Remove="play2.png" />
     <None Remove="Properties\quicksand-variablefont_wght.ttf" />
@@ -94,7 +103,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="mkdir &quot;$(TargetDir)\app.publish\&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(ProjectName).exe&quot; &quot;$(TargetDir)\app.publish\$(ProjectName).exe&quot;&#xD;&#xA;&quot;E:\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe&quot; sign /fd sha256 /sha1 cf5be20ec9bb462e4b0f4af303a6320fe9c40da6 /td sha256 /tr http://timestamp.digicert.com/ &quot;$(TargetDir)\app.publish\$(ProjectName).exe&quot;" />
+    <Exec Command="mkdir &quot;$(TargetDir)\app.publish\&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(ProjectName).exe&quot; &quot;$(TargetDir)\app.publish\$(ProjectName).exe&quot;&#xD;&#xA;&quot;$(SignToolPath)signtool.exe&quot; sign /fd sha256 /sha1 cf5be20ec9bb462e4b0f4af303a6320fe9c40da6 /td sha256 /tr http://timestamp.digicert.com/ &quot;$(TargetDir)\app.publish\$(ProjectName).exe&quot;" />
   </Target>
 
   <ItemGroup>
