@@ -117,6 +117,11 @@ namespace Wallpapeuhrs
         {
             Worker.Init();
             IntPtr p = new WindowInteropHelper(this).Handle;
+            if(Worker.workerw == IntPtr.Zero)
+            {
+                MessageBox.Show("Cannot find WorkerW window.\nThe wallpaper application will restart.", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Close();
+            }
             if (W32.SetParent(p, Worker.workerw) == IntPtr.Zero)
             {
                 MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -405,7 +410,14 @@ namespace Wallpapeuhrs
             //W32.SetParent(new WindowInteropHelper(this).Handle, IntPtr.Zero);
             if(isEdgeEngine) (med as MediaVW).webview.Dispose();
             else (med as Media).myHostControl.Dispose();
-            W32.SetParent(Worker.workerw, IntPtr.Zero);
+            IntPtr result = IntPtr.Zero;
+            W32.SendMessageTimeout(Worker.progman,
+                                   0x052C,
+                                   new IntPtr(0x0D),
+                                   new IntPtr(0),
+                                   W32.SendMessageTimeoutFlags.SMTO_NORMAL,
+                                   1000,
+                                   out result);
         }
 
         private void Window_Activated(object sender, EventArgs e)

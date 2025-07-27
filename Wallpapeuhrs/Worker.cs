@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Wallpapeuhrs
 {
     public class Worker
     {
         static public IntPtr workerw;
+
+        public static IntPtr progman;
 
         public static void Init()
         {
@@ -32,13 +36,24 @@ namespace Wallpapeuhrs
             // Send 0x052C to Progman. This message directs Progman to spawn a
             // WorkerW behind the desktop icons. If it is already there, nothing
             // happens.
+
             W32.SendMessageTimeout(progman,
                                    0x052C,
+                                   new IntPtr(0x0D),
                                    new IntPtr(0),
-                                   IntPtr.Zero,
                                    W32.SendMessageTimeoutFlags.SMTO_NORMAL,
                                    1000,
                                    out result);
+
+            W32.SendMessageTimeout(progman,
+                                   0x052C,
+                                   new IntPtr(0x0D),
+                                   new IntPtr(1),
+                                   W32.SendMessageTimeoutFlags.SMTO_NORMAL,
+                                   1000,
+                                   out result);
+
+            Worker.progman = progman;
 
 
             // PrintVisibleWindowHandles(2);
@@ -53,27 +68,41 @@ namespace Wallpapeuhrs
 
             workerw = IntPtr.Zero;
 
-            // We enumerate all Windows, until we find one, that has the SHELLDLL_DefView
-            // as a child.
-            // If we found that window, we take its next sibling and assign it to workerw.
-            W32.EnumWindows(new W32.EnumWindowsProc((tophandle, topparamhandle) =>
+            // Method 1: Find WorkerW as child of Progman (based on your output)
+            workerw = W32.FindWindowEx(progman, IntPtr.Zero, "WorkerW", IntPtr.Zero);
+
+            if(workerw == IntPtr.Zero)
             {
-                IntPtr p = W32.FindWindowEx(tophandle,
-                                            IntPtr.Zero,
-                                            "SHELLDLL_DefView",
-                                            IntPtr.Zero);
-
-                if (p != IntPtr.Zero)
+                // Method 2: Original approach - find WorkerW that contains SHELLDLL_DefView
+                // We enumerate all Windows, until we find one, that has the SHELLDLL_DefView
+                // as a child.
+                // If we found that window, we take its next sibling and assign it to workerw.
+                W32.EnumWindows(new W32.EnumWindowsProc((tophandle, topparamhandle) =>
                 {
-                    // Gets the WorkerW Window after the current one.
-                    workerw = W32.FindWindowEx(IntPtr.Zero,
-                                               tophandle,
-                                               "WorkerW",
-                                               IntPtr.Zero);
-                }
+                    IntPtr p = W32.FindWindowEx(tophandle,
+                                                IntPtr.Zero,
+                                                "SHELLDLL_DefView",
+                                                IntPtr.Zero);
 
-                return true;
-            }), IntPtr.Zero);
+                    if (p != IntPtr.Zero)
+                    {
+                        // Gets the WorkerW Window after the current one.
+                        workerw = W32.FindWindowEx(IntPtr.Zero,
+                                                   tophandle,
+                                                   "WorkerW",
+                                                   IntPtr.Zero);
+                    }
+
+                    return true;
+                }), IntPtr.Zero);
+            }
+
+            if (workerw == IntPtr.Zero)
+            {
+                MessageBox.Show("Could not find WorkerW window. " +
+                                        "Please make sure you are running this application on the desktop " +
+                                        "and that the desktop icons are visible.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
             // We now have the handle of the WorkerW behind the desktop icons.
             // We can use it to create a directx device to render 3d output to it,
@@ -134,7 +163,7 @@ namespace Wallpapeuhrs
             }
         }
 
-        static void PrintVisibleWindowHandles(int maxLevel = -1)
+        public static void PrintVisibleWindowHandles(int maxLevel = -1)
         {
             // Enumerates all existing top window handles. This includes open and visible windows, as well as invisible windows.
             W32.EnumWindows(new W32.EnumWindowsProc((tophandle, topparamhandle) =>
