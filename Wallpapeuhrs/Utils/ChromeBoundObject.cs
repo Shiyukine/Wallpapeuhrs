@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
-using Windows.UI.Xaml.Controls;
 
 namespace Wallpapeuhrs.Utils
 {

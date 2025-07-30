@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Interop;
 using Wallpapeuhrs.Utils;
 using System.Web;
+using Microsoft.UI.Xaml.Controls;
+using System.Windows.Interop;
+using Microsoft.UI.Xaml;
 
 namespace Wallpapeuhrs
 {
@@ -26,13 +26,9 @@ namespace Wallpapeuhrs
         private int renderer;
         bool coreinit = false;
 
-        public MediaVW(WPBG parent, int renderer)
+        public void init()
         {
-            this.parent = parent;
-            this.renderer = renderer;
-            //Windows.UI.Xaml.Hosting.WindowsXamlManager.InitializeForCurrentThread();
-            InitializeComponent();
-            webview.CoreWebView2InitializationCompleted += (s, e) =>
+            webview.CoreWebView2Initialized += (s, e) =>
             {
                 if (!coreinit)
                 {
@@ -47,12 +43,11 @@ namespace Wallpapeuhrs
                         string result = reader.ReadToEnd();
                         webview.NavigationCompleted += async (s, e) =>
                         {
-                            webview.CoreWebView2.AddHostObjectToScript("boundobject", new ChromeBoundObject(parent));
                             await webview.CoreWebView2.ExecuteScriptAsync("document.write(`" + result + "`)");
                             MainWindow.sendData(parent.tcp, "READY " + parent.moni + " ", null);
                             webview.Visibility = Visibility.Visible;
                             //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
-                            setDWM(new WindowInteropHelper(parent).Handle);
+                            //setDWM(new WindowInteropHelper(parent).Handle);
                         };
                         webview.Source = new Uri("file:///C:/");
                     }
@@ -93,15 +88,37 @@ namespace Wallpapeuhrs
                     "--disable-accelerated-2d-canvas " +
                     "--flag-switches-end";*/
                 string data = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Wallpapeuhrs\\WebView2\\";
-                for(int i = 0; i < 5; i++)
+                for (int i = 0; i < 5; i++)
                 {
                     //MessageBox.Show("a");
                     parent.log("attempt " + i + " " + (i == 4));
                     try
                     {
-                        await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(options: opt, userDataFolder: data));
-                        //break loop because it's working
-                        break;
+                        if(!coreinit) await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateWithOptionsAsync(null, options: opt, userDataFolder: data));
+                        try
+                        {
+                            var dispatchAdapter = new WinRTAdapter.DispatchAdapter();
+                            var bridge = new Wallpapeuhrs.Bridge.BoundObject();
+                            var boundObject = new ChromeBoundObject(parent);
+                            bridge.called += (s, method) =>
+                            {
+                                if (method == "videoLoaded")
+                                {
+                                    parent.log("videoLoaded");
+                                    boundObject.videoLoaded();
+                                }
+                                else if (method == "screenshoted")
+                                {
+                                    parent.log("screenshoted");
+                                    boundObject.screenshoted();
+                                }
+                            };
+                            webview.CoreWebView2.AddHostObjectToScript("boundobject", dispatchAdapter.WrapObject(bridge, dispatchAdapter));
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Windows.MessageBox.Show("boundobject\n" + ex);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -110,7 +127,7 @@ namespace Wallpapeuhrs
                         await Task.Delay((parent.startAfter + 1) * 200);
                         if (i == 4)
                         {
-                            MessageBox.Show("Error when launching Edge WebView2 after 5 times\n" + ex);
+                            System.Windows.MessageBox.Show("Error when launching Edge WebView2 after 5 times\n" + ex);
                             parent.Close();
                         }
                     }
@@ -119,18 +136,12 @@ namespace Wallpapeuhrs
             a();
         }
 
-        private void setDWM(IntPtr handle)
+        public MediaVW(WPBG parent, int renderer)
         {
-            int a = 1;
-            int b = 0;
-            W32.DwmSetWindowAttribute(handle, W32.DWMWINDOWATTRIBUTE.DisallowPeek, ref a, Marshal.SizeOf(typeof(int)));
-            W32.DwmSetWindowAttribute(handle, W32.DWMWINDOWATTRIBUTE.AllowNCPaint, ref b, Marshal.SizeOf(typeof(int)));
-            W32.DwmSetWindowAttribute(handle, W32.DWMWINDOWATTRIBUTE.ExcludedFromPeek, ref a, Marshal.SizeOf(typeof(int)));
-            W32.DwmSetWindowAttribute(handle, W32.DWMWINDOWATTRIBUTE.DWMWA_USE_HOSTBACKDROPBRUSH, ref b, Marshal.SizeOf(typeof(int)));
-            //W32.DwmSetWindowAttribute(myHostControl.Handle, W32.DWMWINDOWATTRIBUTE.Cloak, ref c, Marshal.SizeOf(typeof(int)));
-            IntPtr exStyle = W32.GetWindowLongPtr(handle, W32.GWL_EXSTYLE);
-            W32.SetWindowLongPtr(handle, W32.GWL_EXSTYLE, (IntPtr)(exStyle.ToInt64() | W32.WS_EX_LAYERED));
-            W32.DwmEnableComposition(W32.CompositionAction.DWM_EC_DISABLECOMPOSITION);
+            this.parent = parent;
+            this.renderer = renderer;
+            //Windows.UI.Xaml.Hosting.WindowsXamlManager.InitializeForCurrentThread();
+            InitializeComponent();
         }
 
         string curUrl = "";

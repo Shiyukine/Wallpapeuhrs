@@ -114,7 +114,7 @@
                                                         <Path Fill="White" Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
                                                     </Canvas>
                                                 </Viewbox>
-                                                <TextBlock Foreground="White" HorizontalAlignment="Left" Margin="24,0,0,0" VerticalAlignment="Center" TextWrapping="WrapWithOverflow"><Run Text="Show more"/></TextBlock>
+                                                <TextBlock Foreground="White" HorizontalAlignment="Left" Margin="24,0,0,0" VerticalAlignment="Center" TextWrapping="WrapWithOverflow"><Run Text="More settings"/></TextBlock>
                                             </Grid>
                                         </styles:NewButtons>
                                         <StackPanel x:Name="show_more_expend" Margin="15,0,15,5" Visibility="Visible">
@@ -125,7 +125,7 @@
                                                     <ComboBoxItem Content="Edge WebView2 - OpenGL (deprecated)"/>
                                                     <ComboBoxItem Content="Edge WebView2 - DirectX 11"/>
                                                     <ComboBoxItem Content="Edge WebView2 - DirectX 11 on 12"/>
-                                                    <ComboBoxItem Content="UWP MediaPlayerElement"/>
+                                                    <ComboBoxItem Content="WinUI3 MediaPlayerElement"/>
                                                     <ComboBox.Resources>
                                                         <ResourceDictionary>
                                                             <utils:MathConverter x:Key="MathConverter" />

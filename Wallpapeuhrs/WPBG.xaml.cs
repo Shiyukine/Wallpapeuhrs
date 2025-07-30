@@ -1,13 +1,16 @@
-﻿using System;
+﻿using Microsoft.UI;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Hosting;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Interop;
 using Wallpapeuhrs.Utils;
@@ -56,14 +59,18 @@ namespace Wallpapeuhrs
         bool isDebug = false;
         bool allClients = false;
         bool isEdgeEngine = true;
+        int engine = -1;
         DebugWindow dw;
-        public UserControl med;
+        public Microsoft.UI.Xaml.Controls.UserControl med;
+        //public Microsoft.UI.Xaml.Hosting.DesktopWindowXamlSource m_dwxs;
+        Icon _icon;
 
         public WPBG(string moni, int startAfter, int engine)
         {
             this.moni = moni;
             this.startAfter = startAfter;
             this.isEdgeEngine = engine <= 3;
+            this.engine = engine;
             //
             if (isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni))
             {
@@ -71,21 +78,39 @@ namespace Wallpapeuhrs
                 dw.Show();
             }
             //
+            InitializeComponent();
+            Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(
+        Microsoft.UI.Dispatching.DispatcherQueuePriority.Low,
+        new Microsoft.UI.Dispatching.DispatcherQueueHandler(() =>
+        {
+            Window_Loaded(this, new RoutedEventArgs());
+        }));
+
             if (isEdgeEngine)
             {
                 med = new MediaVW(this, engine);
+                var alreadySet = false;
+                (med as MediaVW).webview.NavigationCompleted += async (s, e) =>
+                {
+                    if (alreadySet) return;
+                    alreadySet = true;
+                    setWorker();
+                };
             }
             else
             {
                 med = new Media(this);
+                setWorker();
             }
-            InitializeComponent();
-            AddChild(med);
-            WindowStartupLocation = WindowStartupLocation.Manual;
+            Content = med;
+            if (isEdgeEngine) (med as MediaVW).init();
+            else (med as Media).init();
+            //
+            //WindowStartupLocation = WindowStartupLocation.Manual;
             timer.Tick += Timer_Tick;
             timer.Interval = 1000;
             //
-            Show();
+            //Show();
             resizeApp();
         }
 
@@ -106,7 +131,13 @@ namespace Wallpapeuhrs
                         if (s2.Bounds.X < left && s2.Bounds.X < 0) left = s2.Bounds.X * -1;
                     }
                     //
-                    W32.SetWindowPos(new WindowInteropHelper(this).Handle, IntPtr.Zero, s.Bounds.X + left, s.Bounds.Y + top, s.Bounds.Width, s.Bounds.Height, W32.SetWindowPosFlags.NoZOrder | W32.SetWindowPosFlags.AsynWindowPos | W32.SetWindowPosFlags.NoRedraw);
+                    W32.SetWindowPos(WinRT.Interop.WindowNative.GetWindowHandle(this), IntPtr.Zero, s.Bounds.X + left, s.Bounds.Y + top, s.Bounds.Width, s.Bounds.Height, W32.SetWindowPosFlags.NoZOrder | W32.SetWindowPosFlags.AsynWindowPos | W32.SetWindowPosFlags.NoRedraw);
+                    //med.Height = s.Bounds.Height;
+                    /*var sb = m_dwxs.SiteBridge;
+                    var csv = sb.SiteView;
+                    var rs = 1;
+                    Windows.Graphics.RectInt32 rect = new Windows.Graphics.RectInt32(0, 0, s.Bounds.Width, s.Bounds.Height);
+                    sb.MoveAndResize(rect);*/
                     anSize = s.Bounds;
                     return;
                 }
@@ -115,18 +146,6 @@ namespace Wallpapeuhrs
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Worker.Init();
-            IntPtr p = new WindowInteropHelper(this).Handle;
-            if(Worker.workerw == IntPtr.Zero)
-            {
-                MessageBox.Show("Cannot find WorkerW window.\nThe wallpaper application will restart.", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Close();
-            }
-            if (W32.SetParent(p, Worker.workerw) == IntPtr.Zero)
-            {
-                MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Close();
-            }
             log("curDisplay : " + moni);
             //
             await tcp.ConnectAsync("127.0.0.1", 30930);
@@ -135,14 +154,14 @@ namespace Wallpapeuhrs
             bool isList = false;
             //
             AsyncCallback asy = null;
-            asy = (ar) =>
+            asy = async (ar) =>
             {
                 try
                 {
                     int bytesRead = ns.EndRead(ar);
                     string stra = Encoding.Unicode.GetString(read, 0, bytesRead);
                     log(stra);
-                    if (stra == "") Dispatcher.Invoke(() => App.Current.Shutdown());
+                    if (stra == "") DispatcherQueue.TryEnqueue(() => App.Current.Shutdown());
                     else
                     {
                         foreach (string s in stra.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries))
@@ -150,7 +169,7 @@ namespace Wallpapeuhrs
                             if (s.StartsWith(moni + ": "))
                             {
                                 string str = s.Replace(moni + ": ", "");
-                                Dispatcher.Invoke(() =>
+                                DispatcherQueue.TryEnqueue(() =>
                                 {
                                     if (str.StartsWith("Endliste")) isList = false;
                                     if (isList)
@@ -203,10 +222,10 @@ namespace Wallpapeuhrs
                 }
                 catch (Exception ee)
                 {
-                    Dispatcher.Invoke(() =>
+                    DispatcherQueue.TryEnqueue(() =>
                     {
                         if (ee.GetType() == typeof(IOException)) Close();
-                        else MessageBox.Show(ee.ToString(), "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        else System.Windows.MessageBox.Show(ee.ToString(), "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                     });
                 }
             };
@@ -246,12 +265,12 @@ namespace Wallpapeuhrs
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("Unable to load the new media : " + e.Message + "\n" + e.StackTrace, "Wallpapeuhrs - Error");
+                    System.Windows.MessageBox.Show("Unable to load the new media : " + e.Message + "\n" + e.StackTrace, "Wallpapeuhrs - Error");
                 }
             }
             catch (Exception e)
             {
-                MessageBox.Show("" + e.Message + "\n" + e.StackTrace, "Wallpapeuhrs - Error");
+                System.Windows.MessageBox.Show("" + e.Message + "\n" + e.StackTrace, "Wallpapeuhrs - Error");
             }
         }
 
@@ -274,7 +293,7 @@ namespace Wallpapeuhrs
             }
             catch (Exception e)
             {
-                MessageBox.Show("Unable to load the new media (" + newUrl + ") : " + e.Message + "\n" + e.StackTrace, "Wallpapeuhrs - Error");
+                System.Windows.MessageBox.Show("Unable to load the new media (" + newUrl + ") : " + e.Message + "\n" + e.StackTrace, "Wallpapeuhrs - Error");
             }
             if (isEdgeEngine) (med as MediaVW).nextChange = System.Environment.TickCount + (interval + interval / 4 * startAfter) * 1000;
             else (med as Media).nextChange = System.Environment.TickCount + (interval + interval / 4 * startAfter) * 1000;
@@ -327,7 +346,7 @@ namespace Wallpapeuhrs
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Unable to load the new thumb wallpaper : " + ex.ToString(), "Wallpapeuhrs - Error");
+                System.Windows.MessageBox.Show("Unable to load the new thumb wallpaper : " + ex.ToString(), "Wallpapeuhrs - Error");
             }
         }
 
@@ -371,7 +390,7 @@ namespace Wallpapeuhrs
                 if (isOk)
                 {
                     isOk = false;
-                    MessageBox.Show("The file or folder : \"" + curUrl + "\" doesn't exist. Please verify the path entered or if the file or folder exists really.", "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    System.Windows.MessageBox.Show("The file or folder : \"" + curUrl + "\" doesn't exist. Please verify the path entered or if the file or folder exists really.", "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                 }
             }
             /*async void verifyWebM()
@@ -404,12 +423,12 @@ namespace Wallpapeuhrs
             return media;
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if(isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)) Dispatcher.Invoke(() => dw.Close());
+            if(isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)) DispatcherQueue.TryEnqueue(() => dw.Close());
             //W32.SetParent(new WindowInteropHelper(this).Handle, IntPtr.Zero);
-            if(isEdgeEngine) (med as MediaVW).webview.Dispose();
-            else (med as Media).myHostControl.Dispose();
+            //if(isEdgeEngine) (med as MediaVW).webview.Dispose();
+            //else (med as Media).myHostControl.Dispose();
             IntPtr result = IntPtr.Zero;
             W32.SendMessageTimeout(Worker.progman,
                                    0x052C,
@@ -427,7 +446,7 @@ namespace Wallpapeuhrs
 
         public void log(string log)
         {
-            if (isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)) Dispatcher.Invoke(() => dw.log(log));
+            if (isDebug && (allClients || System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)) DispatcherQueue.TryEnqueue(() => dw.log(log));
         }
 
         bool curPlay = true;
@@ -446,6 +465,87 @@ namespace Wallpapeuhrs
             {
                 e.Handled = true;
             }
+        }
+
+        async Task setWorker()
+        {
+            Worker.Init();
+            AppWindow.SetPresenter(Microsoft.UI.Windowing.AppWindowPresenterKind.FullScreen);
+            AppWindow.Show();
+            _icon = new Icon(typeof(App).Assembly.GetManifestResourceStream("Wallpapeuhrs.Resources.IconWPBG.ico")!);
+            AppWindow.SetIcon(Win32Interop.GetIconIdFromIcon(_icon.Handle));
+            IntPtr p = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            if (Worker.workerw == IntPtr.Zero)
+            {
+                System.Windows.MessageBox.Show("Cannot find WorkerW window.\nThe wallpaper application will restart.", "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                Close();
+            }
+            if (W32.SetParent(p, Worker.workerw) == IntPtr.Zero)
+            {
+                System.Windows.MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                Close();
+            }
+            if(isEdgeEngine && System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)
+            {
+                await fixWebview();
+            }
+        }
+
+        async Task fixWebview()
+        {
+            List<IntPtr> handles = new List<IntPtr>();
+            W32.EnumWindows(new W32.EnumWindowsProc((tophandle, topparamhandle) =>
+            {
+                // get window title and class name
+                StringBuilder title = new StringBuilder(256);
+                W32.GetWindowText(tophandle, title, title.Capacity);
+                StringBuilder className = new StringBuilder(256);
+                W32.GetClassName(tophandle, className, className.Capacity);
+                // check if the window is a Chrome window
+                if (className.ToString() == "Chrome_WidgetWin_1" && title.ToString() == "Wallpapeuhrs")
+                {
+                    // set the parent of the Chrome window to the WorkerW window
+                    handles.Add(tophandle);
+                }
+
+                return true;
+            }), IntPtr.Zero);
+            if(handles.Count == System.Windows.Forms.Screen.AllScreens.Length)
+            {
+                foreach (IntPtr handle in handles)
+                {
+                    if (W32.SetParent(handle, Worker.workerw) == IntPtr.Zero)
+                    {
+                        System.Windows.MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                        Close();
+                    }
+                }
+            }
+            else
+            {
+                await Task.Delay(200);
+                await fixWebview();
+            }
+        }
+
+        private void main_SourceInitialized(object sender, EventArgs e)
+        {
+            //base.OnSourceInitialized(e);
+            /*IntPtr m_hWnd = new WindowInteropHelper(this).Handle;
+            if (m_dwxs is null)
+            {
+                m_dwxs = new Microsoft.UI.Xaml.Hosting.DesktopWindowXamlSource();
+                Microsoft.UI.WindowId myWndId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(m_hWnd);
+                m_dwxs.Initialize(myWndId);
+                var sb = m_dwxs.SiteBridge;
+                var csv = sb.SiteView;
+                var rs = 1;
+                Windows.Graphics.RectInt32 rect = new Windows.Graphics.RectInt32((int)(0 * rs), (int)(0 * rs), (int)(800 * rs), (int)(900 * rs));
+                //sb.MoveAndResize(rect);
+                //MessageBox.Show("a");
+            }*/
+            //Content = m_dwxs;
+            
         }
     }
 }

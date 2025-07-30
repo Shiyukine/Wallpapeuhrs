@@ -1,3 +1,7 @@
+using Microsoft.Graphics.Canvas;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -5,28 +9,20 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Windows.Graphics.DirectX.Direct3D11;
 using Windows.Graphics.Imaging;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
 using Windows.System.Display;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace Wallpapeuhrs
 {
@@ -39,60 +35,20 @@ namespace Wallpapeuhrs
         public bool repeat;
         public float nextChange = 0;
         private WPBG parent;
-        Windows.UI.Xaml.Controls.Grid main;
         Dictionary<string, BitmapCache> caches = new Dictionary<string, BitmapCache>();
 
         public Media(WPBG parent)
         {
             this.parent = parent;
-            //Windows.UI.Xaml.Hosting.WindowsXamlManager.InitializeForCurrentThread();
             InitializeComponent();
-            myHostControl.ChildChanged += (sender, e) =>
-            {
-                try
-                {
-                    main = myHostControl.GetUwpInternalObject() as Windows.UI.Xaml.Controls.Grid;
-                    SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
-                    setDWM(new WindowInteropHelper(parent).Handle);
-                }
-                catch(Exception ex)
-                {
-                    parent.log("Error. Quit immediatly\n" + ex);
-                    parent.Close();
-                }
-            };
-            SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
-            setDWM(myHostControl.Handle);
-            /*main = new Windows.UI.Xaml.Controls.Grid();
-            main.CanBeScrollAnchor = false;
-            main.ReleasePointerCaptures();
-            main.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Stretch;
-            main.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Stretch;
-            main.IsHitTestVisible = false;
-            main.AllowFocusOnInteraction = false;
-            IsHitTestVisible = false;
-            main.AllowFocusWhenDisabled = false;
-            main.IsTapEnabled = main.IsRightTapEnabled = main.IsDoubleTapEnabled = main.IsHoldingEnabled = false;
-            myHostControl.Child = main;
-            main.ManipulationMode = Windows.UI.Xaml.Input.ManipulationModes.None;*/
         }
 
-        private void setDWM(IntPtr handle)
+        public void init()
         {
-            int a = 1;
-            int b = 0;
-            W32.DwmSetWindowAttribute(handle, W32.DWMWINDOWATTRIBUTE.DisallowPeek, ref a, Marshal.SizeOf(typeof(int)));
-            W32.DwmSetWindowAttribute(handle, W32.DWMWINDOWATTRIBUTE.AllowNCPaint, ref b, Marshal.SizeOf(typeof(int)));
-            W32.DwmSetWindowAttribute(handle, W32.DWMWINDOWATTRIBUTE.ExcludedFromPeek, ref a, Marshal.SizeOf(typeof(int)));
-            W32.DwmSetWindowAttribute(handle, W32.DWMWINDOWATTRIBUTE.DWMWA_USE_HOSTBACKDROPBRUSH, ref b, Marshal.SizeOf(typeof(int)));
-            //W32.DwmSetWindowAttribute(myHostControl.Handle, W32.DWMWINDOWATTRIBUTE.Cloak, ref c, Marshal.SizeOf(typeof(int)));
-            IntPtr exStyle = W32.GetWindowLongPtr(handle, W32.GWL_EXSTYLE);
-            W32.SetWindowLongPtr(handle, W32.GWL_EXSTYLE, (IntPtr)(exStyle.ToInt64() | W32.WS_EX_LAYERED));
-            W32.DwmEnableComposition(W32.CompositionAction.DWM_EC_DISABLECOMPOSITION);
         }
 
-        private Windows.UI.Xaml.Controls.MediaPlayerElement _media = null;
-        private Windows.UI.Xaml.Controls.MediaPlayerElement curMedia
+        private Microsoft.UI.Xaml.Controls.MediaPlayerElement _media = null;
+        private Microsoft.UI.Xaml.Controls.MediaPlayerElement curMedia
         {
             get
             {
@@ -102,20 +58,21 @@ namespace Wallpapeuhrs
             {
                 try
                 {
-                    //setDWM();
                     double v = volume;
-                    //if (v == 100) v = 99.4;
                     value.AutoPlay = true;
                     value.MediaPlayer.IsLoopingEnabled = true;
                     value.MediaPlayer.Volume = v / 100;
                     main.Children.Insert(0, value);
-                    value.Stretch = Windows.UI.Xaml.Media.Stretch.UniformToFill;
-                    value.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Center;
-                    value.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Center;
+                    value.Stretch = Microsoft.UI.Xaml.Media.Stretch.UniformToFill;
+                    value.VerticalAlignment = Microsoft.UI.Xaml.VerticalAlignment.Center;
+                    (value as Microsoft.UI.Xaml.Controls.MediaPlayerElement).AreTransportControlsEnabled = false;
+                    (value as Microsoft.UI.Xaml.Controls.MediaPlayerElement).MediaPlayer.SystemMediaTransportControls.IsEnabled = false;
+                    (value as Microsoft.UI.Xaml.Controls.MediaPlayerElement).MediaPlayer.CommandManager.IsEnabled = false;
+                    value.HorizontalAlignment = Microsoft.UI.Xaml.HorizontalAlignment.Center;
                     value.MediaPlayer.MediaOpened += async (sender, eee) =>
                     {
                         remove(value);
-                        await main.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        DispatcherQueue.TryEnqueue(() =>
                         {
                             parent.changeNativeWallpaper(null);
                         });
@@ -123,32 +80,32 @@ namespace Wallpapeuhrs
                     _media = value;
                     value.MediaPlayer.MediaFailed += async (sender, e) =>
                     {
-                        await main.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        DispatcherQueue.TryEnqueue(() =>
                         {
                             if (value.MediaPlayer != null)
                             {
                                 Uri source = (value.Source as MediaSource).Uri;
                                 string file = source.OriginalString != string.Empty ? source.OriginalString : source.AbsolutePath;
-                                MessageBox.Show("Unable to launch or read the media. Please verify the media's path and verify if it's an video.\nFile : " + file + "\n\nIntern error :\n" + e.Error.ToString() + "\n" + e.ExtendedErrorCode, "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                System.Windows.MessageBox.Show("Unable to launch or read the media. Please verify the media's path and verify if it's an video.\nFile : " + file + "\n\nIntern error :\n" + e.Error.ToString() + "\n" + e.ExtendedErrorCode, "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                             }
                         });
                     };
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("Media.xaml:\n" + e.ToString());
+                    System.Windows.MessageBox.Show("Media.xaml:\n" + e.ToString());
                 }
             }
         }
 
-        public Windows.UI.Xaml.Media.Animation.DoubleAnimation addDoubleAnimation(Windows.UI.Xaml.UIElement el, TimeSpan time, double? from, double? to, string property)
+        public Microsoft.UI.Xaml.Media.Animation.DoubleAnimation addDoubleAnimation(Microsoft.UI.Xaml.UIElement el, TimeSpan time, double? from, double? to, string property)
         {
-            Windows.UI.Xaml.Media.Animation.DoubleAnimation da = new Windows.UI.Xaml.Media.Animation.DoubleAnimation();
+            Microsoft.UI.Xaml.Media.Animation.DoubleAnimation da = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation();
             da.From = from;
             da.To = to;
-            da.Duration = new Windows.UI.Xaml.Duration(time);
-            Windows.UI.Xaml.Media.Animation.Storyboard.SetTarget(da, el);
-            Windows.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(da, property);
+            da.Duration = new Microsoft.UI.Xaml.Duration(time);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(da, el);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(da, property);
             return da;
         }
 
@@ -169,17 +126,17 @@ namespace Wallpapeuhrs
         {
             curUrl = newUrl;
             parent.log("aaaaaaaa " + newUrl + " " + System.IO.Path.GetExtension(newUrl));
-            SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
+            //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
             foreach (string ext in App.types.Keys)
             {
                 parent.log("aaaaaaab " + ext);
                 if (App.types[ext].Contains(System.IO.Path.GetExtension(newUrl)))
                 {
                     parent.log("aaaaaaac " + ext);
-                    changePlayerState(false);
+                    stopPlayers();
                     if (ext == "Video files")
                     {
-                        Windows.UI.Xaml.Controls.MediaPlayerElement me = new Windows.UI.Xaml.Controls.MediaPlayerElement();
+                        Microsoft.UI.Xaml.Controls.MediaPlayerElement me = new Microsoft.UI.Xaml.Controls.MediaPlayerElement();
                         me.CacheMode = setCache(newUrl);
                         me.Source = MediaSource.CreateFromUri(new Uri(newUrl));
                         me.MediaPlayer.SystemMediaTransportControls.IsEnabled = false;
@@ -189,36 +146,58 @@ namespace Wallpapeuhrs
                     }
                     if(ext == "Image files")
                     {
-                        Windows.UI.Xaml.Controls.Image me = new Windows.UI.Xaml.Controls.Image();
+                        Microsoft.UI.Xaml.Controls.Image me = new Microsoft.UI.Xaml.Controls.Image();
                         me.CacheMode = setCache(newUrl);
-                        Windows.UI.Xaml.Media.Imaging.BitmapImage img = new Windows.UI.Xaml.Media.Imaging.BitmapImage();
+                        Microsoft.UI.Xaml.Media.Imaging.BitmapImage img = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
                         me.Stretch = Stretch.UniformToFill;
-                        me.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Center;
-                        me.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Center;
+                        me.VerticalAlignment = Microsoft.UI.Xaml.VerticalAlignment.Center;
+                        me.HorizontalAlignment = Microsoft.UI.Xaml.HorizontalAlignment.Center;
+                        if(main.Children.Count > 1) me.Opacity = 0;
                         img.ImageOpened += async (sender, e) =>
                         {
-                            remove(null);
-                            await main.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                            remove(me);
+                            DispatcherQueue.TryEnqueue(() =>
                             {
+                                if (img.IsAnimatedBitmap) img.Play();
                                 parent.changeNativeWallpaper(null);
                             });
                         };
                         img.ImageFailed += async (sender, e) =>
                         {
-                            await main.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
+                            DispatcherQueue.TryEnqueue(() =>
                             {
                                 Uri source = img.UriSource;
                                 string file = source.OriginalString != string.Empty ? source.OriginalString : source.AbsolutePath;
-                                MessageBox.Show("Unable to launch or read the image. Please verify the image's path and verify if it's an image.\nFile : " + file + "\n\nIntern error :\n" + e.ErrorMessage + "\n" + e.OriginalSource.ToString(), "Wallpapeuhrs - Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                System.Windows.MessageBox.Show("Unable to launch or read the image. Please verify the image's path and verify if it's an image.\nFile : " + file + "\n\nIntern error :\n" + e.ErrorMessage + "\n" + e.OriginalSource.ToString(), "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                             });
                         };
+                        main.Children.Insert(main.Children.Count == 0 ? 0 : 1, me);
                         img.AutoPlay = true;
                         img.UriSource = new Uri(newUrl);
                         me.Source = img;
-                        main.Children.Insert(0, me);
-                        if (img.IsAnimatedBitmap) img.Play();
                     }
                     return;
+                }
+            }
+        }
+
+        public void stopPlayers()
+        {
+            if(main.Children.Count == 0) return;
+            if (main.Children[0].GetType() == typeof(Microsoft.UI.Xaml.Controls.MediaPlayerElement))
+            {
+                if (curMedia != null)
+                {
+                    curMedia.MediaPlayer.Pause();
+                }
+            }
+            else if (main.Children[0].GetType() == typeof(Microsoft.UI.Xaml.Controls.Image))
+            {
+                Microsoft.UI.Xaml.Controls.Image med = (Microsoft.UI.Xaml.Controls.Image)main.Children[0];
+                Microsoft.UI.Xaml.Media.Imaging.BitmapImage img = med.Source as Microsoft.UI.Xaml.Media.Imaging.BitmapImage;
+                if (img.IsAnimatedBitmap)
+                {
+                    img.Stop();
                 }
             }
         }
@@ -239,8 +218,8 @@ namespace Wallpapeuhrs
                     }
                     if (ext == "Image files")
                     {
-                        Windows.UI.Xaml.Controls.Image med = (Windows.UI.Xaml.Controls.Image)main.Children[0];
-                        Windows.UI.Xaml.Media.Imaging.BitmapImage img = med.Source as Windows.UI.Xaml.Media.Imaging.BitmapImage;
+                        Microsoft.UI.Xaml.Controls.Image med = (Microsoft.UI.Xaml.Controls.Image)main.Children[0];
+                        Microsoft.UI.Xaml.Media.Imaging.BitmapImage img = med.Source as Microsoft.UI.Xaml.Media.Imaging.BitmapImage;
                         if(img.IsAnimatedBitmap)
                         {
                             if (play) img.Play();
@@ -252,95 +231,107 @@ namespace Wallpapeuhrs
             }
         }
 
-        private async void remove(object value)
+        private async void remove(Microsoft.UI.Xaml.UIElement value)
         {
-            await main.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            DispatcherQueue.TryEnqueue(() =>
             {
-                if(value is Windows.UI.Xaml.Controls.MediaPlayerElement)
+                if(value is Microsoft.UI.Xaml.Controls.MediaPlayerElement)
                 {                   
-                    (value as Windows.UI.Xaml.Controls.MediaPlayerElement).AreTransportControlsEnabled = false;
-                    (value as Windows.UI.Xaml.Controls.MediaPlayerElement).MediaPlayer.SystemMediaTransportControls.IsEnabled = false;
-                    (value as Windows.UI.Xaml.Controls.MediaPlayerElement).MediaPlayer.CommandManager.IsEnabled = false;
-                    //(value as Windows.UI.Xaml.Controls.MediaPlayerElement).TransportControls.IsEnabled = false;
+                    (value as Microsoft.UI.Xaml.Controls.MediaPlayerElement).AreTransportControlsEnabled = false;
+                    (value as Microsoft.UI.Xaml.Controls.MediaPlayerElement).MediaPlayer.SystemMediaTransportControls.IsEnabled = false;
+                    (value as Microsoft.UI.Xaml.Controls.MediaPlayerElement).MediaPlayer.CommandManager.IsEnabled = false;
+                    //(value as Microsoft.UI.Xaml.Controls.MediaPlayerElement).TransportControls.IsEnabled = false;
                     //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
                     //SystemMediaTransportControls.GetForCurrentView().DisplayUpdater.Update();
                 }
-                for (int index = 0; index < main.Children.Count; index++)
+                Microsoft.UI.Xaml.Media.Animation.Storyboard sb = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                int index = 0;
+                if (value is Microsoft.UI.Xaml.Controls.MediaPlayerElement && main.Children.Count > 1)
                 {
-                    if (index > 0 && main.Children[index].Opacity == 1)
+                    sb.Children.Add(addDoubleAnimation(main.Children[1], TimeSpan.FromMilliseconds(1000), 1, 0, "Opacity"));
+                    index = 1;
+                }
+                else if (value is Microsoft.UI.Xaml.Controls.Image && main.Children.Count > 1)
+                {
+                    sb.Children.Add(addDoubleAnimation(value, TimeSpan.FromMilliseconds(1000), 0, 1, "Opacity"));
+                    index = 0;
+                }
+                if (main.Children.Count > 1)
+                {
+                    if (main.Children[index].GetType() == typeof(Microsoft.UI.Xaml.Controls.MediaPlayerElement))
                     {
-                        if (main.Children[index].GetType() == typeof(Windows.UI.Xaml.Controls.MediaPlayerElement))
+                        Microsoft.UI.Xaml.Controls.MediaPlayerElement med = (Microsoft.UI.Xaml.Controls.MediaPlayerElement)main.Children[index];
+
+                        sb.Completed += (sendere, ee) =>
                         {
-                            Windows.UI.Xaml.Controls.MediaPlayerElement med = (Windows.UI.Xaml.Controls.MediaPlayerElement)main.Children[index];
-                            Windows.UI.Xaml.Media.Animation.Storyboard sb = new Windows.UI.Xaml.Media.Animation.Storyboard();
-                            sb.Children.Add(addDoubleAnimation(med, TimeSpan.FromMilliseconds(1000), 1, 0, "Opacity"));
-                            sb.Completed += (sendere, ee) =>
+                            parent.log("uwu2");
+                            try
                             {
-                                parent.log("uwu2");
-                                try
+                                main.Children.Remove(med);
+                                med.IsEnabled = false;
+                                if (med.Source != null)
                                 {
-                                    main.Children.Remove(med);
-                                    med.IsEnabled = false;
-                                    if (med.Source != null)
-                                    {
-                                        (med.Source as MediaSource).Dispose();
-                                        med.Source = null;
-                                    }
-                                    if (med.MediaPlayer != null)
-                                    {
-                                        med.MediaPlayer.Pause();
-                                        med.MediaPlayer.Source = null;
-                                        med.MediaPlayer.Dispose();
-                                        med.SetMediaPlayer(null);
-                                    }
-                                    //med.CacheMode = null;
-                                    med = null;
-                                    GC.Collect();
-                                    GC.WaitForPendingFinalizers();
-                                    GC.Collect();
-                                    GC.WaitForPendingFinalizers();
-                                    if (value != null) _media = value as Windows.UI.Xaml.Controls.MediaPlayerElement;
-                                    else _media = null;
-                                }
-                                catch (Exception e)
-                                {
-                                    MessageBox.Show("Storyboard end:\n" + e.ToString());
-                                }
-                            };
-                            sb.Begin();
-                        }
-                        if(main.Children[index].GetType() == typeof(Windows.UI.Xaml.Controls.Image))
-                        {
-                            Windows.UI.Xaml.Controls.Image med = (Windows.UI.Xaml.Controls.Image)main.Children[index];
-                            Windows.UI.Xaml.Media.Animation.Storyboard sb = new Windows.UI.Xaml.Media.Animation.Storyboard();
-                            sb.Children.Add(addDoubleAnimation(med, TimeSpan.FromMilliseconds(1000), 1, 0, "Opacity"));
-                            sb.Completed += (sendere, ee) =>
-                            {
-                                parent.log("uwu3");
-                                try
-                                {
-                                    if (med.Source != null)
-                                    {
-                                        Windows.UI.Xaml.Media.Imaging.BitmapImage img = med.Source as Windows.UI.Xaml.Media.Imaging.BitmapImage;
-                                        img.Stop();
-                                        //img.SetSource(null);
-                                    }
+                                    (med.Source as MediaSource).Dispose();
                                     med.Source = null;
-                                    //med.CacheMode = null;
-                                    main.Children.Remove(med);
-                                    med = null;
-                                    GC.Collect();
-                                    GC.WaitForPendingFinalizers();
-                                    GC.Collect();
-                                    GC.WaitForPendingFinalizers();
                                 }
-                                catch (Exception e)
+                                if (med.MediaPlayer != null)
                                 {
-                                    MessageBox.Show("Storyboard end:\n" + e.ToString());
+                                    med.MediaPlayer.Pause();
+                                    med.MediaPlayer.Source = null;
+                                    med.MediaPlayer.Dispose();
+                                    med.SetMediaPlayer(null);
                                 }
-                            };
-                            sb.Begin();
-                        }
+                                //med.CacheMode = null;
+                                med = null;
+                                GC.Collect();
+                                GC.WaitForPendingFinalizers();
+                                GC.Collect();
+                                GC.WaitForPendingFinalizers();
+                                if (value != null) _media = value as Microsoft.UI.Xaml.Controls.MediaPlayerElement;
+                                else _media = null;
+                            }
+                            catch (Exception e)
+                            {
+                                System.Windows.MessageBox.Show("Storyboard end:\n" + e.ToString());
+                            }
+                        };
+                    }
+                    if (main.Children[index].GetType() == typeof(Microsoft.UI.Xaml.Controls.Image))
+                    {
+                        Microsoft.UI.Xaml.Controls.Image med = (Microsoft.UI.Xaml.Controls.Image)main.Children[index];
+                        sb.Completed += (sendere, ee) =>
+                        {
+                            parent.log("uwu3");
+                            try
+                            {
+                                if (med.Source != null)
+                                {
+                                    Microsoft.UI.Xaml.Media.Imaging.BitmapImage img = med.Source as Microsoft.UI.Xaml.Media.Imaging.BitmapImage;
+                                    img.Stop();
+                                    //img.SetSource(null);
+                                }
+                                med.Source = null;
+                                //med.CacheMode = null;
+                                main.Children.Remove(med);
+                                med = null;
+                                GC.Collect();
+                                GC.WaitForPendingFinalizers();
+                                GC.Collect();
+                                GC.WaitForPendingFinalizers();
+                            }
+                            catch (Exception e)
+                            {
+                                System.Windows.MessageBox.Show("Storyboard end:\n" + e.ToString());
+                            }
+                        };
+                    }
+                    sb.Begin();
+                }
+                if(main.Children.Count > 2)
+                {
+                    for (int i = 2; i < main.Children.Count; i++)
+                    {
+                        main.Children.RemoveAt(i);
                     }
                 }
             });
@@ -350,27 +341,78 @@ namespace Wallpapeuhrs
         {
             await Task.Delay(1000);
             parent.log("screenshot");
-            Windows.UI.Xaml.Media.Imaging.RenderTargetBitmap renderTargetBitmap =
-    new Windows.UI.Xaml.Media.Imaging.RenderTargetBitmap();
-            await renderTargetBitmap.RenderAsync(main);
-            IBuffer buf = await renderTargetBitmap.GetPixelsAsync();
-            var encoded = new InMemoryRandomAccessStream();
-            var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(Windows.Graphics.Imaging.BitmapEncoder.PngEncoderId, encoded);
-            byte[] bytes = buf.ToArray();
-            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore,
-                (uint)renderTargetBitmap.PixelWidth, (uint)renderTargetBitmap.PixelHeight, 96, 96, bytes);
-            await encoder.FlushAsync();
-            encoded.Seek(0);
-            var by = new byte[encoded.Size];
-            await encoded.AsStream().ReadAsync(by, 0, by.Length);
-            encoded.Dispose();
-            encoded = null;
-            renderTargetBitmap = null;
-            buf = null;
-            bytes = null;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            return new MemoryStream(by);
+            foreach (string ext in App.types.Keys)
+            {
+                if (App.types[ext].Contains(System.IO.Path.GetExtension(curUrl)))
+                {
+                    if (ext == "Video files")
+                    {
+                        SoftwareBitmap softwareBitmap;
+                        var frame = new SoftwareBitmap(BitmapPixelFormat.Rgba8,
+                        (int)curMedia.ActualWidth, (int)curMedia.ActualHeight, BitmapAlphaMode.Ignore);
+                        var canvasDevice = CanvasDevice.GetSharedDevice();
+                        using (var inputBitmap = CanvasBitmap.CreateFromSoftwareBitmap(canvasDevice, frame))
+                        {
+                            curMedia.MediaPlayer.CopyFrameToVideoSurface(inputBitmap);
+
+                            using (var stream = new Windows.Storage.Streams.InMemoryRandomAccessStream())
+                            {
+                                await inputBitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
+                                var decoder = await Windows.Graphics.Imaging.BitmapDecoder.CreateAsync(stream);
+                                softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+                            }
+                        }
+                        Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap renderTargetBitmap =
+                new Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap();
+                        //await renderTargetBitmap.RenderAsync(main);
+                        IBuffer buf = new Windows.Storage.Streams.Buffer((uint)(softwareBitmap.PixelWidth * softwareBitmap.PixelHeight * 4));
+                        softwareBitmap.CopyToBuffer(buf);
+                        var encoded = new InMemoryRandomAccessStream();
+                        var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(Windows.Graphics.Imaging.BitmapEncoder.PngEncoderId, encoded);
+                        byte[] bytes = buf.ToArray();
+                        encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore,
+                            (uint)softwareBitmap.PixelWidth, (uint)softwareBitmap.PixelHeight, 96, 96, bytes);
+                        await encoder.FlushAsync();
+                        encoded.Seek(0);
+                        var by = new byte[encoded.Size];
+                        await encoded.AsStream().ReadAsync(by, 0, by.Length);
+                        encoded.Dispose();
+                        encoded = null;
+                        renderTargetBitmap = null;
+                        buf = null;
+                        bytes = null;
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                        return new MemoryStream(by);
+                    }
+                    if (ext == "Image files")
+                    {
+                        Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap renderTargetBitmap =
+                new Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap();
+                        await renderTargetBitmap.RenderAsync(main);
+                        IBuffer buf = await renderTargetBitmap.GetPixelsAsync();
+                        var encoded = new InMemoryRandomAccessStream();
+                        var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(Windows.Graphics.Imaging.BitmapEncoder.PngEncoderId, encoded);
+                        byte[] bytes = buf.ToArray();
+                        encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore,
+                            (uint)renderTargetBitmap.PixelWidth, (uint)renderTargetBitmap.PixelHeight, 96, 96, bytes);
+                        await encoder.FlushAsync();
+                        encoded.Seek(0);
+                        var by = new byte[encoded.Size];
+                        await encoded.AsStream().ReadAsync(by, 0, by.Length);
+                        encoded.Dispose();
+                        encoded = null;
+                        renderTargetBitmap = null;
+                        buf = null;
+                        bytes = null;
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                        return new MemoryStream(by);
+                    }
+                }
+            }
+            parent.log("No screenshot taken, no media found");
+            return null;
         }
     }
 }

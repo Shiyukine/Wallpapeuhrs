@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Wallpapeuhrs (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Wallpapeuhrs (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

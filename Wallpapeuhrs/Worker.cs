@@ -68,7 +68,7 @@ namespace Wallpapeuhrs
 
             workerw = IntPtr.Zero;
 
-            // Method 1: Find WorkerW as child of Progman (based on your output)
+            // Method 1: Find WorkerW as child of Progman
             workerw = W32.FindWindowEx(progman, IntPtr.Zero, "WorkerW", IntPtr.Zero);
 
             if(workerw == IntPtr.Zero)

@@ -1270,6 +1270,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 b.urls.Text = sf.getStringSetting("Screen_" + index + "_url");
                 b.interval.Text = sf.getStringSetting("Screen_" + index + "_interval");
                 b.vol.Text = sf.getStringSetting("Screen_" + index + "_vol");
+                b.opt_interval.Visibility = File.Exists(b.urls.Text) || b.urls.Text == "" ? Visibility.Collapsed : Visibility.Visible;
                 if (sf.settingExists("Edge_Engine") && sf.getIntSetting("Edge_Engine") <= 3)
                 {
                     foreach (Grid g in b.filters.Children)
@@ -1410,6 +1411,11 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
         {
             opt_interval.Visibility = File.Exists(urls.Text) ? Visibility.Collapsed : Visibility.Visible;
             opt_fullrdm.Visibility = File.Exists(urls.Text) ? Visibility.Collapsed : Visibility.Visible;
+            for (int i = 1; i < multiscreen_g.Children.Count; i++)
+            {
+                ScreenConfig sc = (ScreenConfig)multiscreen_g.Children[i];
+                sc.opt_interval.Visibility = File.Exists(sc.urls.Text) || sc.urls.Text == null ? Visibility.Collapsed : Visibility.Visible;
+            }
         }
 
         /* NE PAS TOUCHER
