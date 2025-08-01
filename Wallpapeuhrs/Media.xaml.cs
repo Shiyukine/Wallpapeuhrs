@@ -36,6 +36,7 @@ namespace Wallpapeuhrs
         public float nextChange = 0;
         private WPBG parent;
         Dictionary<string, BitmapCache> caches = new Dictionary<string, BitmapCache>();
+        bool canScreenshot = true;
 
         public Media(WPBG parent)
         {
@@ -134,6 +135,7 @@ namespace Wallpapeuhrs
                 {
                     parent.log("aaaaaaac " + ext);
                     stopPlayers();
+                    canScreenshot = true;
                     if (ext == "Video files")
                     {
                         Microsoft.UI.Xaml.Controls.MediaPlayerElement me = new Microsoft.UI.Xaml.Controls.MediaPlayerElement();
@@ -339,6 +341,8 @@ namespace Wallpapeuhrs
 
         public async Task<MemoryStream> screenshot()
         {
+            if(!canScreenshot) return null;
+            canScreenshot = false;
             await Task.Delay(1000);
             parent.log("screenshot");
             foreach (string ext in App.types.Keys)

@@ -97,13 +97,19 @@ namespace Wallpapeuhrs
                     setWorker();
                 };
             }
-            else
+            else if(engine == 4)
             {
                 med = new Media(this);
                 setWorker();
             }
+            else
+            {
+                med = new MediaEffect(this);
+                setWorker();
+            }
             Content = med;
             if (isEdgeEngine) (med as MediaVW).init();
+            else if(med is MediaEffect) (med as MediaEffect).init();
             else (med as Media).init();
             //
             //WindowStartupLocation = WindowStartupLocation.Manual;
@@ -195,6 +201,7 @@ namespace Wallpapeuhrs
                                         changePlayerState(true);
                                         timer.Start();
                                         if(isEdgeEngine) (med as MediaVW).nextChange = System.Environment.TickCount + timePaused;
+                                        else if (med is MediaEffect) (med as MediaEffect).nextChange = System.Environment.TickCount + timePaused;
                                         else (med as Media).nextChange = System.Environment.TickCount + timePaused;
                                     }
                                     if (str.StartsWith("VPlay"))
@@ -206,6 +213,7 @@ namespace Wallpapeuhrs
                                         changePlayerState(false);
                                         timer.Stop();
                                         if(isEdgeEngine) timePaused = (med as MediaVW).nextChange - System.Environment.TickCount;
+                                        else if (med is MediaEffect) timePaused = (med as MediaEffect).nextChange - System.Environment.TickCount;
                                         else timePaused = (med as Media).nextChange - System.Environment.TickCount;
                                     }
                                     if (str.StartsWith("ChangeTheme"))
@@ -213,6 +221,7 @@ namespace Wallpapeuhrs
                                         string theme = str.Split('=')[1];
                                         double value = Convert.ToDouble(str.Split('=')[2], CultureInfo.InvariantCulture);
                                         if(isEdgeEngine) (med as MediaVW).changeFilter(theme, value);
+                                        else if(med is MediaEffect) (med as MediaEffect).changeFilter(theme, value);
                                     }
                                 });
                             }
@@ -242,6 +251,7 @@ namespace Wallpapeuhrs
                 if (!curPlay)
                 {
                     if (isEdgeEngine) (med as MediaVW).nextChange += 1 * 1000;
+                    else if (med is MediaEffect) (med as MediaEffect).nextChange += 1 * 1000;
                     else (med as Media).nextChange += 1 * 1000;
                 }
                 try
@@ -252,6 +262,14 @@ namespace Wallpapeuhrs
                         {
                             (med as MediaVW).nextChange = System.Environment.TickCount + interval * 1000;
                             (med as MediaVW).changeUrl(getNewMedia());
+                        }
+                    }
+                    else if (med is MediaEffect)
+                    {
+                        if (curUrl != "" && isDir && (med as MediaEffect).nextChange <= System.Environment.TickCount)
+                        {
+                            (med as MediaEffect).nextChange = System.Environment.TickCount + interval * 1000;
+                            (med as MediaEffect).changeUrl(getNewMedia());
                         }
                     }
                     else
@@ -281,13 +299,16 @@ namespace Wallpapeuhrs
             if (timer.Enabled) timer.Stop();
             string newUrl = getNewMedia();
             if(isEdgeEngine) (med as MediaVW).volume = volume;
+            else if (med is MediaEffect) (med as MediaEffect).volume = volume;
             else (med as Media).volume = volume;
             if(isEdgeEngine) (med as MediaVW).repeat = repeat;
+            else if (med is MediaEffect) (med as MediaEffect).repeat = repeat;
             else (med as Media).repeat = repeat;
             try
             {
                 curPlay = true;
                 if (isEdgeEngine) (med as MediaVW).changeUrl(newUrl);
+                else if (med is MediaEffect) (med as MediaEffect).changeUrl(newUrl);
                 else (med as Media).changeUrl(newUrl);
                 //changeNativeWallpaper(newUrl);
             }
@@ -296,6 +317,7 @@ namespace Wallpapeuhrs
                 System.Windows.MessageBox.Show("Unable to load the new media (" + newUrl + ") : " + e.Message + "\n" + e.StackTrace, "Wallpapeuhrs - Error");
             }
             if (isEdgeEngine) (med as MediaVW).nextChange = System.Environment.TickCount + (interval + interval / 4 * startAfter) * 1000;
+            else if (med is MediaEffect) (med as MediaEffect).nextChange = System.Environment.TickCount + (interval + interval / 4 * startAfter) * 1000;
             else (med as Media).nextChange = System.Environment.TickCount + (interval + interval / 4 * startAfter) * 1000;
             timer.Start();
         }
@@ -326,7 +348,9 @@ namespace Wallpapeuhrs
                     }*/
                     MemoryStream ms;
                     if (isEdgeEngine) ms = msVW;
+                    else if (med is MediaEffect) ms = await (med as MediaEffect).screenshot();
                     else ms = await (med as Media).screenshot();
+                    if (ms == null) return;
                     Directory.CreateDirectory(data);
                     var fileStream = File.Create(data + "thumb.png");
                     ms.WriteTo(fileStream);
@@ -455,6 +479,7 @@ namespace Wallpapeuhrs
         {
             curPlay = play;
             if(isEdgeEngine) (med as MediaVW).changePlayerState(play);
+            else if (med is MediaEffect) (med as MediaEffect).changePlayerState(play);
             else (med as Media).changePlayerState(play);
             //if (play) W32.SetThreadExecutionState(W32.EXECUTION_STATE.ES_CONTINUOUS);
         }

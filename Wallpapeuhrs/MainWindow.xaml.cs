@@ -500,7 +500,7 @@ namespace Wallpapeuhrs
                     }
                 }
                 restart_dwm.Visibility = sf.getBoolSetting("RestartExplorer") ? Visibility.Visible : Visibility.Collapsed;
-                filters.Visibility = sf.getIntSetting("Edge_Engine") <= 3 ? Visibility.Visible : Visibility.Collapsed;
+                filters.Visibility = sf.getIntSetting("Edge_Engine") <= 3 || sf.getIntSetting("Edge_Engine") == 5 ? Visibility.Visible : Visibility.Collapsed;
                 curIndexEcoConfig = selectedIndexEcoConfig;
             }
             catch 
@@ -539,7 +539,7 @@ namespace Wallpapeuhrs
             fullrdm.IsChecked = sf.getBoolSetting("FullRdm");
             engine.SelectedIndex = sf.getIntSetting("Edge_Engine");
             restart_dwm.Visibility = sf.getBoolSetting("RestartExplorer") ? Visibility.Visible : Visibility.Collapsed;
-            filters.Visibility = sf.getIntSetting("Edge_Engine") <= 3 ? Visibility.Visible : Visibility.Collapsed;
+            filters.Visibility = sf.getIntSetting("Edge_Engine") <= 3 || sf.getIntSetting("Edge_Engine") == 5 ? Visibility.Visible : Visibility.Collapsed;
             //
             foreach (Grid g in filters.Children)
             {
@@ -565,6 +565,7 @@ namespace Wallpapeuhrs
         {
             try
             {
+                if(stopping) return;
                 loaded = false;
                 if (sf.getIntSetting("Edge_Engine") <= 3)
                 {
@@ -626,7 +627,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                     PStcp.Start();
                     ok = true;
                 }
-                filters.Visibility = sf.getIntSetting("Edge_Engine") <= 3 ? Visibility.Visible : Visibility.Collapsed;
+                filters.Visibility = sf.getIntSetting("Edge_Engine") <= 3 || sf.getIntSetting("Edge_Engine") == 5 ? Visibility.Visible : Visibility.Collapsed;
                 if (urls.Text != "")
                 {
                     int startAfter = 0;
