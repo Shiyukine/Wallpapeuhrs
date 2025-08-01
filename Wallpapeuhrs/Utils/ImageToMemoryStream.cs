@@ -122,7 +122,7 @@ namespace Wallpapeuhrs.Utils
             get
             {
                 if (_imageSource == null)
-                    throw new InvalidOperationException("Image source is not set.");
+                    return false;
                 if (!_imageSource.RawFormat.Equals(ImageFormat.Gif))
                     return false;
 
@@ -218,7 +218,7 @@ namespace Wallpapeuhrs.Utils
 
         public void StopAnimation()
         {
-            if (!IsAnimated) return;
+            if (!IsAnimated || !_isAnimating) return;
             _isAnimating = false;
             _isPaused = false;
             _pauseEvent.Set(); // Unblock if paused

@@ -32,10 +32,9 @@
                         </Border>
                     </Grid>
                     <Grid Margin="15,5">
-                        <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Volume (between 0 and 100)"/></TextBlock>
-                        <Border Margin="229,0,0,0" VerticalAlignment="Center" Width="64" HorizontalAlignment="Left" Background="#FF474747" BorderThickness="0" CornerRadius="12">
-                            <TextBox x:Name="vol" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" HorizontalContentAlignment="Center" Margin="0,2"/>
-                        </Border>
+                        <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Volume"/></TextBlock>
+                        <Slider x:Name="volume" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="89,0,0,0" Foreground="White" Width="165" Maximum="100" Value="0" IsMoveToPointEnabled="True" Style="{DynamicResource Horizontal_FocusSlider}" Background="DarkGray" ValueChanged="volume_ValueChanged"/>
+                        <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="259,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="vol_Reset"/>
                     </Grid>
                     <StackPanel x:Name="filters">
                         <Grid Margin="15,5">

@@ -186,7 +186,13 @@ namespace Wallpapeuhrs
                                     if (str.StartsWith("Liste")) isList = true;
                                     //
                                     str = str.Replace(",", ".");
-                                    if (str.StartsWith("Volume")) volume = Convert.ToDouble(str.Split('=')[1], CultureInfo.InvariantCulture);
+                                    if (str.StartsWith("Volume"))
+                                    {
+                                        volume = Convert.ToDouble(str.Split('=')[1], CultureInfo.InvariantCulture);
+                                        if (isEdgeEngine) (med as MediaVW).changeVolume(volume);
+                                        else if (med is MediaEffect) (med as MediaEffect).changeVolume(volume);
+                                        else (med as Media).changeVolume(volume);
+                                    }
                                     if (str.StartsWith("Interval")) interval = Convert.ToInt32(str.Split('=')[1]);
                                     if (str.StartsWith("Repeat")) repeat = Convert.ToBoolean(str.Split('=')[1]);
                                     if (str.StartsWith("Fullrdm")) fullrdm = Convert.ToBoolean(str.Split('=')[1]);

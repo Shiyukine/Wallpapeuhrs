@@ -418,5 +418,16 @@ namespace Wallpapeuhrs
             parent.log("No screenshot taken, no media found");
             return null;
         }
+
+        public void changeVolume(double value)
+        {
+            volume = value;
+            if (curMedia == null) return;
+            MediaPlayerElement me = (MediaPlayerElement)curMedia;
+            if (me.MediaPlayer != null)
+            {
+                me.MediaPlayer.Volume = value / 100;
+            }
+        }
     }
 }

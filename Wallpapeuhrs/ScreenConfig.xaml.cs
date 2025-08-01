@@ -60,5 +60,15 @@ namespace Wallpapeuhrs
         {
             opt_interval.Visibility = File.Exists(urls.Text) ? Visibility.Collapsed : Visibility.Visible;
         }
+
+        private void volume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (screenName != null) MainWindow.changeVolumeValue(sender, screenName);
+        }
+
+        private void vol_Reset(object sender, RoutedEventArgs e)
+        {
+            MainWindow.resetVolumeValue(sender, screenName);
+        }
     }
 }

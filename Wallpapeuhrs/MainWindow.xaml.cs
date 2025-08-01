@@ -480,7 +480,7 @@ namespace Wallpapeuhrs
             try
             {
                 sf.setSetting("Path", urls.Text, null);
-                sf.setSetting("Vol", Convert.ToInt32(vol.Text), null);
+                sf.setSetting("Vol", volume.Value, null);
                 sf.setSetting("Interval", Convert.ToInt32(interval.Text), null);
                 sf.setSetting("Start", (bool)startwithw.IsChecked, null);
                 sf.setSetting("EcoMode", selectedIndexEcoConfig, null);
@@ -495,8 +495,6 @@ namespace Wallpapeuhrs
                         sf.setSetting("Screen_" + config.screenName + "_url", config.urls.Text, null);
                         if(config.interval.Text != "") sf.setSetting("Screen_" + config.screenName + "_interval", Convert.ToInt32(config.interval.Text), null);
                         else sf.setSetting("Screen_" + config.screenName + "_interval", "", null);
-                        if (config.vol.Text != "") sf.setSetting("Screen_" + config.screenName + "_vol", Convert.ToInt32(config.vol.Text), null);
-                        else sf.setSetting("Screen_" + config.screenName + "_vol", "", null);
                     }
                 }
                 restart_dwm.Visibility = sf.getBoolSetting("RestartExplorer") ? Visibility.Visible : Visibility.Collapsed;
@@ -522,7 +520,7 @@ namespace Wallpapeuhrs
             if (!sf.settingExists("Edge_Engine")) sf.setSetting("Edge_Engine", 0, null);
             //
             urls.Text = sf.getStringSetting("Path");
-            vol.Text = sf.getStringSetting("Vol");
+            volume.Value = sf.getDoubleSetting("Vol");
             interval.Text = sf.getStringSetting("Interval");
             startwithw.IsChecked = sf.getBoolSetting("Start");
             if (sf.settingExists("Stop"))
@@ -818,7 +816,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                             sendData(PCtcp, screenConfig.urls.Text == "" ? urls.Text : screenConfig.urls.Text, moni);
                             sendData(PCtcp, "Endliste", moni);
                             //
-                            sendData(PCtcp, "Volume=" + (screenConfig.vol.Text == "" ? sf.getIntSetting("Vol") : Convert.ToInt32(screenConfig.vol.Text)), moni);
+                            sendData(PCtcp, "Volume=" + (!sf.settingExists("Screen_" + moni + "_vol") ? sf.getDoubleSetting("Vol") : sf.getDoubleSetting("Screen_" + moni + "_vol")), moni);
                             sendData(PCtcp, "Interval=" + (screenConfig.interval.Text == "" ? sf.getIntSetting("Interval") : Convert.ToInt32(screenConfig.interval.Text)), moni);
                             sendData(PCtcp, "Repeat=" + sf.getBoolSetting("Repeat"), moni);
                             sendData(PCtcp, "Fullrdm=" + sf.getBoolSetting("FullRdm"), moni);
@@ -1166,12 +1164,7 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
         {
             if (!Update.haveUpdate)
             {
-                ProcessStartInfo psi = new ProcessStartInfo
-                {
-                    FileName = "https://github.com/Shiyukine/Wallpapeuhrs",
-                    UseShellExecute = true
-                };
-                Process.Start(psi);
+                Update.searchUpdates();
             }
             else Update.installUpdate();
         }
@@ -1270,9 +1263,9 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 if (!sf.settingExists("Screen_" + index + "_vol")) sf.setSetting("Screen_" + index + "_vol", "", null);
                 b.urls.Text = sf.getStringSetting("Screen_" + index + "_url");
                 b.interval.Text = sf.getStringSetting("Screen_" + index + "_interval");
-                b.vol.Text = sf.getStringSetting("Screen_" + index + "_vol");
+                if(sf.settingExists("Screen_" + index + "_vol")) b.volume.Value = sf.getDoubleSetting("Screen_" + index + "_vol");
                 b.opt_interval.Visibility = File.Exists(b.urls.Text) || b.urls.Text == "" ? Visibility.Collapsed : Visibility.Visible;
-                if (sf.settingExists("Edge_Engine") && sf.getIntSetting("Edge_Engine") <= 3)
+                if (sf.settingExists("Edge_Engine") && (sf.getIntSetting("Edge_Engine") <= 3 || sf.getIntSetting("Edge_Engine") == 5))
                 {
                     foreach (Grid g in b.filters.Children)
                     {
@@ -1416,6 +1409,93 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
             {
                 ScreenConfig sc = (ScreenConfig)multiscreen_g.Children[i];
                 sc.opt_interval.Visibility = File.Exists(sc.urls.Text) || sc.urls.Text == null ? Visibility.Collapsed : Visibility.Visible;
+            }
+        }
+
+        private void github_Click(object sender, RoutedEventArgs e)
+        {
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "https://github.com/Shiyukine/Wallpapeuhrs",
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+        }
+
+        private void volume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (settingsLoaded)
+            {
+                changeVolumeValue(sender, "-");
+            }
+        }
+
+        public static void changeVolumeValue(object sender, string moni)
+        {
+            try
+            {
+                var slider = sender as Slider;
+                if (loaded)
+                {
+                    if (moni == "-")
+                    {
+                        foreach (string monii in processes.Keys)
+                        {
+                            if (!sf.settingExists("Screen_" + moni + "_vol"))
+                                sendData(processes[monii], "Volume=" + slider.Value, monii);
+                        }
+                        sf.setSetting("Vol", slider.Value, null);
+                    }
+                    else
+                    {
+                        if (sf.settingExists("Screen_" + moni + "_vol"))
+                            sendData(processes[moni], "Volume=" + slider.Value, moni);
+                        else
+                        {
+                            if (sf.settingExists("Vol"))
+                                sendData(processes[moni], "Volume=" + sf.getDoubleSetting("Vol"), moni);
+                            else
+                                sendData(processes[moni], "Volume=" + slider.Value, moni);
+                        }
+                        sf.setSetting("Screen_" + moni + "_vol", slider.Value, null);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        private void vol_Reset(object sender, RoutedEventArgs e)
+        {
+            resetVolumeValue(sender, null);
+        }
+
+        public static void resetVolumeValue(object sender, string moni)
+        {
+            var btn = sender as NewButtons;
+            var slider = (btn.Parent as Grid).Children[1] as Slider;
+            slider.Value = 0;
+            if (loaded)
+            {
+                if (moni == null)
+                {
+                    foreach (string monii in processes.Keys)
+                    {
+                        if (!sf.settingExists("Screen_" + monii + "_vol"))
+                            sendData(processes[monii], "Volume=" + 0, monii);
+                    }
+                    sf.setSetting("Vol", 0, null);
+                }
+                else
+                {
+                    if (!sf.settingExists("Vol"))
+                        sendData(processes[moni], "Volume=" + 0, moni);
+                    else
+                        sendData(processes[moni], "Volume=" + sf.getDoubleSetting("Vol"), moni);
+                    sf.removeSetting("Screen_" + moni + "_vol");
+                }
             }
         }
 

@@ -37,10 +37,9 @@
                                     </Border>
                                 </Grid>
                                 <Grid Margin="15,5">
-                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Volume (between 0 and 100)"/></TextBlock>
-                                    <Border Margin="229,0,0,0" VerticalAlignment="Center" Width="64" HorizontalAlignment="Left" Background="#FF474747" BorderThickness="0" CornerRadius="12">
-                                        <TextBox x:Name="vol" Background="{x:Null}" BorderBrush="#FFD4D4D4" Foreground="White" CaretBrush="White" BorderThickness="0" HorizontalContentAlignment="Center" Margin="0,2"/>
-                                    </Border>
+                                    <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Volume"/></TextBlock>
+                                    <Slider x:Name="volume" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="89,0,0,0" Foreground="White" Width="165" Maximum="100" Value="0" IsMoveToPointEnabled="True" Style="{DynamicResource Horizontal_FocusSlider}" Background="DarkGray" ValueChanged="volume_ValueChanged"/>
+                                    <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="259,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="vol_Reset"/>
                                 </Grid>
                                 <Grid Margin="15,5" x:Name="opt_fullrdm">
                                     <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Randomize slideshow"/></TextBlock>
@@ -179,10 +178,19 @@
                 </Viewbox>
             </Grid>
         </styles:NewButtons>
+        <styles:NewButtons x:Name="github" Margin="98,0,0,13" ToolTip="View the project on GitHub" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF3E3E3E" BorderRadius="21" Width="36" Padding="3,3,3,3" Cursor="Hand" Click="github_Click" BackgroundHover="#FF5B5B5B" Height="36">
+            <Grid>
+                <Viewbox HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Canvas Width="24" Height="24" Background="#00000000">
+                        <Path Fill="White" Data="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" />
+                    </Canvas>
+                </Viewbox>
+            </Grid>
+        </styles:NewButtons>
         <styles:NewButtons x:Name="about_us" Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" ToolTip="By Shiyukine - Aketsuky" Background="#FF3E3E3E" BorderRadius="21" Width="42" Padding="3,3,3,3" Cursor="Hand" Click="about_us_Click" BackgroundHover="#FF5B5B5B" Height="42">
             <Image Source="/Wallpapeuhrs;component/Resources/AyIconv2 round.png" HorizontalAlignment="Center" VerticalAlignment="Center" Height="36"/>
         </styles:NewButtons>
-        <styles:NewButtons x:Name="vname" Margin="98,0,0,16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF202020" BorderRadius="15,15,15,15" Padding="8,5,8,5" Foreground="White" BackgroundHover="#FF5B5B5B" Click="vname_Click" ToolTip="View the project on GitHub">v1.0
+        <styles:NewButtons x:Name="vname" Margin="139,0,0,16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF202020" BorderRadius="15,15,15,15" Padding="8,5,8,5" Foreground="White" BackgroundHover="#FF5B5B5B" Click="vname_Click" ToolTip="Search for updates">v1.0
         </styles:NewButtons>
         <styles:NewButtons x:Name="restart_dwm" Content="Restart DWM" BorderRadius="18,18,18,18" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="36" Width="128" Margin="0,0,150,10" Click="restart_dwm_Click" Background="#FF3E3E3E" Foreground="Red" BorderBrush="{x:Null}" Visibility="Collapsed" BackgroundHover="#FF5B5B5B"/>
         <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="28,14,28,0" Background="#FF353535" CornerRadius="19,19,19,19" Padding="0,3,0,3">

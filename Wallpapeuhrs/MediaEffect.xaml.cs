@@ -108,11 +108,18 @@ namespace Wallpapeuhrs
                     CanvasRenderTarget _currentFrame = null;
                     canvas.CreateResources += async (s, e) =>
                     {
-                        if (canvas == null || canvas.Device == null) return;
-                        canvasDevice = canvas.Device;
-                        double w = main.ActualWidth;
-                        double h = main.ActualHeight;
-                        _currentFrame = new CanvasRenderTarget(canvasDevice, (float)w, (float)h, 96f);
+                        try
+                        {
+                            if (canvas == null || canvas.Device == null) return;
+                            canvasDevice = canvas.Device;
+                            double w = main.ActualWidth;
+                            double h = main.ActualHeight;
+                            _currentFrame = new CanvasRenderTarget(canvasDevice, (float)w, (float)h, 96f);
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Windows.MessageBox.Show("Canvas create resources error:\n" + ex.ToString());
+                        }
                     };
                     bool rendering = false;
                     canvas.Draw += async (sender, args) =>
@@ -189,10 +196,11 @@ namespace Wallpapeuhrs
                         img.ImageLoadCompleted += () =>
                         {
                             remove(img);
-                            DispatcherQueue.TryEnqueue(() =>
+                            /* necessary?
+                            *DispatcherQueue.TryEnqueue(() =>
                             {
                                 parent.changeNativeWallpaper(null);
-                            });
+                            });*/
                         };
                         img.ImageLoadFailed += (e) =>
                         {
@@ -531,6 +539,20 @@ namespace Wallpapeuhrs
                     parent.changeNativeWallpaper(null);
                 });
             });
+        }
+
+        public void changeVolume(double value)
+        {
+            volume = value;
+            if (_value == null) return;
+            if (_value.GetType() == typeof(Microsoft.UI.Xaml.Controls.MediaPlayerElement))
+            {
+                MediaPlayerElement me = (MediaPlayerElement)_value;
+                if (me.MediaPlayer != null)
+                {
+                    me.MediaPlayer.Volume = value / 100;
+                }
+            }
         }
     }
 }

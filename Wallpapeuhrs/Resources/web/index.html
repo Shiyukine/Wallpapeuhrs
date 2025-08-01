@@ -46,6 +46,12 @@
             anTimeout = setTimeout(() => screenshot(), 2000)
         }
 
+        function changeVolume(value) {
+            if (_isVideo && document.body.firstChild) {
+                document.body.firstChild.volume = value / 100
+            }
+        }
+
         function changeUrl(newUrl, isVideo, volume, mainScreen) {
             controllerSignal = new AbortController();
             isMainScreen = mainScreen;

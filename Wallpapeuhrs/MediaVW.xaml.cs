@@ -1,3 +1,5 @@
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
 using System;
 using System.IO;
@@ -6,11 +8,10 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Wallpapeuhrs.Utils;
 using System.Web;
-using Microsoft.UI.Xaml.Controls;
 using System.Windows.Interop;
-using Microsoft.UI.Xaml;
+using Wallpapeuhrs.Utils;
+using static System.Net.WebRequestMethods;
 
 namespace Wallpapeuhrs
 {
@@ -205,6 +206,12 @@ namespace Wallpapeuhrs
         public async void changeFilter(string filter, double value)
         {
             if(coreinit) await webview.ExecuteScriptAsync(@"changeFilter('" + filter + "', " + value + ")");
+        }
+
+        public async void changeVolume(double value)
+        {
+            volume = value;
+            if (coreinit) await webview.ExecuteScriptAsync(@"changeVolume(" + value + ")");
         }
     }
 }
