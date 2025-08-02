@@ -131,6 +131,9 @@
     <AppxManifest Remove="Package.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="Resources\AyIconv2 round.png" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Resources\IconWPBG.ico" />
     <EmbeddedResource Include="Resources\web\index.html" />
   </ItemGroup>
