@@ -516,7 +516,7 @@ namespace Wallpapeuhrs
                 System.Windows.MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                 Close();
             }
-            if(isEdgeEngine && System.Windows.Forms.Screen.PrimaryScreen.DeviceName == moni)
+            if(isEdgeEngine)
             {
                 await fixWebview();
             }

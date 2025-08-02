@@ -38,8 +38,8 @@
                                 </Grid>
                                 <Grid Margin="15,5">
                                     <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Volume"/></TextBlock>
-                                    <Slider x:Name="volume" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="89,0,0,0" Foreground="White" Width="165" Maximum="100" Value="0" IsMoveToPointEnabled="True" Style="{DynamicResource Horizontal_FocusSlider}" Background="DarkGray" ValueChanged="volume_ValueChanged"/>
-                                    <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="259,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="vol_Reset"/>
+                                    <Slider x:Name="volume" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="66,0,0,0" Foreground="White" Width="165" Maximum="100" Value="0" IsMoveToPointEnabled="True" Style="{DynamicResource Horizontal_FocusSlider}" Background="DarkGray" ValueChanged="volume_ValueChanged"/>
+                                    <styles:NewButtons Background="#FF4C4C4C" BackgroundHover="#FF5B5B5B" Foreground="White" HorizontalAlignment="Left" Content="Reset" Margin="236,0,0,0" BorderRadius="10,10,10,10" FontSize="14" Padding="10,0,10,0" Click="vol_Reset"/>
                                 </Grid>
                                 <Grid Margin="15,5" x:Name="opt_fullrdm">
                                     <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"><Run Text="Randomize slideshow"/></TextBlock>
@@ -125,7 +125,7 @@
                                                     <ComboBoxItem Content="WebView2 - DirectX 11"/>
                                                     <ComboBoxItem Content="WebView2 - DirectX 11 on 12"/>
                                                     <ComboBoxItem Content="WinUI3"/>
-                                                    <ComboBoxItem Content="WinUI3 with effects (experiment)"/>
+                                                    <ComboBoxItem Content="WinUI3 with effects (beta)"/>
                                                     <ComboBox.Resources>
                                                         <ResourceDictionary>
                                                             <utils:MathConverter x:Key="MathConverter" />
