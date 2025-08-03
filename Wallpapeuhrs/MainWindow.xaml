@@ -120,12 +120,12 @@
                                             <Grid Margin="0,0,0,5">
                                                 <TextBlock Foreground="#FFC5C5C5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center"><Run Text="Render engine"/></TextBlock>
                                                 <ComboBox x:Name="engine" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="119,0,0,0" Foreground="White" Background="#FF4C4C4C" Style="{DynamicResource ComboBoxFlatStyle}" Width="275" SelectedIndex="1" Cursor="Hand" SelectionChanged="engine_SelectionChanged">
-                                                    <ComboBoxItem Content="WebView2 - Auto"/>
+                                                    <ComboBoxItem Content="WebView2"/>
                                                     <ComboBoxItem Content="WebView2 - OpenGL (deprecated)"/>
                                                     <ComboBoxItem Content="WebView2 - DirectX 11"/>
                                                     <ComboBoxItem Content="WebView2 - DirectX 11 on 12"/>
                                                     <ComboBoxItem Content="WinUI3"/>
-                                                    <ComboBoxItem Content="WinUI3 with effects (beta)"/>
+                                                    <ComboBoxItem Content="WinUI3 - Effects (beta)"/>
                                                     <ComboBox.Resources>
                                                         <ResourceDictionary>
                                                             <utils:MathConverter x:Key="MathConverter" />

@@ -50,6 +50,20 @@ namespace Wallpapeuhrs
                             //SystemMediaTransportControls.GetForCurrentView().IsEnabled = false;
                             //setDWM(new WindowInteropHelper(parent).Handle);
                         };
+                        var boundObject = new ChromeBoundObject(parent);
+                        webview.CoreWebView2.WebMessageReceived += (s, e) =>
+                        {
+                            var method = e.WebMessageAsJson;
+                            parent.log("message: " + method);
+                            if (method == "{\"method\":\"videoLoaded\"}")
+                            {
+                                boundObject.videoLoaded();
+                            }
+                            else if (method == "{\"method\":\"screenshoted\"}")
+                            {
+                                boundObject.screenshoted();
+                            }
+                        };
                         webview.Source = new Uri("file:///C:/");
                     }
                 }
@@ -96,30 +110,6 @@ namespace Wallpapeuhrs
                     try
                     {
                         if(!coreinit) await webview.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateWithOptionsAsync(null, options: opt, userDataFolder: data));
-                        try
-                        {
-                            var dispatchAdapter = new WinRTAdapter.DispatchAdapter();
-                            var bridge = new Wallpapeuhrs.Bridge.BoundObject();
-                            var boundObject = new ChromeBoundObject(parent);
-                            bridge.called += (s, method) =>
-                            {
-                                if (method == "videoLoaded")
-                                {
-                                    parent.log("videoLoaded");
-                                    boundObject.videoLoaded();
-                                }
-                                else if (method == "screenshoted")
-                                {
-                                    parent.log("screenshoted");
-                                    boundObject.screenshoted();
-                                }
-                            };
-                            webview.CoreWebView2.AddHostObjectToScript("boundobject", dispatchAdapter.WrapObject(bridge, dispatchAdapter));
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Windows.MessageBox.Show("boundobject\n" + ex);
-                        }
                     }
                     catch (Exception ex)
                     {

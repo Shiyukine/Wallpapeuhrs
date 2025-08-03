@@ -8,7 +8,6 @@
     <title>Wallpapeuhrs</title>
     <script>
         var _isVideo = false;
-        const bo = chrome.webview.hostObjects.boundobject;
         const initialFilters = {
             brightness: 100,
             saturate: 100,
@@ -74,7 +73,7 @@
                 //loadeddata canplaythrough
                 video.addEventListener("loadeddata", async function () {
                     remove()
-                    await bo.videoLoaded()
+                    chrome.webview.postMessage({ method: "videoLoaded" })
                 }, false);
                 let doSS = true;
                 video.addEventListener("timeupdate", () => {
@@ -99,7 +98,7 @@
                 let cnv = document.createElement("canvas")
                 img.addEventListener("load", function () {
                     remove()
-                    bo.videoLoaded()
+                    chrome.webview.postMessage({method: "videoLoaded"})
                     anTimeout2 = setTimeout(() => screenshot(), 1000)
                 }, false);
                 img.crossOrigin = "anonymous"
@@ -205,7 +204,7 @@
                         for (let b of buf) {
                             screenshotData += b.toString() + " "
                         }
-                        await bo.screenshoted()
+                        chrome.webview.postMessage({ method: "screenshoted" })
                         buf = undefined;
                     })
                 })
