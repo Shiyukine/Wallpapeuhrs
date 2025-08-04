@@ -112,9 +112,6 @@ namespace Wallpapeuhrs
                         {
                             if (canvas == null || canvas.Device == null) return;
                             canvasDevice = canvas.Device;
-                            double w = main.ActualWidth;
-                            double h = main.ActualHeight;
-                            _currentFrame = new CanvasRenderTarget(canvasDevice, (float)w, (float)h, 96f);
                         }
                         catch (Exception ex)
                         {
@@ -150,10 +147,6 @@ namespace Wallpapeuhrs
                         mediaPlayer.MediaOpened += async (sender, eee) =>
                         {
                             remove(me);
-                            DispatcherQueue.TryEnqueue(() =>
-                            {
-                                parent.changeNativeWallpaper(null);
-                            });
                         };
                         mediaPlayer.MediaFailed += async (sender, e) =>
                         {
@@ -173,11 +166,68 @@ namespace Wallpapeuhrs
                         me.AutoPlay = true;
                         mediaPlayer.IsLoopingEnabled = true;
                         mediaPlayer.Volume = v / 100;
+                        double w = main.ActualWidth;
+                        double h = main.ActualHeight;
+                        var scale = main.XamlRoot.RasterizationScale;
                         mediaPlayer.VideoFrameAvailable += (s, e) =>
                         {
                             try
                             {
-                                if(_currentFrame == null || canvasDevice == null || rendering) return;
+                                if(_currentFrame == null && canvasDevice != null)
+                                {
+                                    DispatcherQueue.TryEnqueue(() =>
+                                    {
+                                        try
+                                        {
+                                            // Get video dimensions
+                                            var vidWidth = mediaPlayer.PlaybackSession.NaturalVideoWidth;
+                                            var vidHeight = mediaPlayer.PlaybackSession.NaturalVideoHeight;
+                                            parent.log("Video dimensions: " + vidWidth + "x" + vidHeight);
+
+                                            // Define your target canvas size (1920x1080)
+                                            double canvasWidth = w * scale;
+                                            double canvasHeight = h * scale;
+
+                                            // Calculate aspect ratios
+                                            double videoAspect = (double)vidWidth / vidHeight;
+                                            double canvasAspect = canvasWidth / canvasHeight;
+
+                                            double sourceX, sourceY, sourceWidth, sourceHeight;
+
+                                            if (videoAspect > canvasAspect)
+                                            {
+                                                // Video is wider than canvas - crop left and right sides
+                                                sourceHeight = vidHeight;
+                                                sourceWidth = vidHeight * canvasAspect;
+                                                sourceX = (vidWidth - sourceWidth) / 2.0;
+                                                sourceY = 0;
+                                            }
+                                            else
+                                            {
+                                                // Video is taller than canvas - crop top and bottom
+                                                sourceWidth = vidWidth;
+                                                sourceHeight = vidWidth / canvasAspect;
+                                                sourceX = 0;
+                                                sourceY = (vidHeight - sourceHeight) / 2.0;
+                                            }
+                                            parent.log("source: " + (canvasWidth - sourceWidth) / 2 + "x" + (canvasHeight - sourceHeight) / 2);
+                                            parent.log("source position: " + sourceX + ", " + sourceY);
+                                            _currentFrame = new CanvasRenderTarget(canvasDevice, (int)sourceWidth, (int)sourceHeight, 96f);
+                                            canvas.Width = (float)sourceWidth;
+                                            canvas.Height = (float)sourceHeight;
+                                            canvas.Margin = new Microsoft.UI.Xaml.Thickness(
+                                                (float)(canvasWidth - sourceWidth) / 2,
+                                                (float)(canvasHeight - sourceHeight) / 2,
+                                                (float)(canvasWidth - sourceWidth) / 2,
+                                                (float)(canvasHeight - sourceHeight) / 2);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            System.Windows.MessageBox.Show("MediaPlayerElement MediaOpened error:\n" + ex.ToString());
+                                        }
+                                    });
+                                }
+                                if (_currentFrame == null || canvasDevice == null || rendering) return;
                                 rendering = true;
                                 mediaPlayer.CopyFrameToVideoSurface(_currentFrame);
                                 canvas.Invalidate();
@@ -211,8 +261,14 @@ namespace Wallpapeuhrs
                                 System.Windows.MessageBox.Show("Unable to launch or read the image. Please verify the image's path and verify if it's an image.\nFile : " + file + "\n\nIntern error :\n" + e.Message + "\n" + e.ToString(), "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                             });
                         };
+                        double w = main.ActualWidth;
+                        double h = main.ActualHeight;
                         async void updateImage(MemoryStream ms)
                         {
+                            if(_currentFrame == null && canvasDevice != null)
+                            {
+                                _currentFrame = new CanvasRenderTarget(canvasDevice, (float)w, (float)h, 96f);
+                            }
                             if (_currentFrame == null || canvasDevice == null || rendering) return;
                             rendering = true;
                             var r2 = await CanvasBitmap.LoadAsync(canvasDevice, ms.AsRandomAccessStream());
@@ -287,18 +343,32 @@ namespace Wallpapeuhrs
 
         public void changePlayerState(bool play)
         {
-            if(_value == null) return;
-            if (_value is MediaPlayerElement)
+            DispatcherQueue.TryEnqueue(() =>
             {
-                if (play) (_value as MediaPlayerElement).MediaPlayer.Play();
-                else (_value as MediaPlayerElement).MediaPlayer.Pause();
-            }
-            else if (_value is ImageToMemoryStream)
-            {
-                ImageToMemoryStream med = (ImageToMemoryStream)_value;
-                if (play) med.ResumeAnimation();
-                else med.PauseAnimation();
-            }
+                try
+                {
+                    if (_value == null) return;
+                    if (_value is Microsoft.UI.Xaml.Controls.MediaPlayerElement)
+                    {
+                        MediaPlayerElement me = (MediaPlayerElement)_value;
+                        if (me.MediaPlayer != null)
+                        {
+                            if (play) me.MediaPlayer.Play();
+                            else me.MediaPlayer.Pause();
+                        }
+                    }
+                    else if (_value is ImageToMemoryStream)
+                    {
+                        ImageToMemoryStream med = (ImageToMemoryStream)_value;
+                        if (play) med.ResumeAnimation();
+                        else med.PauseAnimation();
+                    }
+                }
+                catch (Exception e)
+                {
+                    System.Windows.MessageBox.Show("changePlayerState:\n" + e.ToString());
+                }
+            });
         }
 
         object _value = null;
@@ -395,27 +465,68 @@ namespace Wallpapeuhrs
             canScreenshot = false;
             await Task.Delay(1000);
             parent.log("screenshot");
-            Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap renderTargetBitmap =
-                new Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap();
-            await renderTargetBitmap.RenderAsync(main);
-            IBuffer buf = await renderTargetBitmap.GetPixelsAsync();
-            var encoded = new InMemoryRandomAccessStream();
-            var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(Windows.Graphics.Imaging.BitmapEncoder.PngEncoderId, encoded);
-            byte[] bytes = buf.ToArray();
-            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore,
-                (uint)renderTargetBitmap.PixelWidth, (uint)renderTargetBitmap.PixelHeight, 96, 96, bytes);
-            await encoder.FlushAsync();
-            encoded.Seek(0);
-            var by = new byte[encoded.Size];
-            await encoded.AsStream().ReadAsync(by, 0, by.Length);
-            encoded.Dispose();
-            encoded = null;
-            renderTargetBitmap = null;
-            buf = null;
-            bytes = null;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            return new MemoryStream(by);
+            if (_value is ImageToMemoryStream)
+            {
+                Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap renderTargetBitmap =
+                    new Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap();
+                await renderTargetBitmap.RenderAsync(main);
+                IBuffer buf = await renderTargetBitmap.GetPixelsAsync();
+                var encoded = new InMemoryRandomAccessStream();
+                var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(Windows.Graphics.Imaging.BitmapEncoder.PngEncoderId, encoded);
+                byte[] bytes = buf.ToArray();
+                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore,
+                    (uint)renderTargetBitmap.PixelWidth, (uint)renderTargetBitmap.PixelHeight, 96, 96, bytes);
+                await encoder.FlushAsync();
+                encoded.Seek(0);
+                var by = new byte[encoded.Size];
+                await encoded.AsStream().ReadAsync(by, 0, by.Length);
+                encoded.Dispose();
+                encoded = null;
+                renderTargetBitmap = null;
+                buf = null;
+                bytes = null;
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                return new MemoryStream(by);
+            }
+            if (_value is Microsoft.UI.Xaml.Controls.MediaPlayerElement && main.Children.Count > 0 && main.Children[0] is CanvasControl)
+            {
+                var canvas = main.Children[0] as CanvasControl;
+                SoftwareBitmap softwareBitmap;
+                var frame = new SoftwareBitmap(BitmapPixelFormat.Rgba8,
+                (int)(_value as Microsoft.UI.Xaml.Controls.MediaPlayerElement).MediaPlayer.PlaybackSession.NaturalVideoWidth, (int)(_value as Microsoft.UI.Xaml.Controls.MediaPlayerElement).MediaPlayer.PlaybackSession.NaturalVideoHeight, BitmapAlphaMode.Ignore);
+                var canvasDevice = CanvasDevice.GetSharedDevice();
+                using (var inputBitmap = CanvasBitmap.CreateFromSoftwareBitmap(canvasDevice, frame))
+                {
+                    (_value as Microsoft.UI.Xaml.Controls.MediaPlayerElement).MediaPlayer.CopyFrameToVideoSurface(inputBitmap);
+
+                    using (var stream = new Windows.Storage.Streams.InMemoryRandomAccessStream())
+                    {
+                        await inputBitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
+                        var decoder = await Windows.Graphics.Imaging.BitmapDecoder.CreateAsync(stream);
+                        softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+                    }
+                }
+                IBuffer buf = new Windows.Storage.Streams.Buffer((uint)(softwareBitmap.PixelWidth * softwareBitmap.PixelHeight * 4));
+                softwareBitmap.CopyToBuffer(buf);
+                var encoded = new InMemoryRandomAccessStream();
+                var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(Windows.Graphics.Imaging.BitmapEncoder.PngEncoderId, encoded);
+                byte[] bytes = buf.ToArray();
+                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore,
+                    (uint)softwareBitmap.PixelWidth, (uint)softwareBitmap.PixelHeight, 96, 96, bytes);
+                await encoder.FlushAsync();
+                encoded.Seek(0);
+                var by = new byte[encoded.Size];
+                await encoded.AsStream().ReadAsync(by, 0, by.Length);
+                encoded.Dispose();
+                encoded = null;
+                buf = null;
+                bytes = null;
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                return new MemoryStream(by);
+            }
+            return null;
         }
 
         public static Microsoft.Graphics.Canvas.Effects.ColorMatrixEffect CreateImageAdjustmentEffect(

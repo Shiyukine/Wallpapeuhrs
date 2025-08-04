@@ -366,9 +366,6 @@ namespace Wallpapeuhrs
                                 softwareBitmap = await decoder.GetSoftwareBitmapAsync();
                             }
                         }
-                        Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap renderTargetBitmap =
-                new Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap();
-                        //await renderTargetBitmap.RenderAsync(main);
                         IBuffer buf = new Windows.Storage.Streams.Buffer((uint)(softwareBitmap.PixelWidth * softwareBitmap.PixelHeight * 4));
                         softwareBitmap.CopyToBuffer(buf);
                         var encoded = new InMemoryRandomAccessStream();
@@ -382,7 +379,6 @@ namespace Wallpapeuhrs
                         await encoded.AsStream().ReadAsync(by, 0, by.Length);
                         encoded.Dispose();
                         encoded = null;
-                        renderTargetBitmap = null;
                         buf = null;
                         bytes = null;
                         GC.Collect();

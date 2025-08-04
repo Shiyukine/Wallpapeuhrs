@@ -77,6 +77,8 @@ namespace Wallpapeuhrs.Utils
                 {
                     _uriSource = value;
                     if(_isAnimating) StopAnimation();
+                    _imageSource?.Dispose();
+                    IsAnimated = false;
                     try
                     {
                         if (value == null) return;
@@ -87,6 +89,21 @@ namespace Wallpapeuhrs.Utils
                         }
                         _imageSource = System.Drawing.Image.FromFile(UriSource.LocalPath);
                         ImageLoadCompleted?.Invoke();
+                        if (!_imageSource.RawFormat.Equals(ImageFormat.Gif))
+                        {
+                            IsAnimated = false;
+                        }
+                        else
+                        {
+                            var frameDimensionsList = _imageSource.FrameDimensionsList;
+                            foreach (var guid in frameDimensionsList)
+                            {
+                                if (guid.Equals(FrameDimension.Time.Guid))
+                                {
+                                    IsAnimated = _imageSource.GetFrameCount(FrameDimension.Time) > 1;
+                                }
+                            }
+                        }
                         if (!IsAnimated)
                         {
                             var ms = new MemoryStream();
@@ -95,18 +112,7 @@ namespace Wallpapeuhrs.Utils
                         }
                         else
                         {
-                            var frameCount = _imageSource.GetFrameCount(FrameDimension.Time);
-                            if (frameCount > 1)
-                            {
-                                UpdateImage(_imageSource);
-                            }
-                            else
-                            {
-                                // If it's a single frame, just send it once
-                                var ms = new MemoryStream();
-                                _imageSource.Save(ms, ImageFormat.Png);
-                                ImageUpdated?.Invoke(ms);
-                            }
+                            UpdateImage(_imageSource);
                         }
                     }
                     catch (Exception ex)
@@ -117,26 +123,7 @@ namespace Wallpapeuhrs.Utils
             }
         }
 
-        public bool IsAnimated
-        {
-            get
-            {
-                if (_imageSource == null)
-                    return false;
-                if (!_imageSource.RawFormat.Equals(ImageFormat.Gif))
-                    return false;
-
-                var frameDimensionsList = _imageSource.FrameDimensionsList;
-                foreach (var guid in frameDimensionsList)
-                {
-                    if (guid.Equals(FrameDimension.Time.Guid))
-                    {
-                        return _imageSource.GetFrameCount(FrameDimension.Time) > 1;
-                    }
-                }
-                return false;
-            }
-        }
+        public bool IsAnimated { get; private set; }
 
         public ImageToMemoryStream()
         {
