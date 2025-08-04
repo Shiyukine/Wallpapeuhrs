@@ -12,8 +12,8 @@ namespace Wallpapeuhrs
 {
     public static class Update
     {
-        static string versionName = "v1.2.18";
-        static int versionNumber = 71;
+        static string versionName = "v1.2.19";
+        static int versionNumber = 72;
 
         static Dictionary<string, string> pageCache = new Dictionary<string, string>();
         static HttpClient httpClient = new HttpClient();
