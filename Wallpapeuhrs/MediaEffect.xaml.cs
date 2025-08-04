@@ -184,7 +184,7 @@ namespace Wallpapeuhrs
                                             var vidHeight = mediaPlayer.PlaybackSession.NaturalVideoHeight;
                                             parent.log("Video dimensions: " + vidWidth + "x" + vidHeight);
 
-                                            // Define your target canvas size (1920x1080)
+                                            // Define your target canvas size
                                             double canvasWidth = w * scale;
                                             double canvasHeight = h * scale;
 
@@ -192,34 +192,51 @@ namespace Wallpapeuhrs
                                             double videoAspect = (double)vidWidth / vidHeight;
                                             double canvasAspect = canvasWidth / canvasHeight;
 
-                                            double sourceX, sourceY, sourceWidth, sourceHeight;
+                                            double renderWidth, renderHeight;
+                                            double marginLeft = 0, marginTop = 0;
 
-                                            if (videoAspect > canvasAspect)
+                                            if (videoAspect < canvasAspect)
                                             {
-                                                // Video is wider than canvas - crop left and right sides
-                                                sourceHeight = vidHeight;
-                                                sourceWidth = vidHeight * canvasAspect;
-                                                sourceX = (vidWidth - sourceWidth) / 2.0;
-                                                sourceY = 0;
+                                                // Portrait video (or video taller than canvas aspect)
+                                                // Use ALL the canvas WIDTH, scale height proportionally
+                                                renderWidth = canvasWidth;
+                                                renderHeight = canvasWidth / videoAspect;
+
+                                                // Center vertically with margins
+                                                marginTop = (canvasHeight - renderHeight) / 2;
+                                                marginLeft = 0;
                                             }
                                             else
                                             {
-                                                // Video is taller than canvas - crop top and bottom
-                                                sourceWidth = vidWidth;
-                                                sourceHeight = vidWidth / canvasAspect;
-                                                sourceX = 0;
-                                                sourceY = (vidHeight - sourceHeight) / 2.0;
+                                                // Landscape video (or video wider than canvas aspect)  
+                                                // Use ALL the canvas HEIGHT, scale width proportionally
+                                                renderHeight = canvasHeight;
+                                                renderWidth = canvasHeight * videoAspect;
+
+                                                // Center horizontally with margins
+                                                marginLeft = (canvasWidth - renderWidth) / 2;
+                                                marginTop = 0;
                                             }
-                                            parent.log("source: " + (canvasWidth - sourceWidth) / 2 + "x" + (canvasHeight - sourceHeight) / 2);
-                                            parent.log("source position: " + sourceX + ", " + sourceY);
-                                            _currentFrame = new CanvasRenderTarget(canvasDevice, (int)sourceWidth, (int)sourceHeight, 96f);
-                                            canvas.Width = (float)sourceWidth;
-                                            canvas.Height = (float)sourceHeight;
+
+                                            parent.log($"Video aspect: {videoAspect:F2}, Canvas aspect: {canvasAspect:F2}");
+                                            parent.log($"Render size: {renderWidth}x{renderHeight}");
+                                            parent.log($"Margins: left={marginLeft}, top={marginTop}");
+
+                                            // Use the ENTIRE video as source (no cropping)
+                                            double sourceX = 0;
+                                            double sourceY = 0;
+                                            double sourceWidth = vidWidth;
+                                            double sourceHeight = vidHeight;
+
+                                            _currentFrame = new CanvasRenderTarget(canvasDevice, (int)renderWidth, (int)renderHeight, 96f);
+                                            canvas.Width = (float)renderWidth;
+                                            canvas.Height = (float)renderHeight;
                                             canvas.Margin = new Microsoft.UI.Xaml.Thickness(
-                                                (float)(canvasWidth - sourceWidth) / 2,
-                                                (float)(canvasHeight - sourceHeight) / 2,
-                                                (float)(canvasWidth - sourceWidth) / 2,
-                                                (float)(canvasHeight - sourceHeight) / 2);
+                                                (float)marginLeft,
+                                                (float)marginTop,
+                                                (float)marginLeft,
+                                                (float)marginTop
+                                            );
                                         }
                                         catch (Exception ex)
                                         {
