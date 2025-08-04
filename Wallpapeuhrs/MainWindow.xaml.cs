@@ -1007,7 +1007,11 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                 sa.SetBuffer(data2, 0, data2.Length);
                 tcp.Client.SendAsync(sa);
             }
-            catch(Exception e)
+            catch (NullReferenceException e)
+            {
+                tcp.Close();
+            }
+            catch (Exception e)
             {
                 MessageBox.Show(e.ToString());
             }
