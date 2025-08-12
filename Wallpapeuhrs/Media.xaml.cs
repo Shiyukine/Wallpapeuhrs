@@ -349,7 +349,7 @@ namespace Wallpapeuhrs
             {
                 if (App.types[ext].Contains(System.IO.Path.GetExtension(curUrl)))
                 {
-                    if (ext == "Video files")
+                    if (ext == "Video files" && curMedia != null)
                     {
                         SoftwareBitmap softwareBitmap;
                         var frame = new SoftwareBitmap(BitmapPixelFormat.Rgba8,

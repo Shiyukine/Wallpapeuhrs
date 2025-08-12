@@ -482,68 +482,80 @@ namespace Wallpapeuhrs
             canScreenshot = false;
             await Task.Delay(1000);
             parent.log("screenshot");
-            if (_value is ImageToMemoryStream)
-            {
-                Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap renderTargetBitmap =
+            Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap renderTargetBitmap =
                     new Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap();
-                await renderTargetBitmap.RenderAsync(main);
-                IBuffer buf = await renderTargetBitmap.GetPixelsAsync();
-                var encoded = new InMemoryRandomAccessStream();
-                var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(Windows.Graphics.Imaging.BitmapEncoder.PngEncoderId, encoded);
-                byte[] bytes = buf.ToArray();
-                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore,
-                    (uint)renderTargetBitmap.PixelWidth, (uint)renderTargetBitmap.PixelHeight, 96, 96, bytes);
-                await encoder.FlushAsync();
-                encoded.Seek(0);
-                var by = new byte[encoded.Size];
-                await encoded.AsStream().ReadAsync(by, 0, by.Length);
-                encoded.Dispose();
-                encoded = null;
-                renderTargetBitmap = null;
-                buf = null;
-                bytes = null;
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                return new MemoryStream(by);
-            }
-            if (_value is Microsoft.UI.Xaml.Controls.MediaPlayerElement && main.Children.Count > 0 && main.Children[0] is CanvasControl)
-            {
-                var canvas = main.Children[0] as CanvasControl;
-                SoftwareBitmap softwareBitmap;
-                var frame = new SoftwareBitmap(BitmapPixelFormat.Rgba8,
-                (int)(_value as Microsoft.UI.Xaml.Controls.MediaPlayerElement).MediaPlayer.PlaybackSession.NaturalVideoWidth, (int)(_value as Microsoft.UI.Xaml.Controls.MediaPlayerElement).MediaPlayer.PlaybackSession.NaturalVideoHeight, BitmapAlphaMode.Ignore);
-                var canvasDevice = CanvasDevice.GetSharedDevice();
-                using (var inputBitmap = CanvasBitmap.CreateFromSoftwareBitmap(canvasDevice, frame))
-                {
-                    (_value as Microsoft.UI.Xaml.Controls.MediaPlayerElement).MediaPlayer.CopyFrameToVideoSurface(inputBitmap);
+            await renderTargetBitmap.RenderAsync(main);
+            IBuffer buf = await renderTargetBitmap.GetPixelsAsync();
+            var encoded = new InMemoryRandomAccessStream();
+            var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(Windows.Graphics.Imaging.BitmapEncoder.PngEncoderId, encoded);
+            byte[] bytes = buf.ToArray();
+            var cropRect = CalculateCenterCropRect(renderTargetBitmap.PixelWidth, renderTargetBitmap.PixelHeight, (int)main.ActualWidth, (int)main.ActualHeight);
+            int cropX = cropRect.X;
+            int cropY = cropRect.Y;
+            int cropWidth = cropRect.Width;
+            int cropHeight = cropRect.Height;
+            // Create cropped pixel array
+            var croppedPixels = new byte[cropWidth * cropHeight * 4]; // 4 bytes per pixel (BGRA)
 
-                    using (var stream = new Windows.Storage.Streams.InMemoryRandomAccessStream())
-                    {
-                        await inputBitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
-                        var decoder = await Windows.Graphics.Imaging.BitmapDecoder.CreateAsync(stream);
-                        softwareBitmap = await decoder.GetSoftwareBitmapAsync();
-                    }
+            // Copy pixels row by row
+            for (int y = 0; y < cropHeight; y++)
+            {
+                for (int x = 0; x < cropWidth; x++)
+                {
+                    int sourceIndex = ((cropY + y) * renderTargetBitmap.PixelWidth + (cropX + x)) * 4;
+                    int destIndex = (y * cropWidth + x) * 4;
+
+                    // Copy BGRA values
+                    croppedPixels[destIndex] = bytes[sourceIndex];         // B
+                    croppedPixels[destIndex + 1] = bytes[sourceIndex + 1]; // G
+                    croppedPixels[destIndex + 2] = bytes[sourceIndex + 2]; // R
+                    croppedPixels[destIndex + 3] = bytes[sourceIndex + 3]; // A
                 }
-                IBuffer buf = new Windows.Storage.Streams.Buffer((uint)(softwareBitmap.PixelWidth * softwareBitmap.PixelHeight * 4));
-                softwareBitmap.CopyToBuffer(buf);
-                var encoded = new InMemoryRandomAccessStream();
-                var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(Windows.Graphics.Imaging.BitmapEncoder.PngEncoderId, encoded);
-                byte[] bytes = buf.ToArray();
-                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore,
-                    (uint)softwareBitmap.PixelWidth, (uint)softwareBitmap.PixelHeight, 96, 96, bytes);
-                await encoder.FlushAsync();
-                encoded.Seek(0);
-                var by = new byte[encoded.Size];
-                await encoded.AsStream().ReadAsync(by, 0, by.Length);
-                encoded.Dispose();
-                encoded = null;
-                buf = null;
-                bytes = null;
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                return new MemoryStream(by);
             }
-            return null;
+            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore,
+                (uint)cropWidth, (uint)cropHeight, 96, 96, croppedPixels);
+            await encoder.FlushAsync();
+            encoded.Seek(0);
+            var by = new byte[encoded.Size];
+            await encoded.AsStream().ReadAsync(by, 0, by.Length);
+            encoded.Dispose();
+            encoded = null;
+            renderTargetBitmap = null;
+            buf = null;
+            bytes = null;
+            croppedPixels = null;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            return new MemoryStream(by);
+        }
+
+        private static (int X, int Y, int Width, int Height) CalculateCenterCropRect(
+        int sourceWidth, int sourceHeight, int targetWidth, int targetHeight)
+        {
+            // Calculate the aspect ratios
+            double sourceAspect = (double)sourceWidth / sourceHeight;
+            double targetAspect = (double)targetWidth / targetHeight;
+
+            int cropWidth, cropHeight, cropX, cropY;
+
+            if (sourceAspect > targetAspect)
+            {
+                // Source is wider than target - crop width
+                cropHeight = sourceHeight;
+                cropWidth = (int)(sourceHeight * targetAspect);
+                cropX = (sourceWidth - cropWidth) / 2;
+                cropY = 0;
+            }
+            else
+            {
+                // Source is taller than target - crop height  
+                cropWidth = sourceWidth;
+                cropHeight = (int)(sourceWidth / targetAspect);
+                cropX = 0;
+                cropY = (sourceHeight - cropHeight) / 2;
+            }
+
+            return (cropX, cropY, cropWidth, cropHeight);
         }
 
         public static Microsoft.Graphics.Canvas.Effects.ColorMatrixEffect CreateImageAdjustmentEffect(
