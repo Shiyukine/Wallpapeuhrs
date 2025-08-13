@@ -139,7 +139,14 @@ namespace Wallpapeuhrs
 
         public void changeUrl(string newUrl)
         {
-            webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
+            try
+            {
+                webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
+            }
+            catch (Exception ex)
+            {
+                parent.log("Error setting memory usage target level: " + ex);
+            }
             curUrl = newUrl;
             string isMainScreen = System.Windows.Forms.Screen.PrimaryScreen.DeviceName == parent.moni ? "true" : "false";
             parent.log(newUrl + " " + System.IO.Path.GetExtension(newUrl));
@@ -150,12 +157,26 @@ namespace Wallpapeuhrs
                     if (ext == "Video files")
                     {
                         if (coreinit) evaluateJS(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', true, " + volume + ", " + isMainScreen + ")");
-                        webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Low;
+                        try
+                        {
+                            webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Low;
+                        }
+                        catch (Exception ex)
+                        {
+                            parent.log("Error setting memory usage target level: " + ex);
+                        }
                     }
                     if(ext == "Image files")
                     {
                         if (coreinit) evaluateJS(@"changeUrl('" + newUrl.Replace("\\", "\\\\").Replace("\'", "\\'") + "', false, " + volume + ", " + isMainScreen + ")");
-                        webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Low;
+                        try
+                        {
+                            webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Low;
+                        }
+                        catch (Exception ex)
+                        {
+                            parent.log("Error setting memory usage target level: " + ex);
+                        }
                     }
                     return;
                 }
@@ -174,17 +195,23 @@ namespace Wallpapeuhrs
                 string np = play ? "true" : "false";
                 if (coreinit)
                 {
-                    webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
+                    try
+                    {
+                        webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
+                    }
+                    catch (Exception ex)
+                    {
+                        parent.log("Error setting memory usage target level: " + ex);
+                    }
                     await webview.ExecuteScriptAsync(@"changePlayerState(" + np + ")");
-                    /*if (!play)
+                    try
                     {
                         webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Low;
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
-                    }*/
-                    webview.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Low;
+                        parent.log("Error setting memory usage target level: " + ex);
+                    }
                 }
             }
             catch(Exception e)
