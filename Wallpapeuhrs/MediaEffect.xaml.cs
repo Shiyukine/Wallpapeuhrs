@@ -166,6 +166,8 @@ namespace Wallpapeuhrs
                         me.AutoPlay = true;
                         mediaPlayer.IsLoopingEnabled = true;
                         mediaPlayer.Volume = v / 100;
+                        if(v == 0) mediaPlayer.IsMuted = true;
+                        else mediaPlayer.IsMuted = false;
                         double w = main.ActualWidth;
                         double h = main.ActualHeight;
                         var scale = main.XamlRoot.RasterizationScale;
@@ -691,6 +693,7 @@ namespace Wallpapeuhrs
                 if (me.MediaPlayer != null)
                 {
                     me.MediaPlayer.Volume = value / 100;
+                    me.MediaPlayer.IsMuted = value == 0;
                 }
             }
         }

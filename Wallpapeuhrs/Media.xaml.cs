@@ -63,6 +63,8 @@ namespace Wallpapeuhrs
                     value.AutoPlay = true;
                     value.MediaPlayer.IsLoopingEnabled = true;
                     value.MediaPlayer.Volume = v / 100;
+                    if(v == 0) value.MediaPlayer.IsMuted = true;
+                    else value.MediaPlayer.IsMuted = false;
                     main.Children.Insert(0, value);
                     value.Stretch = Microsoft.UI.Xaml.Media.Stretch.UniformToFill;
                     value.VerticalAlignment = Microsoft.UI.Xaml.VerticalAlignment.Center;
@@ -423,6 +425,7 @@ namespace Wallpapeuhrs
             if (me.MediaPlayer != null)
             {
                 me.MediaPlayer.Volume = value / 100;
+                me.MediaPlayer.IsMuted = value == 0;
             }
         }
     }

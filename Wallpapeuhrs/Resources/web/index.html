@@ -48,6 +48,7 @@
         function changeVolume(value) {
             if (_isVideo && document.body.firstChild) {
                 document.body.firstChild.volume = value / 100
+                document.body.firstChild.muted = value == 0
             }
         }
 
@@ -87,6 +88,7 @@
                 video.volume = volume / 100
                 video.controls = false
                 video.loop = true
+                video.muted = volume == 0
                 /*video.addEventListener("ended", () => {
                     video.currentTime = 0
                 })*/
