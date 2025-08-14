@@ -351,7 +351,7 @@ namespace Wallpapeuhrs
             {
                 if (App.types[ext].Contains(System.IO.Path.GetExtension(curUrl)))
                 {
-                    if (ext == "Video files" && curMedia != null)
+                    if (ext == "Video files" && curMedia != null && (int)curMedia.ActualWidth != 0 && (int)curMedia.ActualHeight != 0)
                     {
                         SoftwareBitmap softwareBitmap;
                         var frame = new SoftwareBitmap(BitmapPixelFormat.Rgba8,
