@@ -335,7 +335,7 @@ namespace Wallpapeuhrs
             };
             t.Start();
             System.Windows.Forms.Timer t2 = new System.Windows.Forms.Timer();
-            t2.Interval = 2 * 60 * 60 * 1000;
+            t2.Interval = 3 * 60 * 60 * 1000;
             t2.Tick += async (sender, e) =>
             {
                 await Update.searchUpdatesSilent();
@@ -1524,6 +1524,16 @@ Cancel = Close this message", "Wallpapeuhrs - Error", MessageBoxButton.YesNoCanc
                     sf.removeSetting("Screen_" + moni + "_vol");
                 }
             }
+        }
+
+        private void discord_Click(object sender, RoutedEventArgs e)
+        {
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "https://discord.gg/Kv56E7n",
+                UseShellExecute = true
+            };
+            Process.Start(psi);
         }
 
         /* NE PAS TOUCHER
