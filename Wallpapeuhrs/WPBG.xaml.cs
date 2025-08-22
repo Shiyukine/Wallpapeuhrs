@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Hosting;
 using System;
@@ -8,6 +9,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -64,6 +66,8 @@ namespace Wallpapeuhrs
         public Microsoft.UI.Xaml.Controls.UserControl med;
         //public Microsoft.UI.Xaml.Hosting.DesktopWindowXamlSource m_dwxs;
         Icon _icon;
+        AppWindow appWin;
+        IntPtr webviewHandle = IntPtr.Zero;
 
         public WPBG(string moni, int startAfter, int engine)
         {
@@ -85,7 +89,7 @@ namespace Wallpapeuhrs
         {
             Window_Loaded(this, new RoutedEventArgs());
         }));
-
+            appWin = AppWindow;
             if (isEdgeEngine)
             {
                 med = new MediaVW(this, engine);
@@ -138,12 +142,12 @@ namespace Wallpapeuhrs
                     }
                     //
                     W32.SetWindowPos(WinRT.Interop.WindowNative.GetWindowHandle(this), IntPtr.Zero, s.Bounds.X + left, s.Bounds.Y + top, s.Bounds.Width, s.Bounds.Height, W32.SetWindowPosFlags.NoZOrder | W32.SetWindowPosFlags.AsynWindowPos | W32.SetWindowPosFlags.NoRedraw);
-                    //med.Height = s.Bounds.Height;
-                    /*var sb = m_dwxs.SiteBridge;
-                    var csv = sb.SiteView;
-                    var rs = 1;
-                    Windows.Graphics.RectInt32 rect = new Windows.Graphics.RectInt32(0, 0, s.Bounds.Width, s.Bounds.Height);
-                    sb.MoveAndResize(rect);*/
+                    if(webviewHandle != IntPtr.Zero)
+                    {
+                        W32.RECT workerSize = new W32.RECT();
+                        W32.GetWindowRect(Worker.workerw, out workerSize);
+                        W32.SetWindowPos(webviewHandle, IntPtr.Zero, -workerSize.Left + appWin.Position.X, -workerSize.Top + appWin.Position.Y, 0, 0, W32.SetWindowPosFlags.AsynWindowPos | W32.SetWindowPosFlags.NoRedraw | W32.SetWindowPosFlags.NoZOrder | W32.SetWindowPosFlags.NoSize);
+                    }
                     anSize = s.Bounds;
                     return;
                 }
@@ -501,10 +505,15 @@ namespace Wallpapeuhrs
         async Task setWorker()
         {
             Worker.Init();
-            AppWindow.SetPresenter(Microsoft.UI.Windowing.AppWindowPresenterKind.FullScreen);
-            AppWindow.Show();
+            AppWindow.SetPresenter(Microsoft.UI.Windowing.AppWindowPresenterKind.Overlapped);
             _icon = new Icon(typeof(App).Assembly.GetManifestResourceStream("Wallpapeuhrs.Resources.IconWPBG.ico")!);
             AppWindow.SetIcon(Win32Interop.GetIconIdFromIcon(_icon.Handle));
+            var presenter = AppWindow.Presenter as OverlappedPresenter;
+            presenter.IsResizable = false;
+            presenter.SetBorderAndTitleBar(false, false);
+            AppWindow.Show();
+            var styles = W32.GetWindowLongPtr(WinRT.Interop.WindowNative.GetWindowHandle(this), (int)W32.WindowLongFlags.GWL_STYLE);
+            W32.SetWindowLong(WinRT.Interop.WindowNative.GetWindowHandle(this), W32.WindowLongFlags.GWL_STYLE, (int)(styles & ~(nint)W32.WindowStyles.WS_CAPTION));
             IntPtr p = WinRT.Interop.WindowNative.GetWindowHandle(this);
             if (Worker.workerw == IntPtr.Zero)
             {
@@ -524,7 +533,6 @@ namespace Wallpapeuhrs
 
         async Task fixWebview()
         {
-            List<IntPtr> handles = new List<IntPtr>();
             W32.EnumWindows(new W32.EnumWindowsProc((tophandle, topparamhandle) =>
             {
                 // get window title and class name
@@ -533,23 +541,30 @@ namespace Wallpapeuhrs
                 StringBuilder className = new StringBuilder(256);
                 W32.GetClassName(tophandle, className, className.Capacity);
                 // check if the window is a Chrome window
-                if (className.ToString() == "Chrome_WidgetWin_1" && title.ToString() == "Wallpapeuhrs")
+                if (className.ToString() == "Chrome_WidgetWin_1" && title.ToString() == "Wallpapeuhrs-" + moni.Substring(4) && webviewHandle == IntPtr.Zero)
                 {
                     // set the parent of the Chrome window to the WorkerW window
-                    handles.Add(tophandle);
+                    webviewHandle = tophandle;
                 }
 
                 return true;
             }), IntPtr.Zero);
-            if(handles.Count == System.Windows.Forms.Screen.AllScreens.Length)
+            if(webviewHandle != IntPtr.Zero && med is MediaVW)
             {
-                foreach (IntPtr handle in handles)
+                await (med as MediaVW).webview.CoreWebView2.ExecuteScriptAsync("document.title = 'Wallpapeuhrs Background'");
+                if (W32.SetParent(webviewHandle, Worker.workerw) == IntPtr.Zero)
                 {
-                    if (W32.SetParent(handle, Worker.workerw) == IntPtr.Zero)
-                    {
-                        System.Windows.MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-                        Close();
-                    }
+                    System.Windows.MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                    Close();
+                }
+                else
+                {
+                    // If two screen are not along the same line, we need to move the webview to the right position
+                    // WorkerW's position is the difference between two screens X and Y positions
+                    // So we need to move the webview to the negative of that position to get the 0, 0 position
+                    W32.RECT workerSize = new W32.RECT();
+                    W32.GetWindowRect(Worker.workerw, out workerSize);
+                    W32.SetWindowPos(webviewHandle, IntPtr.Zero, -workerSize.Left + appWin.Position.X, -workerSize.Top + appWin.Position.Y, 0, 0, W32.SetWindowPosFlags.AsynWindowPos | W32.SetWindowPosFlags.NoRedraw | W32.SetWindowPosFlags.NoZOrder | W32.SetWindowPosFlags.NoSize);
                 }
             }
             else

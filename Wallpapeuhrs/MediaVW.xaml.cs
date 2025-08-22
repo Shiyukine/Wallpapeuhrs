@@ -42,6 +42,7 @@ namespace Wallpapeuhrs
                     {
                         //if (System.Windows.Forms.Screen.PrimaryScreen.DeviceName == parent.moni) webview.CoreWebView2.OpenDevToolsWindow();
                         string result = reader.ReadToEnd();
+                        result = result.Replace("{{TITLE_ID}}", "Wallpapeuhrs-" + parent.moni.Substring(4));
                         webview.NavigationCompleted += async (s, e) =>
                         {
                             await webview.CoreWebView2.ExecuteScriptAsync("document.write(`" + result + "`)");

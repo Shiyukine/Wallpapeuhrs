@@ -234,7 +234,8 @@ namespace Wallpapeuhrs
                         string aa = sb.ToString();
                         if (list.Contains(s.DeviceName) && 
                         aa != "WPBG" && 
-                        aa != "Wallpapeuhrs" && 
+                        !aa.StartsWith("Wallpapeuhrs-") && 
+                        aa != "Wallpapeuhrs Background" &&
                         aa != "Microsoft Text Input Application" && 
                         aa != "Task Switching" && 
                         aa != "Window" && 
