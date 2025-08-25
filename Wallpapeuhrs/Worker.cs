@@ -37,19 +37,19 @@ namespace Wallpapeuhrs
             // WorkerW behind the desktop icons. If it is already there, nothing
             // happens.
 
-            W32.SendMessageTimeout(progman,
+            /*W32.SendMessageTimeout(progman,
                                    0x052C,
                                    new IntPtr(0x0D),
                                    new IntPtr(0),
                                    W32.SendMessageTimeoutFlags.SMTO_NORMAL,
                                    1000,
-                                   out result);
+                                   out result);*/
 
             W32.SendMessageTimeout(progman,
                                    0x052C,
                                    new IntPtr(0x0D),
                                    new IntPtr(1),
-                                   W32.SendMessageTimeoutFlags.SMTO_NORMAL,
+                                   W32.SendMessageTimeoutFlags.SMTO_BLOCK,
                                    1000,
                                    out result);
 

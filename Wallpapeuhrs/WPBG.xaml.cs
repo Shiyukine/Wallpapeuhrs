@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Hosting;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -502,19 +503,22 @@ namespace Wallpapeuhrs
             }
         }
 
-        async Task setWorker()
+        async Task setWorker(int tries = 0)
         {
-            Worker.Init();
-            AppWindow.SetPresenter(Microsoft.UI.Windowing.AppWindowPresenterKind.Overlapped);
-            _icon = new Icon(typeof(App).Assembly.GetManifestResourceStream("Wallpapeuhrs.Resources.IconWPBG.ico")!);
-            AppWindow.SetIcon(Win32Interop.GetIconIdFromIcon(_icon.Handle));
-            var presenter = AppWindow.Presenter as OverlappedPresenter;
-            presenter.IsResizable = false;
-            presenter.SetBorderAndTitleBar(false, false);
-            AppWindow.Show();
-            var styles = W32.GetWindowLongPtr(WinRT.Interop.WindowNative.GetWindowHandle(this), (int)W32.WindowLongFlags.GWL_STYLE);
-            W32.SetWindowLong(WinRT.Interop.WindowNative.GetWindowHandle(this), W32.WindowLongFlags.GWL_STYLE, (int)(styles & ~(nint)W32.WindowStyles.WS_CAPTION));
             IntPtr p = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            Worker.Init();
+            if (tries == 0)
+            {
+                AppWindow.SetPresenter(Microsoft.UI.Windowing.AppWindowPresenterKind.Overlapped);
+                _icon = new Icon(typeof(App).Assembly.GetManifestResourceStream("Wallpapeuhrs.Resources.IconWPBG.ico")!);
+                AppWindow.SetIcon(Win32Interop.GetIconIdFromIcon(_icon.Handle));
+                var presenter = AppWindow.Presenter as OverlappedPresenter;
+                presenter.IsResizable = false;
+                presenter.SetBorderAndTitleBar(false, false);
+                AppWindow.Show();
+                var styles = W32.GetWindowLongPtr(WinRT.Interop.WindowNative.GetWindowHandle(this), (int)W32.WindowLongFlags.GWL_STYLE);
+                W32.SetWindowLong(WinRT.Interop.WindowNative.GetWindowHandle(this), W32.WindowLongFlags.GWL_STYLE, (int)(styles & ~(nint)W32.WindowStyles.WS_CAPTION));
+            }
             if (Worker.workerw == IntPtr.Zero)
             {
                 System.Windows.MessageBox.Show("Cannot find WorkerW window.\nThe wallpaper application will restart.", "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
@@ -522,7 +526,13 @@ namespace Wallpapeuhrs
             }
             if (W32.SetParent(p, Worker.workerw) == IntPtr.Zero)
             {
-                System.Windows.MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                if(tries < 3)
+                {
+                    await Task.Delay(300);
+                    await setWorker(tries + 1);
+                    return;
+                }
+                System.Windows.MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error() + "\nDebug: " + p.ToString("X") + ", " + Worker.workerw.ToString("X"), "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                 Close();
             }
             if(isEdgeEngine)
@@ -549,22 +559,30 @@ namespace Wallpapeuhrs
 
                 return true;
             }), IntPtr.Zero);
-            if(webviewHandle != IntPtr.Zero && med is MediaVW)
+            if (webviewHandle != IntPtr.Zero && med is MediaVW)
             {
-                await (med as MediaVW).webview.CoreWebView2.ExecuteScriptAsync("document.title = 'Wallpapeuhrs Background'");
-                if (W32.SetParent(webviewHandle, Worker.workerw) == IntPtr.Zero)
+                try
                 {
-                    System.Windows.MessageBox.Show("Cannot change the parent to WorkerW.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-                    Close();
+                    await (med as MediaVW).webview.CoreWebView2.ExecuteScriptAsync("document.title = 'Wallpapeuhrs Background'");
+                    if (W32.SetParent(webviewHandle, Worker.workerw) == IntPtr.Zero)
+                    {
+                        System.Windows.MessageBox.Show("Cannot change the parent to WorkerW for WebView2.\nCode error Win32 " + Marshal.GetLastWin32Error(), "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                        Close();
+                    }
+                    else
+                    {
+                        // If two screen are not along the same line, we need to move the webview to the right position
+                        // WorkerW's position is the difference between two screens X and Y positions
+                        // So we need to move the webview to the negative of that position to get the 0, 0 position
+                        W32.RECT workerSize = new W32.RECT();
+                        W32.GetWindowRect(Worker.workerw, out workerSize);
+                        W32.SetWindowPos(webviewHandle, IntPtr.Zero, -workerSize.Left + appWin.Position.X, -workerSize.Top + appWin.Position.Y, 0, 0, W32.SetWindowPosFlags.AsynWindowPos | W32.SetWindowPosFlags.NoRedraw | W32.SetWindowPosFlags.NoZOrder | W32.SetWindowPosFlags.NoSize);
+                    }
                 }
-                else
+                catch
                 {
-                    // If two screen are not along the same line, we need to move the webview to the right position
-                    // WorkerW's position is the difference between two screens X and Y positions
-                    // So we need to move the webview to the negative of that position to get the 0, 0 position
-                    W32.RECT workerSize = new W32.RECT();
-                    W32.GetWindowRect(Worker.workerw, out workerSize);
-                    W32.SetWindowPos(webviewHandle, IntPtr.Zero, -workerSize.Left + appWin.Position.X, -workerSize.Top + appWin.Position.Y, 0, 0, W32.SetWindowPosFlags.AsynWindowPos | W32.SetWindowPosFlags.NoRedraw | W32.SetWindowPosFlags.NoZOrder | W32.SetWindowPosFlags.NoSize);
+                    System.Windows.MessageBox.Show("Cannot access to WebView2.\nThe wallpaper application will restart.", "Wallpapeuhrs - Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                    Close();
                 }
             }
             else
